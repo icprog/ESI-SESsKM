@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{45b2946b-9f85-4a55-ad87-a3cf071f6cfa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests">
+      <UniqueIdentifier>{23e81816-0525-4a57-87f7-e8f6d7473957}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{8b8c1c3b-a2a1-4aa7-8543-caacce886326}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\model">
+      <UniqueIdentifier>{a4c00f73-286e-4e81-a104-5cf77122dfd6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\controller">
+      <UniqueIdentifier>{d612a734-7ea1-448f-b7f9-06e2ee2fd61b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\structures">
+      <UniqueIdentifier>{3cb48d3c-d5e8-48f4-aca9-191fda1f7cad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\state">
+      <UniqueIdentifier>{0fe34c0c-8748-4d17-9b45-215f49aecb80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\tcp_state">
+      <UniqueIdentifier>{4f16bf2f-526d-40e5-b098-74ab4fef74b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\util">
+      <UniqueIdentifier>{07cc7bbe-0c62-4f20-9895-c4bf2e58903d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RTU.h">
+      <Filter>src\model</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineeringUnit.h">
+      <Filter>src\model</Filter>
+    </ClInclude>
+    <ClInclude Include="DigitalDevice.h">
+      <Filter>src\model</Filter>
+    </ClInclude>
+    <ClInclude Include="AnalogOutput.h">
+      <Filter>src\model</Filter>
+    </ClInclude>
+    <ClInclude Include="AnalogInput.h">
+      <Filter>src\model</Filter>
+    </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>src\model</Filter>
+    </ClInclude>
+    <ClInclude Include="IState.h">
+      <Filter>src\state</Filter>
+    </ClInclude>
+    <ClInclude Include="Context.h">
+      <Filter>src\state</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandState.h">
+      <Filter>src\state</Filter>
+    </ClInclude>
+    <ClInclude Include="TCPConnection.h">
+      <Filter>src\tcp_state</Filter>
+    </ClInclude>
+    <ClInclude Include="TCPState.h">
+      <Filter>src\tcp_state</Filter>
+    </ClInclude>
+    <ClInclude Include="TCPEstablished.h">
+      <Filter>src\tcp_state</Filter>
+    </ClInclude>
+    <ClInclude Include="TCPListen.h">
+      <Filter>src\tcp_state</Filter>
+    </ClInclude>
+    <ClInclude Include="TCPClosed.h">
+      <Filter>src\tcp_state</Filter>
+    </ClInclude>
+    <ClInclude Include="Runnable.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>src\structures</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scada_server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Runnable.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="Thread.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="Buffer.cpp">
+      <Filter>src\structures</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

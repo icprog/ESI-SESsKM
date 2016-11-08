@@ -27,3 +27,14 @@
 *.exe
 *.out
 *.app
+
+#VS Files
+Debug/
+/Debug/
+ipch/
+/ipch/
+scada_server.VC
+/scada_server.VC
+scada_server/Debug/
+/scada_server/Debug/
+
