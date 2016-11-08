@@ -3,7 +3,7 @@
 #include "TCPIdle.h"
 
 TCPConnection::TCPConnection() {
-	_state = TCPIdle::Instance();
+	_state = TCPClose::Instance();
 }
 void TCPConnection::connect() {
 	_state->connect(this);
