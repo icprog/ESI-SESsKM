@@ -8,7 +8,7 @@
 class TCPSend : public TCPState {
 public:
 	static TCPState* Instance();
-	virtual void send(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode);
+	virtual void send(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode, Buffer *b);
 private:
 	int createSocket(SOCKET *, char *, int);
 	int sendMessage(SOCKET * socket, char * data);

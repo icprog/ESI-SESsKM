@@ -6,7 +6,7 @@
 class TCPClose : public TCPState {
 public:
 	static TCPState* Instance();
-	virtual void close(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode);
+	virtual void close(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode, Buffer *b);
 };
 
 #endif

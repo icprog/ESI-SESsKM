@@ -1,6 +1,7 @@
 #include "TCPSend.h"
 
-void TCPSend::send(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode) {
+void TCPSend::send(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode, Buffer *b) {
+	
 	int iResult = -1;
 	iResult = sendMessage(connectSocket, request);
 	if (iResult != 0) {
@@ -9,15 +10,15 @@ void TCPSend::send(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket
 
 	if(closeConnection == true){
 		ChangeState(t, TCPClose::Instance());
-		t->close(connectSocket, nullptr, nullptr, -1, nullptr, nullptr, false, -1);
+		t->close(connectSocket, nullptr, nullptr, -1, nullptr, nullptr, false, -1,b);
 	}
 	if (response != nullptr){
 		ChangeState(t, TCPReceive::Instance());
-		t->receive(connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode);
+		t->receive(connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode,b);
 	}
 	else{
 		ChangeState(t, TCPActive::Instance());
-		t->active(connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode);
+		t->active(connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode,b);
 	}
 
 }

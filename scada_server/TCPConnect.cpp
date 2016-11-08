@@ -1,6 +1,6 @@
 #include "TCPConnect.h"
 
-void TCPConnect::connectt(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode) {
+void TCPConnect::connectt(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode, Buffer *b) {
 	int iResult = -1;
 	iResult = createSocket(t, connectSocket, listenSocket, ipAddress, port, nonBlockingMode);
 	std::cout << "\nLISTEN SOCKET IZ SERVERA: %d\n" << *connectSocket << std::endl;
@@ -13,7 +13,7 @@ void TCPConnect::connectt(TCPConnection *t, SOCKET *connectSocket, SOCKET *liste
 
 }
 
-int TCPConnect::createSocket(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode)
+int TCPConnect::createSocket(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode, Buffer *b)
 {
 	if (listenSocket != nullptr) {
 		char cport[16];
@@ -40,7 +40,7 @@ int TCPConnect::createSocket(TCPConnection *t, SOCKET *connectSocket, SOCKET *li
 			}
 
 			ChangeState(t, TCPReceive::Instance());
-			t->receive(connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode);
+			t->receive(connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode, b);
 
 		}
 	}
@@ -72,7 +72,7 @@ int TCPConnect::createSocket(TCPConnection *t, SOCKET *connectSocket, SOCKET *li
 		}
 
 		ChangeState(t, TCPSend::Instance());
-		t->send(connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode);
+		t->send(connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode, b);
 	}
 
 

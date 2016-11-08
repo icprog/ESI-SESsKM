@@ -1,6 +1,6 @@
 #include "TCPClose.h"
 
-void TCPClose::close(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode) {
+void TCPClose::close(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode, Buffer *b) {
 	if (connectSocket != nullptr) {
 
 		closesocket(*connectSocket);
@@ -10,7 +10,7 @@ void TCPClose::close(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSock
 	}
 	else{
 		ChangeState(t, TCPConnect::Instance());
-		t->connectt(connectSocket, ipAddress, port);
+		t->connectt(connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode, b);
 	}
 
 }
