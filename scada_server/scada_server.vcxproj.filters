@@ -84,12 +84,6 @@
     <ClInclude Include="TCPState.h">
       <Filter>src\tcp_state</Filter>
     </ClInclude>
-    <ClInclude Include="TCPEstablished.h">
-      <Filter>src\tcp_state</Filter>
-    </ClInclude>
-    <ClInclude Include="TCPListen.h">
-      <Filter>src\tcp_state</Filter>
-    </ClInclude>
     <ClInclude Include="TCPClosed.h">
       <Filter>src\tcp_state</Filter>
     </ClInclude>
@@ -101,6 +95,24 @@
     </ClInclude>
     <ClInclude Include="Buffer.h">
       <Filter>src\structures</Filter>
+    </ClInclude>
+    <ClInclude Include="TCPIdle.h">
+      <Filter>src\tcp_state</Filter>
+    </ClInclude>
+    <ClInclude Include="TCPConnect.h">
+      <Filter>src\tcp_state</Filter>
+    </ClInclude>
+    <ClInclude Include="TCPActive.h">
+      <Filter>src\tcp_state</Filter>
+    </ClInclude>
+    <ClInclude Include="TCPSend.h">
+      <Filter>src\tcp_state</Filter>
+    </ClInclude>
+    <ClInclude Include="TCPReceive.h">
+      <Filter>src\tcp_state</Filter>
+    </ClInclude>
+    <ClInclude Include="TCPClose.h">
+      <Filter>src\tcp_state</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -118,6 +130,15 @@
     </ClCompile>
     <ClCompile Include="Buffer.cpp">
       <Filter>src\structures</Filter>
+    </ClCompile>
+    <ClCompile Include="TCPConnection.cpp">
+      <Filter>src\tcp_state</Filter>
+    </ClCompile>
+    <ClCompile Include="TCPIdle.cpp">
+      <Filter>src\tcp_state</Filter>
+    </ClCompile>
+    <ClCompile Include="TCPConnect.cpp">
+      <Filter>src\tcp_state</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
