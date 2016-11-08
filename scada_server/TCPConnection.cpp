@@ -38,7 +38,7 @@ int TCPConnection::getSendClosesConnection() const {
 	return sendClosesConnection;
 }
 int TCPConnection::getReceiveClosesConnection() const {
-	return receiveClosesConnection
+	return receiveClosesConnection;
 }
 void TCPConnection::setConnectionEstablished(int val) {
 	connectionEstablished = val;

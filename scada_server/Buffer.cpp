@@ -16,7 +16,7 @@
 			//memcpy(newData, buffer->data + buffer->popIdx, rest); //kopiraj kraj starog bufera u novi 
 			for (int i = 0; i < rest; i++)		//kopiraj kraj starog u novi 
 			{
-				newData[i] = this->data[i] + this->popIdx;
+				newData[i] = this->data[i + this->popIdx];
 			}
 
 			//memcpy(newData + rest, buffer->data, buffer->pushIdx); //nastavi na novi data onaj data sa pocetka starog
@@ -30,7 +30,7 @@
 			//memcpy(newData, buffer->data + buffer->popIdx, buffer->count);
 			for (int i = 0; i < this->count; i++)
 			{
-				newData[i] = this->data[i] + this->popIdx;
+				newData[i] = this->data[i + this->popIdx];
 			}
 		}
 
@@ -67,11 +67,12 @@
 			//memcpy(buffer->data + buffer->pushIdx, data, rest);
 			for (int i = 0; i < rest; i++) {
 				//this->data[i] + this->pushIdx = data[i];
+				this->data[i+this->pushIdx] = data[i];
 			}
 
 			//memcpy(buffer->data, data + rest - 1, sizeOfData - rest);
 			for (int i = 0; i < sizeOfData - rest; i++) {
-				this->data[i] = data[i] + rest - 1;
+				this->data[i] = data[i + rest - 1];
 			}
 			this->pushIdx = sizeOfData - rest;
 			this->count += sizeOfData;
@@ -81,6 +82,7 @@
 			//memcpy(buffer->data + buffer->pushIdx, data, sizeOfData);
 			for (int i = 0; i < sizeOfData; i++) {
 				//this->data[i] + this->pushIdx = data[i];
+				this->data[i + this->pushIdx] = data[i];
 			}
 
 			this->count += sizeOfData;
@@ -118,11 +120,11 @@
 		if (this->popIdx < this->pushIdx) {
 			//memcpy(data, buffer->data + buffer->popIdx, velicina); //kopiraj data na pocetak buffer-a
 			for (int i = 0; i < velicina; i++) {
-				data[i] = this->data[i] + this->popIdx;
+				data[i] = this->data[i + this->popIdx] ;
 			}
 			//memset(buffer->data + buffer->popIdx, 0, velicina);
 			for (int i = 0; i < velicina; i++) {
-				//this->data[i] + this->popIdx = 0;
+				this->data[i + this->popIdx] = 0;
 			}
 			this->popIdx += velicina;
 		}
@@ -131,7 +133,7 @@
 			int rest = this->size - this->popIdx;
 			//memcpy(data, buffer->data + buffer->popIdx, rest);
 			for (int i = 0; i < rest; i++) {
-				data[i] = this->data[i] + this->popIdx;
+				data[i] = this->data[i + this->popIdx];
 			}
 			//memcpy(data, buffer->data, velicina - rest);
 			for (int i = 0; i < velicina - rest; i++) {
@@ -139,7 +141,7 @@
 			}
 			//memset(buffer->data + buffer->popIdx, 0, rest);
 			for (int i = 0; i < rest; i++) {
-				//this->data[i] + this->popIdx = 0;
+				this->data[i + this->popIdx] = 0;
 			}
 			//memset(buffer->data, 0, velicina - rest);
 			for (int i = 0; i < velicina - rest; i++) {
@@ -193,7 +195,7 @@
 				//memcpy(newData, buffer->data + buffer->popIdx, rest);
 				for (int i = 0; i < rest; i++)
 				{
-					newData[i] = this->data[i] + this->popIdx;
+					newData[i] = this->data[i + this->popIdx];
 				}
 
 				//memcpy(newData + rest, buffer->data, buffer->pushIdx);
@@ -207,7 +209,7 @@
 				//memcpy(newData, buffer->data + buffer->popIdx, buffer->count);
 				for (int i = 0; i < this->count; i++)
 				{
-					newData[i] = this->data[i] + this->popIdx;
+					newData[i] = this->data[i + this->popIdx];
 				}
 			}
 			// prepisi podatke
@@ -222,7 +224,7 @@
 
 	}
 
-	void Buffer::createBuffer(char * name, int bufferLength, CRITICAL_SECTION * cs)
+	/*void Buffer::createBuffer(char * name, int bufferLength, CRITICAL_SECTION * cs)
 	{
 		EnterCriticalSection(cs);
 		Buffer buffer;
@@ -236,7 +238,7 @@
 		InitializeCriticalSection(&bufferCS);
 		buffer.cs = bufferCS;
 		LeaveCriticalSection(cs);
-	}
+	}*/
 
 	Buffer::~Buffer()
 	{

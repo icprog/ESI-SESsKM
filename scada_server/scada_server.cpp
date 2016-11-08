@@ -20,6 +20,63 @@ int main()
 
 */
 
+/*
+#include "stdafx.h"
+#include "Buffer.h"
+#include <windows.h>
+using namespace std;
+
+int main()
+{
+	
+	/////////////////////////
+	char *data = new char[25];
+	memset(data, 0, 25);
+	data[0] = 25;
+	char *poruka = "ovo je poruka!";
+	//*((short *)data + 2) = 20;
+	memcpy((int *)data + 1, poruka, 14);
+	*((short *)data + 2) = 25;
+	/////////////////////////
+
+
+	/////////////////////////
+	char *data2 = new char[5];
+	memset(data2, 0, 5);
+	data2[0] = 5;
+	poruka = "nije";
+	memcpy((int *)data2 + 1, poruka, 4);
+	*((short *)data2 + 2) = 5;
+	/////////////////////////
+
+	/////////////////////////
+	char *data3 = new char[15];
+	memset(data3, 0, 15);
+	data3[0] = 15;
+	poruka = "mozda ovo";
+	memcpy((int *)data3 + 1, poruka, 9);
+	*((short *)data3 + 2) = 15;
+	////////////////////////
+
+	char * name = "buf1";
+
+	CRITICAL_SECTION cs;
+
+	Buffer *myBuffer = new Buffer(name,35,&cs);
+
+	myBuffer->push(data);
+	myBuffer->push(data2);
+	myBuffer->pop(data);
+	myBuffer->push(data3);
+	myBuffer->push(data);
+
+	//myBuffer->expand();
+
+
+	return 0;
+}
+*/
+
 // scada_server.cpp : Defines the entry point for the console application.
 //
 
@@ -36,6 +93,7 @@ public:
 private:
 	int myID;
 };
+
 class simpleThread : public Thread {
 public:
 	simpleThread(int ID) : myID(ID) {}

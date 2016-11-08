@@ -1,3 +1,4 @@
+#include "stdafx.h";
 #include "TCPIdle.h"
 
 void TCPIdle::connect(TCPConnection *t) {
@@ -10,9 +11,9 @@ void TCPIdle::connect(TCPConnection *t) {
 	
 	*/
 
-	if (t->getConnectionEstablished)
+	if (t->getConnectionEstablished())
 		ChangeState(t, TCPConnect::Instance());
 	else
 		ChangeState(t, TCPActive::Instance());
-
+	
 }

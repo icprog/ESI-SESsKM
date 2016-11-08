@@ -19,7 +19,16 @@ public:
 	int push(char *data);		//adding data to buffer	
 	int pop(char *data);		//remove data from buffer
 	void shrink();		//shrink buffer
-	void createBuffer(char *name, int bufferLength, CRITICAL_SECTION *cs);		//create buffer
+	//void createBuffer(char *name, int bufferLength, CRITICAL_SECTION * cs);		//create buffer
+	Buffer(char * _name, int _bufferLength, CRITICAL_SECTION * _cs) : name(_name), size(_bufferLength), cs(*_cs) {
+		this->count = 0;
+		this->popIdx = 0;
+		this->pushIdx = 0;
+		this->data = new char[_bufferLength + 1];
+		CRITICAL_SECTION bufferCS;
+		InitializeCriticalSection(&bufferCS);
+		this->cs = bufferCS;
+	}
 	~Buffer();		//destructor
 
 };
