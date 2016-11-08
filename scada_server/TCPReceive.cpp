@@ -6,5 +6,8 @@ void TCPReceive::receive(TCPConnection* t) {
 	*/
 
 	// promena stanja
-	ChangeState(t, TCPClose::Instance()); //nemoj zatvoriti konekciju!
+	if (t->getReceiveClosesConnection)
+		ChangeState(t, TCPClose::Instance());
+	else
+		ChangeState(t, TCPActive::Instance());
 }

@@ -1,7 +1,7 @@
 #pragma once
 #ifndef  TCP_CONNECTION_H
 #define TCP_CONNECTION_H
-
+#include <WinSock2.h>
 /*
 	Context class that is used for changing the state of the state machine.
 */
@@ -10,11 +10,11 @@ class TCPConnection {
 public:
 	TCPConnection();
 	void idle();
-	void connect();
-	void active();
-	void send();
-	void receive();
-	void close();
+	void connectt( SOCKET *, SOCKET *, char* , int , char *, char *, bool , unsigned long int );
+	void active(SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int);
+	void send(SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int);
+	void receive(SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int);
+	void close(SOCKET *, SOCKET *, char* , int , char *, char *, bool , unsigned long int );
 	int getConnectionEstablished() const;
 	int getSendAndReceive() const;
 	int getSendClosesConnection() const;

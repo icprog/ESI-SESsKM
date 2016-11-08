@@ -1,24 +1,24 @@
 #include "stdafx.h"
 #include "TCPConnection.h"
-#include "TCPIdle.h"
+#include "TCPClose.h"
 
 TCPConnection::TCPConnection() {
 	_state = TCPClose::Instance();
 }
-void TCPConnection::connect() {
-	_state->connect(this);
+void TCPConnection::connectt( SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode){
+	_state->connectt(this, connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode);
 }
-void TCPConnection::active() {
-	_state->active(this);
+void TCPConnection::active( SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode){
+	_state->active(this, connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode);
 }
-void TCPConnection::send() {
-	_state->send(this);
+void TCPConnection::send(SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode) {
+	_state->send(this, connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode);
 }
-void TCPConnection::receive() {
-	_state->receive(this);
+void TCPConnection::receive(SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode) {
+	_state->receive(this, connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode);
 }
-void TCPConnection::close() {
-	_state->close(this);
+void TCPConnection::close(SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode) {
+	_state->close(this, connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode);
 }
 void TCPConnection::ChangeState(TCPState* s) {
 	_state = s;
@@ -52,3 +52,4 @@ void TCPConnection::setSendClosesConnection(int val) {
 void TCPConnection::setReceiveClosesConnection(int val) {
 	receiveClosesConnection = val;
 }
+

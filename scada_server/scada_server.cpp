@@ -25,7 +25,7 @@ int main()
 
 #include "stdafx.h"
 #include "Thread.h"
-
+#include "TCPConnection.h"
 class simpleRunnable : public Runnable {
 public:
 	simpleRunnable(int ID) : myID(ID) {}
@@ -60,6 +60,9 @@ int main() {
 	int result2 = reinterpret_cast<int>(thread2->join());
 	int result3 = reinterpret_cast<int>(thread3.join());
 	std::cout << result1 << ' ' << result2 << ' ' << result3 << std::endl;
+
+	TCPConnection tcpCon;
+	tcpCon.close(nullptr);
 	return 0;
 	// the destructors for thread1 and thread2 will automatically delete the
 	// pointed-at thread objects

@@ -6,11 +6,11 @@
 class TCPState {
 public:
 	virtual void idle();
-	virtual void connect(TCPConnection *);
-	virtual void active(TCPConnection *);
-	virtual void send(TCPConnection *);
-	virtual void receive(TCPConnection *);
-	virtual void close(TCPConnection *);
+	virtual void connectt(TCPConnection *, SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int);
+	virtual void active(TCPConnection *, SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int);
+	virtual void send(TCPConnection *, SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int);
+	virtual void receive(TCPConnection *, SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int);
+	virtual void close(TCPConnection *, SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int);
 protected:
 	void ChangeState(TCPConnection*, TCPState*);
 };
