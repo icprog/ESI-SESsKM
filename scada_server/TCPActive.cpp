@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "TCPActive.h"
 
 void TCPActive::active(TCPConnection* t) {
@@ -6,5 +7,5 @@ void TCPActive::active(TCPConnection* t) {
 	*/
 
 	// promena stanja
-	ChangeState(t, TCPSend::Instance());
+	//ChangeState(t, TCPSend::Instance());
 }

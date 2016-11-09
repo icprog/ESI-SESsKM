@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "TCPReceive.h"
 
 void TCPReceive::receive(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode, Buffer *b) {
@@ -29,5 +30,8 @@ void TCPReceive::receive(TCPConnection *t, SOCKET *connectSocket, SOCKET *listen
 	} while (iResult > 0);
 
 	delete snb, snb = 0;
+	TCPClose *tcpClose = new TCPClose();
+	ChangeState(t, tcpClose);
 	t->close(connectSocket, nullptr, nullptr, -1, nullptr, nullptr, false, -1, nullptr);
+	delete tcpClose, tcpClose = 0;
 }

@@ -3,7 +3,8 @@
 #include "TCPClose.h"
 
 TCPConnection::TCPConnection() {
-	_state = TCPClose::Instance();
+	TCPClose *tcpClose = new TCPClose();
+	_state = tcpClose;
 }
 void TCPConnection::connectt( SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode, Buffer *b){
 	_state->connectt(this, connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode,b);
@@ -21,6 +22,7 @@ void TCPConnection::close(SOCKET *connectSocket, SOCKET *listenSocket, char* ipA
 	_state->close(this, connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode,b);
 }
 void TCPConnection::ChangeState(TCPState* s) {
+	delete _state, _state = 0;
 	_state = s;
 }
 
@@ -38,7 +40,7 @@ int TCPConnection::getSendClosesConnection() const {
 	return sendClosesConnection;
 }
 int TCPConnection::getReceiveClosesConnection() const {
-	return receiveClosesConnection
+	return receiveClosesConnection;
 }
 void TCPConnection::setConnectionEstablished(int val) {
 	connectionEstablished = val;

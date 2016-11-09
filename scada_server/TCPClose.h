@@ -5,7 +5,7 @@
 #include "TCPConnect.h"
 class TCPClose : public TCPState {
 public:
-	static TCPState* Instance();
+	TCPState* Instance() { return this; };
 	virtual void close(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode, Buffer *b);
 };
 

@@ -117,9 +117,9 @@ int SocketNB::SEND (SOCKET* socket, char* buffer) {
 	int i = 0;
 	int len = getMessageLength(buffer);
 	int iResult = 0;
-	while (i < len) {
+	while (i < 25) {
 		do {
-			iResult = sendNB(socket, buffer, len - i);
+			iResult = sendNB(socket, buffer, 25 - i);
 		} while (iResult == SLEEP);
 		if (iResult == SOCKET_ERROR)
 		{

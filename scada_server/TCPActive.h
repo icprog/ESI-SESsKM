@@ -5,7 +5,7 @@
 #include "TCPSend.h"
 class TCPActive : public TCPState {
 public:
-	static TCPState* Instance();
+	TCPState* Instance() { return this; };
 	virtual void active(TCPConnection*);
 };
 

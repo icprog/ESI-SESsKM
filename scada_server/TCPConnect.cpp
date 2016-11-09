@@ -1,8 +1,9 @@
+#include "stdafx.h"
 #include "TCPConnect.h"
 
 void TCPConnect::connectt(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode, Buffer *b) {
 	int iResult = -1;
-	iResult = createSocket(t, connectSocket, listenSocket, ipAddress, port, nonBlockingMode);
+	iResult = createSocket(t, connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode, b);
 	std::cout << "\nLISTEN SOCKET IZ SERVERA: %d\n" << *connectSocket << std::endl;
 
 	if (iResult != 0) {
@@ -17,7 +18,7 @@ int TCPConnect::createSocket(TCPConnection *t, SOCKET *connectSocket, SOCKET *li
 {
 	if (listenSocket != nullptr) {
 		char cport[16];
-		itoa(port, cport, 10);
+		_itoa(port, cport, 10);
 		int iResult = -1;
 		iResult = listenSocketFunc(listenSocket, cport);
 		if (iResult == 1) {
@@ -38,10 +39,10 @@ int TCPConnect::createSocket(TCPConnection *t, SOCKET *connectSocket, SOCKET *li
 				// Ako je ovde greska, kraj rada
 				return 1;
 			}
-
-			ChangeState(t, TCPReceive::Instance());
+			TCPReceive *tcpReceive = new TCPReceive();
+			ChangeState(t, tcpReceive);
 			t->receive(connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode, b);
-
+			delete tcpReceive, tcpReceive = 0;
 		}
 	}
 	else {
@@ -60,7 +61,7 @@ int TCPConnect::createSocket(TCPConnection *t, SOCKET *connectSocket, SOCKET *li
 		// create and initialize address structure
 		sockaddr_in serverAddress;
 		serverAddress.sin_family = AF_INET;
-		serverAddress.sin_addr.s_addr = inet_addr(ip);
+		serverAddress.sin_addr.s_addr = inet_addr(ipAddress);
 		serverAddress.sin_port = htons(port);
 		// connect to server specified in serverAddress and socket connectSocket
 		if (connect(*connectSocket, (SOCKADDR*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR)
@@ -70,9 +71,11 @@ int TCPConnect::createSocket(TCPConnection *t, SOCKET *connectSocket, SOCKET *li
 			//WSACleanup();
 			return 1;
 		}
+		TCPSend *tcpSend = new TCPSend();
 
-		ChangeState(t, TCPSend::Instance());
+		ChangeState(t, tcpSend);
 		t->send(connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode, b);
+		delete tcpSend, tcpSend = 0;
 	}
 
 

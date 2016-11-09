@@ -24,8 +24,9 @@ int main()
 //
 
 #include "stdafx.h"
-#include "Thread.h"
+//#include "Thread.h"
 #include "TCPConnection.h"
+/*
 class simpleRunnable : public Runnable {
 public:
 	simpleRunnable(int ID) : myID(ID) {}
@@ -46,7 +47,10 @@ public:
 private:
 	int myID;
 };
+*/
+bool InitializeWindowsSockets();
 int main() {
+	/*
 	std::unique_ptr<Runnable> r(new simpleRunnable(1));
 	std::unique_ptr<Thread> thread1(new Thread(std::move(r)));
 	thread1->start();
@@ -63,7 +67,32 @@ int main() {
 
 	TCPConnection tcpCon;
 	tcpCon.close(nullptr);
+	*/
+	if (InitializeWindowsSockets() == false)
+	{
+		// we won't log anything since it will be logged
+		// by InitializeWindowsSockets() function
+		return 1;
+	}
+	TCPConnection *tcp = new TCPConnection();
+	SOCKET connectSocket = INVALID_SOCKET;
+	char *request = new char[25];
+	memcpy(request, "Ovo je test!", 24);
+	
+	char response[512];
+	tcp->close(&connectSocket, nullptr, "127.0.0.1", 27016, request, response, false, 1, nullptr);
 	return 0;
 	// the destructors for thread1 and thread2 will automatically delete the
 	// pointed-at thread objects
+}
+bool InitializeWindowsSockets()
+{
+	WSADATA wsaData;
+	// Initialize windows sockets library for this process
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+	{
+		printf("WSAStartup failed with error: %d\n", WSAGetLastError());
+		return false;
+	}
+	return true;
 }

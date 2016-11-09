@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "TCPSend.h"
 
 void TCPSend::send(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode, Buffer *b) {
@@ -9,16 +10,25 @@ void TCPSend::send(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket
 	}
 
 	if(closeConnection == true){
-		ChangeState(t, TCPClose::Instance());
+		TCPClose *tcpClose = new TCPClose();
+
+		ChangeState(t, tcpClose);
 		t->close(connectSocket, nullptr, nullptr, -1, nullptr, nullptr, false, -1,b);
+		delete tcpClose, tcpClose = 0;
 	}
 	if (response != nullptr){
-		ChangeState(t, TCPReceive::Instance());
+		TCPReceive *tcpReceive = new TCPReceive();
+
+		ChangeState(t, tcpReceive);
 		t->receive(connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode,b);
+		delete tcpReceive, tcpReceive = 0;
 	}
 	else{
-		ChangeState(t, TCPActive::Instance());
+		TCPActive *tcpActive = new TCPActive();
+
+		ChangeState(t, tcpActive);
 		t->active(connectSocket, listenSocket, ipAddress, port, request, response, closeConnection, nonBlockingMode,b);
+		delete tcpActive, tcpActive = 0;
 	}
 
 }
@@ -58,7 +68,7 @@ int TCPSend::sendMessage(SOCKET * socket, char * data)
 	int iResult = -1;
 	// Send an prepared message with null terminator included
 
-	printf("\nSENDING MESSAGE: %s", data + 9);
+	printf("\nSENDING MESSAGE: %s", data );
 	SocketNB *snb = new SocketNB();
 	iResult = snb->SEND(socket, data);
 	delete snb, snb = 0;

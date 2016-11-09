@@ -5,12 +5,11 @@
 #include "Buffer.h"
 class TCPState {
 public:
-	virtual void idle();
-	virtual void connectt(TCPConnection *, SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int, Buffer *);
-	virtual void active(TCPConnection *, SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int, Buffer *);
-	virtual void send(TCPConnection *, SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int, Buffer *);
-	virtual void receive(TCPConnection *, SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int, Buffer *);
-	virtual void close(TCPConnection *, SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int, Buffer *);
+	virtual void connectt(TCPConnection *, SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int, Buffer *) {}
+	virtual void active(TCPConnection *, SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int, Buffer *) {}
+	virtual void send(TCPConnection *, SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int, Buffer *) {}
+	virtual void receive(TCPConnection *, SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int, Buffer *) {}
+	virtual void close(TCPConnection *, SOCKET *, SOCKET *, char*, int, char *, char *, bool, unsigned long int, Buffer *) {}
 protected:
 	void ChangeState(TCPConnection*, TCPState*);
 };

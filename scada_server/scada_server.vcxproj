@@ -86,12 +86,13 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_WINSOCK_DEPRECATED_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -155,14 +156,13 @@
     <ClInclude Include="RTU.h" />
     <ClInclude Include="IState.h" />
     <ClInclude Include="Runnable.h" />
+    <ClInclude Include="SocketNB.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TCPActive.h" />
     <ClInclude Include="TCPClose.h" />
-    <ClInclude Include="TCPClosed.h" />
     <ClInclude Include="TCPConnect.h" />
     <ClInclude Include="TCPConnection.h" />
-    <ClInclude Include="TCPIdle.h" />
     <ClInclude Include="TCPReceive.h" />
     <ClInclude Include="TCPSend.h" />
     <ClInclude Include="TCPState.h" />
@@ -173,15 +173,20 @@
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="Runnable.cpp" />
     <ClCompile Include="scada_server.cpp" />
+    <ClCompile Include="SocketNB.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TCPActive.cpp" />
+    <ClCompile Include="TCPClose.cpp" />
     <ClCompile Include="TCPConnect.cpp" />
     <ClCompile Include="TCPConnection.cpp" />
-    <ClCompile Include="TCPIdle.cpp" />
+    <ClCompile Include="TCPReceive.cpp" />
+    <ClCompile Include="TCPSend.cpp" />
+    <ClCompile Include="TCPState.cpp" />
     <ClCompile Include="Thread.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

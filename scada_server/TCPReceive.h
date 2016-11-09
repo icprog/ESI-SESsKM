@@ -7,7 +7,7 @@
 #include "SocketNB.h"
 class TCPReceive : public TCPState {
 public:
-	static TCPState* Instance();
+	TCPState* Instance() { return this; };
 	virtual void receive(TCPConnection *t, SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, char *request, char *response, bool closeConnection, unsigned long int nonBlockingMode, Buffer *b);
 };
 
