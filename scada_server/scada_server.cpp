@@ -82,6 +82,8 @@ int main()
 
 #include "stdafx.h"
 #include "Thread.h"
+#include "Buffer.h"
+
 
 class simpleRunnable : public Runnable {
 public:
@@ -104,7 +106,82 @@ public:
 private:
 	int myID;
 };
+
+class dataProcesing : public Thread {
+public:
+	dataProcesing(Buffer* buffRecv, char* buffData) : myBuffer(buffRecv), myData(buffData) {}
+	virtual void* run() {
+		//preuzimanje zaglavlja i function koda iz bufera
+		short transId = /*ntohs*/(*((short*)myBuffer));
+		short protID = /*ntohs*/(*((short*)(myBuffer + 2)));
+		short length = /*ntohs*/(*((short*)(myBuffer + 4)));
+		char unitID = *((char*)(myBuffer + 6));
+		char fCode = *((char*)(myBuffer + 7));
+
+		//obradi poruku u zavisnosti od function koda
+		if (fCode == 1 || fCode == 2) {
+			char outputValue = *((char*)(myBuffer + 9));
+			std::cout << "Heater is " << outputValue;
+
+		}
+		else if (fCode == 5) {
+			char byteCount = *((char*)(myBuffer + 8));
+			char result = *((char*)(myBuffer + 9));
+		}
+		else if (fCode == 3 || fCode == 4) { //citanje vrednosti iz registara
+			char numEnt = *((char*)(myBuffer + 8));
+			short inpVal = /*ntohs(*/*((short*)(myBuffer + 9))/*)*/; //ne znam da li treba ntohs
+			int temp = int(numEnt) / 2;
+
+			////////////////////////
+			//ove podatke je potrebno iscitati iz modela
+			int RawMin = 0;
+			int RawMax = 4000;
+			int Raw = 0;
+			int EGUMax = 0;
+			int EGUMin = 0;
+			int EGU = 0;
+			///////////////////////
+
+			if (inpVal < RawMax || inpVal > RawMin) { //provera da li je taj input u opsegu
+				//potrebno je izvrsiti konverziju u EGU i staviti u model
+				EGU = (Raw - RawMin) / (RawMax - RawMin)*(EGUMax - EGUMin) + EGUMin;
+				//ovaj EGU je potrebno uneti u model
+				std::cout << "Ok" << std::endl;
+				std::cout << "Vrednost EGU je: " << EGU << std::endl;
+	
+			}
+			else {
+				std::cout << "ERROR" << std::endl;
+				//treba staviti u status error
+			}
+			
+
+		}
+		else if (fCode == 6) { //pisanje u registar
+			int inp = (int)(*((char*)(myBuffer + 11)));
+			std::cout << "Upisuje se vrednost" << std::endl;
+		}
+		
+
+		//skinuti podatak iz bafera
+		myBuffer->pop(myData);
+		return reinterpret_cast<void*>(myBuffer);
+	}
+private:
+	Buffer* myBuffer;
+	char* myData;
+};
+
+
 int main() {
+	char *name = "bufer1";
+//	CRITICAL_SECTION *cs;
+	char myBuffer[5];
+	myBuffer[0] = 0x01;
+	myBuffer[1] = 0x00;
+
+
 	std::unique_ptr<Runnable> r(new simpleRunnable(1));
 	std::unique_ptr<Thread> thread1(new Thread(std::move(r)));
 	thread1->start();
@@ -112,12 +189,16 @@ int main() {
 	thread2->start();
 	simpleThread thread3(3);
 	thread3.start();
+	dataProcesing thread4(myBuffer);
+	thread4.start();
 	// thread1 and thread2 are created on the heap; thread3 is created on the stack
 	// wait for the threads to finish
 	int result1 = reinterpret_cast<int>(thread1->join());
 	int result2 = reinterpret_cast<int>(thread2->join());
 	int result3 = reinterpret_cast<int>(thread3.join());
-	std::cout << result1 << ' ' << result2 << ' ' << result3 << std::endl;
+	int result4 = reinterpret_cast<int>(thread4.join());
+
+	std::cout << result1 << ' ' << result2 << ' ' << result3 << ' ' << result4 << std::endl;
 	return 0;
 	// the destructors for thread1 and thread2 will automatically delete the
 	// pointed-at thread objects
