@@ -29,6 +29,7 @@ public:
 		InitializeCriticalSection(&bufferCS);
 		this->cs = bufferCS;
 	}
+	Buffer() {}
 	~Buffer();		//destructor
 
 };

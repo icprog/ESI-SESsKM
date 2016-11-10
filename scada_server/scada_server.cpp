@@ -83,6 +83,7 @@ int main()
 #include "stdafx.h"
 #include "Thread.h"
 #include "Buffer.h"
+#include "AnalogInput.h"
 
 
 class simpleRunnable : public Runnable {
@@ -117,7 +118,7 @@ public:
 		short length = /*ntohs*/(*((short*)(myBuffer + 4)));
 		char unitID = *((char*)(myBuffer + 6));
 		char fCode = *((char*)(myBuffer + 7));
-
+		
 		//obradi poruku u zavisnosti od function koda
 		if (fCode == 1 || fCode == 2) {
 			char outputValue = *((char*)(myBuffer + 9));
@@ -140,8 +141,8 @@ public:
 			int Raw = 0;
 			int EGUMax = 0;
 			int EGUMin = 0;
-			int EGU = 0;
-			///////////////////////
+			int EGU = 0;	
+			////////////////////////
 
 			if (inpVal < RawMax || inpVal > RawMin) { //provera da li je taj input u opsegu
 				//potrebno je izvrsiti konverziju u EGU i staviti u model
@@ -149,14 +150,13 @@ public:
 				//ovaj EGU je potrebno uneti u model
 				std::cout << "Ok" << std::endl;
 				std::cout << "Vrednost EGU je: " << EGU << std::endl;
-	
+				
 			}
 			else {
 				std::cout << "ERROR" << std::endl;
 				//treba staviti u status error
 			}
 			
-
 		}
 		else if (fCode == 6) { //pisanje u registar
 			int inp = (int)(*((char*)(myBuffer + 11)));
@@ -174,13 +174,33 @@ private:
 };
 
 
+/*class readFileTread : public Thread {
+public:
+	readFileTread(int ID) : myID(ID) {}
+	virtual void* run() {
+		FILE* file = fopen("C:\\Users\\ra64-2012\\Desktop\\blok2novi\\ESI-SESsKM\\Configuration.txt", "r");
+		char buffer[2048];
+
+		while (fgets(buffer, 2048, file))
+		{
+			cout << buffer << '\n';
+		}
+
+		return reinterpret_cast<void*>(myID);
+	}
+private:
+	int myID;
+};
+*/
+
 int main() {
 	char *name = "bufer1";
 //	CRITICAL_SECTION *cs;
-	char myBuffer[5];
-	myBuffer[0] = 0x01;
-	myBuffer[1] = 0x00;
-
+	//char myBuffer[5];
+	//myBuffer[0] = 0x01;
+	//myBuffer[1] = 0x00;
+	Buffer* myBuffer = new Buffer();
+	char * data = nullptr;
 
 	std::unique_ptr<Runnable> r(new simpleRunnable(1));
 	std::unique_ptr<Thread> thread1(new Thread(std::move(r)));
@@ -189,14 +209,17 @@ int main() {
 	thread2->start();
 	simpleThread thread3(3);
 	thread3.start();
-	dataProcesing thread4(myBuffer);
+	dataProcesing thread4(myBuffer, data);
 	thread4.start();
+	//readFileTread thread5(5);
+	//thread5.start();
 	// thread1 and thread2 are created on the heap; thread3 is created on the stack
 	// wait for the threads to finish
 	int result1 = reinterpret_cast<int>(thread1->join());
 	int result2 = reinterpret_cast<int>(thread2->join());
 	int result3 = reinterpret_cast<int>(thread3.join());
 	int result4 = reinterpret_cast<int>(thread4.join());
+	//int result5 = reinterpret_cast<int>(thread5.join());
 
 	std::cout << result1 << ' ' << result2 << ' ' << result3 << ' ' << result4 << std::endl;
 	return 0;
