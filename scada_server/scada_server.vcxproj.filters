@@ -37,6 +37,12 @@
     <Filter Include="src\util">
       <UniqueIdentifier>{07cc7bbe-0c62-4f20-9895-c4bf2e58903d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\tcpDriver">
+      <UniqueIdentifier>{9fceb98c-19aa-46f5-891e-65153223af14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\mediator">
+      <UniqueIdentifier>{f59c13cf-cc99-47ed-a636-77cb70a42784}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -84,6 +90,45 @@
     <ClInclude Include="Buffer.h">
       <Filter>src\structures</Filter>
     </ClInclude>
+    <ClInclude Include="SocketNB.h">
+      <Filter>src\tcpDriver</Filter>
+    </ClInclude>
+    <ClInclude Include="TCPDriver.h">
+      <Filter>src\tcpDriver</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandingEngine.h">
+      <Filter>src\mediator</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientHandler.h">
+      <Filter>src\mediator</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerMediator.h">
+      <Filter>src\mediator</Filter>
+    </ClInclude>
+    <ClInclude Include="IComponent.h">
+      <Filter>src\mediator</Filter>
+    </ClInclude>
+    <ClInclude Include="IServerMediator.h">
+      <Filter>src\mediator</Filter>
+    </ClInclude>
+    <ClInclude Include="PollEngine.h">
+      <Filter>src\mediator</Filter>
+    </ClInclude>
+    <ClInclude Include="Util.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="TCPHeader.h">
+      <Filter>src\model</Filter>
+    </ClInclude>
+    <ClInclude Include="Message.h">
+      <Filter>src\model</Filter>
+    </ClInclude>
+    <ClInclude Include="PDU.h">
+      <Filter>src\model</Filter>
+    </ClInclude>
+    <ClInclude Include="Request.h">
+      <Filter>src\model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -100,6 +145,33 @@
     </ClCompile>
     <ClCompile Include="Buffer.cpp">
       <Filter>src\structures</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketNB.cpp">
+      <Filter>src\tcpDriver</Filter>
+    </ClCompile>
+    <ClCompile Include="TCPDriver.cpp">
+      <Filter>src\tcpDriver</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerMediator.cpp">
+      <Filter>src\mediator</Filter>
+    </ClCompile>
+    <ClCompile Include="PollEngine.cpp">
+      <Filter>src\mediator</Filter>
+    </ClCompile>
+    <ClCompile Include="Util.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="TCPHeader.cpp">
+      <Filter>src\model</Filter>
+    </ClCompile>
+    <ClCompile Include="Message.cpp">
+      <Filter>src\model</Filter>
+    </ClCompile>
+    <ClCompile Include="PDU.cpp">
+      <Filter>src\model</Filter>
+    </ClCompile>
+    <ClCompile Include="Request.cpp">
+      <Filter>src\model</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
