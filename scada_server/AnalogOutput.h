@@ -4,7 +4,7 @@
 #include <iostream>
 #include <ctime>
 #include "AnalogInput.h"
-class AnalogOutput : AnalogInput {
+class AnalogOutput : public AnalogInput {
 
 private:
 	int EGUSetpoint;

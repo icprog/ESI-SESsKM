@@ -129,6 +129,12 @@
     <ClInclude Include="Request.h">
       <Filter>src\model</Filter>
     </ClInclude>
+    <ClInclude Include="DataProcessingEngine.h">
+      <Filter>src\mediator</Filter>
+    </ClInclude>
+    <ClInclude Include="Alarm.h">
+      <Filter>src\model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -172,6 +178,9 @@
     </ClCompile>
     <ClCompile Include="Request.cpp">
       <Filter>src\model</Filter>
+    </ClCompile>
+    <ClCompile Include="DataProcessingEngine.cpp">
+      <Filter>src\mediator</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

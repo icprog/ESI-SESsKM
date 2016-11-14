@@ -47,7 +47,7 @@ int Buffer::push(char * data)
 	EnterCriticalSection(&this->cs);
 
 	short sizeOfData = *((short *)data + 2);
-	sizeOfData = ntohs(sizeOfData);
+	sizeOfData = ntohs(sizeOfData)+6;
 	// ako je bafer vec pun count == size, radi prosirivanje, ali prvo utvrdi za koliko puta
 	// ili ako je velicina podataka veca od velicine ostatka slobodnog prostora u baferu
 	if ((this->count == this->size) || ((this->size - this->count) < sizeOfData)) {

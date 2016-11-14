@@ -20,6 +20,7 @@ public:
 	void setSign(std::string sign);
 
 	EngineeringUnit(int m_id, std::string m_name, std::string m_sign) : id(m_id), name(m_name), sign(m_sign){}
+	EngineeringUnit() {}
 };
 
 

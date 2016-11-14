@@ -79,6 +79,8 @@ int main() {
 		return 1;
 	}
 
+	Util::readFromFile(); //ucitavanje konf. fajla i punjenje modela
+
 	IServerMediator *med = new ServerMediator();
 
 	SOCKET sock = INVALID_SOCKET;

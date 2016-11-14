@@ -3,6 +3,7 @@
 #define TIME_H
 #include <iostream>
 #include <ctime>
+#include <string>
 
 class Time {
 

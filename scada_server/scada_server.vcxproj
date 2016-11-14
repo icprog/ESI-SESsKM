@@ -145,6 +145,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Alarm.h" />
     <ClInclude Include="AnalogInput.h" />
     <ClInclude Include="AnalogOutput.h" />
     <ClInclude Include="Buffer.h" />
@@ -152,6 +153,7 @@
     <ClInclude Include="CommandingEngine.h" />
     <ClInclude Include="CommandState.h" />
     <ClInclude Include="Context.h" />
+    <ClInclude Include="DataProcessingEngine.h" />
     <ClInclude Include="DigitalDevice.h" />
     <ClInclude Include="EngineeringUnit.h" />
     <ClInclude Include="IComponent.h" />
@@ -175,6 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="DataProcessingEngine.cpp" />
     <ClCompile Include="Message.cpp" />
     <ClCompile Include="PDU.cpp" />
     <ClCompile Include="PollEngine.cpp" />
