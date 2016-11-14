@@ -6,7 +6,7 @@ void PollEngine::notifyMediator() {
 
 int PollEngine::makeConnection(SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, unsigned long int nonBlockingMode)
 {
-	return tcpdriver->connectt(connectSocket, listenSocket, "127.0.0.1", 502, 1);
+	return tcpdriver->connectt(connectSocket, listenSocket,ipAddress, port, nonBlockingMode);
 }
 
 void PollEngine::sendRequests(SOCKET *connectSocket, std::vector<Request*> *requests, char * response, Buffer * buffer, bool closeConnection, unsigned long int nonBlockingMode) {

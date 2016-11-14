@@ -49,11 +49,12 @@ private:
 	int myID;
 };
 */
-#include "IServerMediator.h"
-#include "ServerMediator.h"
-#include "IComponent.h"
-#include "PollEngine.h"
+#include "../Mediator/IServerMediator.h"
+#include "../Mediator/ServerMediator.h"
+#include "../Mediator/IComponent.h"
+#include "../PollingEngine/PollEngine.h"
 #include <vector>
+#include "../ClientHandler/ClientHandler.h"
 bool InitializeWindowsSockets();
 int main() {
 	/*
@@ -115,12 +116,16 @@ int main() {
 	//buffer->createBuffer("red1", 512, &cs);
 	char response[600];
 
-	std::unique_ptr<PollEngine> pollEngineThread(new PollEngine(1, buffer, &vec, 1, false, "127.0.0.1", 502, &sock));
-	pollEngineThread->start();
-	int result1 = reinterpret_cast<int>(pollEngineThread->join());
+	//std::unique_ptr<PollEngine> pollEngineThread(new PollEngine(1, buffer, &vec, 1, false, "127.0.0.1", 502, &sock));
+	//pollEngineThread->start();
+	//int result1 = reinterpret_cast<int>(pollEngineThread->join());
 	// the destructors for thread1 and thread2 will automatically delete the
 	// pointed-at thread objects
-	std::cout << result1 << std::endl;
+	SOCKET acceptedSocket = INVALID_SOCKET, connectSocket = INVALID_SOCKET;
+	std::unique_ptr<ClientHandler> clientHandlerThread(new ClientHandler(2, 1, false, "127.0.0.1", 27016,&acceptedSocket, &connectSocket ));
+	clientHandlerThread->start();
+	int result2 = reinterpret_cast<int>(clientHandlerThread->join());
+	std::cout << ' ' << result2 <<std::endl;
 	Sleep(INFINITE);
 	return 0;
 }

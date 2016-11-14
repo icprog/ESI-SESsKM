@@ -79,11 +79,11 @@ int TCPDriver::createSocket(SOCKET *connectSocket, SOCKET *listenSocket, char* i
 			// Ako je ovde greska, kraj rada
 			return 1;
 		}
-		while (!exit)
+		while (1)
 		{
 			printf("\nLISTEN SOCKET IZ SERVERA: %d\n", listenSocket);
 			iResult = ioctlsocket(*connectSocket, FIONBIO, &nonBlockingMode);
-			selectt(listenSocket, 0, 0);
+			selectt(listenSocket, 0);
 			// Wait for clients and accept client connections.
 			// Returning value is acceptedSocket used for further
 			// Client<->Server communication. This version of
@@ -202,7 +202,7 @@ int TCPDriver::listenSocketFunc(SOCKET * listenSocket, char * port)
 	return iResult;
 }
 
-int TCPDriver::selectt(SOCKET * socket, int type, int *exit)
+int TCPDriver::selectt(SOCKET * socket, int type)
 {
 	FD_SET set;
 	timeval timeVal;
@@ -240,7 +240,7 @@ int TCPDriver::selectt(SOCKET * socket, int type, int *exit)
 			Sleep(200);
 		}
 
-	} while (iResult == 0 && *exit == 0);
+	} while (iResult == 0 );
 
 	return iResult;
 }

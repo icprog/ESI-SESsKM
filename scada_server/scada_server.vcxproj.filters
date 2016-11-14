@@ -25,24 +25,6 @@
     <Filter Include="src\model">
       <UniqueIdentifier>{a4c00f73-286e-4e81-a104-5cf77122dfd6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\controller">
-      <UniqueIdentifier>{d612a734-7ea1-448f-b7f9-06e2ee2fd61b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\structures">
-      <UniqueIdentifier>{3cb48d3c-d5e8-48f4-aca9-191fda1f7cad}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\state">
-      <UniqueIdentifier>{0fe34c0c-8748-4d17-9b45-215f49aecb80}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\util">
-      <UniqueIdentifier>{07cc7bbe-0c62-4f20-9895-c4bf2e58903d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\tcpDriver">
-      <UniqueIdentifier>{9fceb98c-19aa-46f5-891e-65153223af14}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\mediator">
-      <UniqueIdentifier>{f59c13cf-cc99-47ed-a636-77cb70a42784}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -72,51 +54,6 @@
     <ClInclude Include="Time.h">
       <Filter>src\model</Filter>
     </ClInclude>
-    <ClInclude Include="IState.h">
-      <Filter>src\state</Filter>
-    </ClInclude>
-    <ClInclude Include="Context.h">
-      <Filter>src\state</Filter>
-    </ClInclude>
-    <ClInclude Include="CommandState.h">
-      <Filter>src\state</Filter>
-    </ClInclude>
-    <ClInclude Include="Runnable.h">
-      <Filter>src\util</Filter>
-    </ClInclude>
-    <ClInclude Include="Thread.h">
-      <Filter>src\util</Filter>
-    </ClInclude>
-    <ClInclude Include="Buffer.h">
-      <Filter>src\structures</Filter>
-    </ClInclude>
-    <ClInclude Include="SocketNB.h">
-      <Filter>src\tcpDriver</Filter>
-    </ClInclude>
-    <ClInclude Include="TCPDriver.h">
-      <Filter>src\tcpDriver</Filter>
-    </ClInclude>
-    <ClInclude Include="CommandingEngine.h">
-      <Filter>src\mediator</Filter>
-    </ClInclude>
-    <ClInclude Include="ClientHandler.h">
-      <Filter>src\mediator</Filter>
-    </ClInclude>
-    <ClInclude Include="ServerMediator.h">
-      <Filter>src\mediator</Filter>
-    </ClInclude>
-    <ClInclude Include="IComponent.h">
-      <Filter>src\mediator</Filter>
-    </ClInclude>
-    <ClInclude Include="IServerMediator.h">
-      <Filter>src\mediator</Filter>
-    </ClInclude>
-    <ClInclude Include="PollEngine.h">
-      <Filter>src\mediator</Filter>
-    </ClInclude>
-    <ClInclude Include="Util.h">
-      <Filter>src\util</Filter>
-    </ClInclude>
     <ClInclude Include="TCPHeader.h">
       <Filter>src\model</Filter>
     </ClInclude>
@@ -136,30 +73,6 @@
     </ClCompile>
     <ClCompile Include="scada_server.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Runnable.cpp">
-      <Filter>src\util</Filter>
-    </ClCompile>
-    <ClCompile Include="Thread.cpp">
-      <Filter>src\util</Filter>
-    </ClCompile>
-    <ClCompile Include="Buffer.cpp">
-      <Filter>src\structures</Filter>
-    </ClCompile>
-    <ClCompile Include="SocketNB.cpp">
-      <Filter>src\tcpDriver</Filter>
-    </ClCompile>
-    <ClCompile Include="TCPDriver.cpp">
-      <Filter>src\tcpDriver</Filter>
-    </ClCompile>
-    <ClCompile Include="ServerMediator.cpp">
-      <Filter>src\mediator</Filter>
-    </ClCompile>
-    <ClCompile Include="PollEngine.cpp">
-      <Filter>src\mediator</Filter>
-    </ClCompile>
-    <ClCompile Include="Util.cpp">
-      <Filter>src\util</Filter>
     </ClCompile>
     <ClCompile Include="TCPHeader.cpp">
       <Filter>src\model</Filter>

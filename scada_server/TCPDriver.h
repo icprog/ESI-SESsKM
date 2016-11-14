@@ -14,7 +14,7 @@ private:
 	SocketNB *socketNB;
 	int createSocket(SOCKET *connectSocket, SOCKET *listenSocket, char* ipAddress, int port, unsigned long int nonBlockingMode);
 	static int listenSocketFunc(SOCKET * listenSocket, char * port);
-	static int selectt(SOCKET * socket, int type, int *exit);
+	static int selectt(SOCKET * socket, int type);
 	static int acceptt(SOCKET * acceptedSocket, SOCKET* listenSocket);
 	int sendMessage(SOCKET * socket, char * data);
 public:
