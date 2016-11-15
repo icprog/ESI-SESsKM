@@ -1,6 +1,5 @@
 #include "stdafx.h"
-
-
+#pragma pack(1)
 #include <fstream>
 #include <string>
 #include<iostream>
@@ -18,7 +17,7 @@ void Util::initialize(char *arr1, char *arr2, int startIdx, int endIdx, int j)
 	}
 }
 
-void Util::readFromFile()
+void Util::readFromFile(RTU *rt1)
 {
 	std::vector<AnalogInput> analogInputs;
 	std::vector<AnalogOutput> analogOutputs;
@@ -70,7 +69,7 @@ void Util::readFromFile()
 	int StGrejacOutAdress1;
 	int StGrejacOutAdress2;
 	int StGrejacStatus;
-	char StGrejacState;
+	//char StGrejacState;
 	//
 
 	ifstream inFile;
@@ -202,8 +201,6 @@ void Util::readFromFile()
 		if (i == 36)
 			StGrejacStatus = stoi(token);
 
-		
-
 		//std::cout << token << std::endl;
 		fileContent.erase(0, pos + delimiter.length());
 		i++;
@@ -255,18 +252,24 @@ void Util::readFromFile()
 	cout << "Stanje grejaca out adress2: " << StGrejacOutAdress2 << endl;
 	cout << "Stanje grejaca status: " << StGrejacStatus << endl;
 
-	DigitalDevice *dd1 = new DigitalDevice(StGrejacaName, StGrejacReadOnly, StGrejacInAdress1, StGrejacInAdress2, StGrejacOutAdress1, StGrejacOutAdress2, StGrejacStatus, 0);
-
+	char state = 0;
+	//char command[2];
+	//command[0] = 0;
+	//command[1] = 0;
+	DigitalDevice *dd1 = new DigitalDevice(StGrejacaName, StGrejacReadOnly, StGrejacInAdress1, StGrejacInAdress2, StGrejacOutAdress1, StGrejacOutAdress2, StGrejacStatus);
+	//dd1->setState(state);
+	//dd1->setCommand(command);
 	analogInputs.push_back(*ai1);
 	analogInputs.push_back(*ai2);
 	digitalDevices.push_back(*dd1);
 	int analogInputNum = analogInputs.size();
 	int analogOutputNum = analogOutputs.size();
 	int digInputNum = digitalDevices.size();
+	
 	//int digOutputNum
 
 
-	RTU *rt1 = new RTU(RTUName, "Modbus", "TCP/IP", RTUIpAdress, RTUport, analogInputNum, analogOutputNum, digInputNum, digInputNum, &analogInputs, &analogOutputs, &digitalDevices);
+	rt1 = new RTU(RTUName, "Modbus", "TCP/IP", RTUIpAdress, RTUport, analogInputNum, analogOutputNum, digInputNum, digInputNum, &analogInputs, &analogOutputs, &digitalDevices);
 
 	CRITICAL_SECTION cs;
 	InitializeCriticalSection(&cs);
@@ -289,8 +292,14 @@ void Util::readFromFile()
 
 	b1->push(data);
 	char sa[2];
+	/* 4001 FA1
 	sa[0] = 0x0F;
 	sa[1] = 0xA1;
+	*/
+	/* 1
+	sa[0] = 0x00;
+	sa[1] = 0x01;
+	*/
 	DataProcessing *dp = new DataProcessing();
 	dp->dataProcessingEngine(b1, sa, rt1);
 	

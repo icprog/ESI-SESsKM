@@ -34,7 +34,7 @@ public:
 	int getValue() { return value; }
 
 	void setName(string newName) { name = newName; }
-	void setAddress(int newAddress) { address = newAddress; }
+	void setAddress(short newAddress) { address = newAddress; }
 	void setRaw(int newRaw) { Raw = newRaw; }
 	void setRawMin(int newRawMin) { RawMin = newRawMin; }
 	void setRawMax(int newRawMax) { RawMin = newRawMax; }

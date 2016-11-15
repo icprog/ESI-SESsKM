@@ -53,6 +53,9 @@ private:
 #include "ServerMediator.h"
 #include "IComponent.h"
 #include "PollEngine.h"
+#include "AnalogInput.h"
+#include "DataProcessingEngine.h"
+#include "RTU.h"
 #include <vector>
 bool InitializeWindowsSockets();
 int main() {
@@ -79,13 +82,14 @@ int main() {
 		return 1;
 	}
 
-	Util::readFromFile(); //ucitavanje konf. fajla i punjenje modela
+	RTU *rtu = new RTU();
+	Util::readFromFile(rtu); //ucitavanje konf. fajla i punjenje modela
 
 	IServerMediator *med = new ServerMediator();
 
 	SOCKET sock = INVALID_SOCKET;
 
-
+	
 	char tuid[2];
 	char puid[2];
 	char lenp[2];
@@ -100,17 +104,56 @@ int main() {
 
 	TCPHeader *tcpHeader = new TCPHeader(tuid, puid, lenp, uid);
 
-	char f = 0x06;
-	char sa[2];
-	char val[2];
-	sa[0] = 0x01;
-	sa[1] = 0x00;
-	val[0] = 0x05;
-	val[1] = 0x00;
-	PDU *pdu = new PDU(f, sa, val);
-	Request *req = new Request(tcpHeader, pdu);
+	/////request 1 zadata temp.
+	char f1 = 0x04;
+	char sa1[2];
+	char val1[2];
+	sa1[0] = 0x00;
+	sa1[1] = 0x01;
+	val1[0] = 0x00;
+	val1[1] = 0x01;
+	/////
+	/////request 2 spoljasnja temp.
+	char f2 = 0x04;
+	char sa2[2];
+	char val2[2];
+	sa2[0] = 0x00;
+	sa2[1] = 0x02;
+	val2[0] = 0x00;
+	val2[1] = 0x01;
+	/////
+	/////request 3 unutrasnja temp.
+	char f3 = 0x04;
+	char sa3[2];
+	char val3[2];
+	sa3[0] = 0x00;
+	sa3[1] = 0x03;
+	val3[0] = 0x00;
+	val3[1] = 0x01;
+	/////
+	/////request 4 digitalni ulaz, stanje grejaca
+	char f4 = 0x02;
+	char sa4[2];
+	char val4[2];
+	sa4[0] = 0x00;
+	sa4[1] = 0x04;
+	val4[0] = 0x00;
+	val4[1] = 0x01;
+	/////
+	PDU *pdu1 = new PDU(f1, sa1, val1);
+	Request *req1 = new Request(tcpHeader, pdu1);
+	PDU *pdu2 = new PDU(f2, sa2, val2);
+	Request *req2 = new Request(tcpHeader, pdu2);
+	PDU *pdu3 = new PDU(f3, sa3, val3);
+	Request *req3 = new Request(tcpHeader, pdu3);
+	PDU *pdu4 = new PDU(f4, sa4, val4);
+	Request *req4 = new Request(tcpHeader, pdu4);
 	std::vector<Request*> vec;
-	vec.push_back(req);
+	vec.push_back(req1);
+	vec.push_back(req2);
+	vec.push_back(req3);
+	vec.push_back(req4);
+
 	CRITICAL_SECTION cs;
 	InitializeCriticalSection(&cs);
 	Buffer *buffer = new Buffer("red1", 512, &cs);
@@ -120,6 +163,9 @@ int main() {
 	std::unique_ptr<PollEngine> pollEngineThread(new PollEngine(1, buffer, &vec, 1, false, "127.0.0.1", 502, &sock));
 	pollEngineThread->start();
 	int result1 = reinterpret_cast<int>(pollEngineThread->join());
+
+	//char *address = "\0";
+	//std::unique_ptr<DataProcessing> dataProcessingThread(new DataProcessing(1, buffer, address, rtu));
 	// the destructors for thread1 and thread2 will automatically delete the
 	// pointed-at thread objects
 	std::cout << result1 << std::endl;

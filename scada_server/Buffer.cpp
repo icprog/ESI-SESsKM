@@ -107,11 +107,50 @@ int Buffer::push(char * data)
 	return 0;
 }
 
-int Buffer::pop(char * data)
+int Buffer::pop(char * data, int type)
 {
-	EnterCriticalSection(&this->cs);
+	//short velicina = *((short *)this->data + 2);
+	short velicina = -1;
+	if (type == 0) {
+		velicina = *((short*)(this->data + popIdx) + 2);
+		velicina = ntohs(velicina) + 6;
+	}
+	else {
+		velicina = *((int*)(this->data + popIdx));
+	}
+	
+	if (this->count == 0) {
+		return false;
+	}
 
-	short velicina = *((short *)data + 2);
+	for (int i = 0; i < velicina; i++) {
+
+		data[i] = this->data[this->popIdx];
+
+		this->popIdx++;
+
+		if (this->popIdx == this->size) {
+			this->popIdx = 0;
+		}
+	}
+
+	this->count -= velicina;
+
+	//debug ispis
+	cout << "\nSadrzaj bafera: ";
+	for (int i = 0; i < this->size; i++) {
+		cout << this->data[i];
+	}
+	cout << "\nOstatak: \n";
+	cout << "PopIdx: " << this->popIdx << endl;
+	cout << "PushIdx: " << this->pushIdx << endl;
+	cout << "Count: " << this->count << endl;
+	cout << "Size: " << this->size << endl;
+	//kraj debug ispisa
+
+	/*EnterCriticalSection(&this->cs);
+
+	short velicina = *((short *)this->data + 2);
 
 	if (this->count == 0) {
 		return 0;
@@ -154,7 +193,6 @@ int Buffer::pop(char * data)
 
 	this->count -= velicina;
 
-	/*debug output*/
 
 	cout << "\nSadrzaj bafera: ";
 	for (int i = 0; i < this->size; i++) {
@@ -166,10 +204,10 @@ int Buffer::pop(char * data)
 	cout << "Count: " << this->count << endl;
 	cout << "Size: " << this->size << endl;
 
-	/*end of debut output*/
 
 	LeaveCriticalSection(&this->cs);
 	return 0;
+	*/
 }
 
 void Buffer::shrink()

@@ -1,5 +1,5 @@
 RTU;127.0.0.1;502;
-ZadataTemperatura;5001;0;100;40;0;1000;100;24;
-SpoljasnjaTemperatura;4001;0;100;40;0;1000;200;16;
-UnutrasnjaTemperatura;4002;0;100;40;0;1000;25;16;
+ZadataTemperatura;1;0;100;40;0;1000;100;24;
+SpoljasnjaTemperatura;2;0;100;40;0;1000;200;16;
+UnutrasnjaTemperatura;3;0;100;40;0;1000;25;16;
 StanjeGrejaca;0;1001;1002;2001;2002;1;

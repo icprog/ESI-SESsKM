@@ -23,6 +23,7 @@ public:
 	std::vector<AnalogOutput> *analogOutputs;
 	std::vector<DigitalDevice> *digitalDevices;
 public:
+	RTU() {}
 	RTU(std::string id, std::string m_industrialProtocol, std::string m_transportProtocol, std::string m_ipAddress, int m_port, int m_analogInputNum,
 		int m_analogOutputNum, int m_digitalInputNum, int m_digitalOutputNum,
 		std::vector<AnalogInput> *m_analogInputs, std::vector<AnalogOutput> *m_analogOutputs, std::vector<DigitalDevice> *m_digitalDevices
