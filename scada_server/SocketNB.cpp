@@ -185,6 +185,28 @@ int SocketNB::RECEIVE(SOCKET* socket, char* buffer) {
 	return i; // success code: 0
 }
 
+int SocketNB::RECEIVEC(SOCKET* socket, char* buffer) {
+
+	int i = 0;
+	int len = 15;
+	int iResult = 0;
+	while (i < len) {
+		do {
+			iResult = receiveNB(socket, buffer, len - i, i);
+		} while (iResult == SLEEP);
+		if (iResult == SOCKET_ERROR)
+		{
+			printf("reeiving the whole message failed with error: %d\n", WSAGetLastError());
+			closesocket(*socket);
+			//socket = INVALID_SOCKET;
+			//WSACleanup();
+			return REC_ERR; // connection error code: 2
+		}
+		i += iResult;
+	}
+
+	return i; // success code: 0
+}
 
 int SocketNB::getMessageLength(char *data) {
 	return *((short*)data + 2);

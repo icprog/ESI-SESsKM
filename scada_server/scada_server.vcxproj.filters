@@ -182,5 +182,8 @@
     <ClCompile Include="DataProcessingEngine.cpp">
       <Filter>src\mediator</Filter>
     </ClCompile>
+    <ClCompile Include="ClientHandler.cpp">
+      <Filter>src\mediator</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

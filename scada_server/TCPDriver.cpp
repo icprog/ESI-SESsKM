@@ -29,23 +29,25 @@ int TCPDriver::sendRequest(SOCKET * sendSocket, char * request, bool closeConnec
 int TCPDriver::receiveResponse(SOCKET * connectSocket,char *request, char * response, bool closeConnection, unsigned long int nonBlockingMode, Buffer * b)
 {
 	int iResult = -1;
+
 	do {
-		iResult = socketNB->RECEIVE(connectSocket, response);
+		if (request == nullptr && b == nullptr)
+			iResult = socketNB->RECEIVEC(connectSocket, response);
+		else
+			iResult = socketNB->RECEIVE(connectSocket, response);
 		printf("%d", iResult);
 		if (iResult > 0)
 		{
 			printf("Message received from server as a server: %s.\n", response);
-
-			// prvo proveri sta ima da se radi
-			if (response[7] == 0x80 || response[7] == (0x80 + request[7])) {
-				return -1;
+			if (response != nullptr && b != nullptr){
+				// prvo proveri sta ima da se radi
+				if (response[7] == 0x80 || response[7] == (0x80 + request[7])) {
+					return -1;
+				}
+				//////////////////////////////////////// HASHMAPA ZAHTEV - RESPONSE npr: ENUM - CHAR *
+			
+				b->push(response);
 			}
-
-
-
-
-			//////////////////////////////////////// HASHMAPA ZAHTEV - RESPONSE npr: ENUM - CHAR *
-			b->push(response);
 		}
 		else if (iResult == 0)
 		{
@@ -79,10 +81,10 @@ int TCPDriver::createSocket(SOCKET *connectSocket, SOCKET *listenSocket, char* i
 			// Ako je ovde greska, kraj rada
 			return 1;
 		}
-		while (!exit)
+		while (1)
 		{
 			printf("\nLISTEN SOCKET IZ SERVERA: %d\n", listenSocket);
-			iResult = ioctlsocket(*connectSocket, FIONBIO, &nonBlockingMode);
+			iResult = ioctlsocket(*listenSocket, FIONBIO, &nonBlockingMode);
 			selectt(listenSocket, 0, 0);
 			// Wait for clients and accept client connections.
 			// Returning value is acceptedSocket used for further
@@ -93,6 +95,8 @@ int TCPDriver::createSocket(SOCKET *connectSocket, SOCKET *listenSocket, char* i
 				// Ako je ovde greska, kraj rada
 				return 1;
 			}
+			else
+				return 0;
 		}
 	}
 	else {
@@ -240,7 +244,7 @@ int TCPDriver::selectt(SOCKET * socket, int type, int *exit)
 			Sleep(200);
 		}
 
-	} while (iResult == 0 && *exit == 0);
+	} while (iResult == 0 );
 
 	return iResult;
 }
