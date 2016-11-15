@@ -7,40 +7,80 @@
 using namespace std;
 
 
-void DataProcessing::dataProcessingEngine(Buffer * recvBuf, /*char * data,*/ RTU * rtu)
+void DataProcessing::dataProcessingEngine(Buffer * recvBuf, char * sAddress, RTU * rtu)
 {
 	//preuzimanje zaglavlja i function koda iz bufera
-	short transId = (*((short*)recvBuf)); //ntohs
-	short protID = (*((short*)(recvBuf + 2))); //ntohs
-	short length = (*((short*)(recvBuf + 4))); //ntohs
-	char unitID = *((char*)(recvBuf + 6));
-	char fCode = *((char*)(recvBuf + 7));
+	char *data = recvBuf->getData();
+	short transId = ntohs(*((short*)data)); //ntohs
+	short protID = ntohs(*((short*)(data + 2))); //ntohs
+	short length = ntohs(*((short*)(data + 4))); //ntohs
+	char unitID = *((char*)(data + 6));
+	char fCode = *((char*)(data + 7));
 
 
 	if (fCode == 1 ) {  //citanje digitalnih izlaza
-		char outputValue = *((char*)(recvBuf + 9));
+		char outputValue = *((char*)(data + 9));
 		cout << "Vrednost je: " << outputValue << endl;
 		//da li je potrebno upisati u rtdb??
 		//upisi u digitalni izlaz
-		DigitalDevice *dd = rtu->digitalDevices[0].data();
+		vector<DigitalDevice> digitalDevices = rtu->getDigitalDevices();
+		int address = ntohs(*(int*)sAddress);
+		for (vector<DigitalDevice>::iterator it = digitalDevices.begin(); it != digitalDevices.end(); ++it) {
+			if (it->getOutAddress1() == address || it->getOutAddress2() == address) {
+				it->setState(outputValue);
+				it->setStatus(1); //status 1 je ok
+			}
+		}
+		/*DigitalDevice *dd = rtu->digitalDevices[0].data();
 		dd->setState(outputValue); // stavi char u state
 		dd->setStatus(1); //status 1 je ok
+		*/
 	}
 	else if (fCode == 2) { //citanje digitalnih ulaza
-		char outputValue = *((char*)(recvBuf + 9));
+		char outputValue = *((char*)(data + 9));
 		cout << "Vrednost je: " << outputValue << endl;
 		//upisuje se u rtdb, dig.ulaz
-		DigitalDevice *dd = rtu->digitalDevices[0].data();
+		vector<DigitalDevice> digitalDevices = rtu->getDigitalDevices();
+		int address = ntohs(*(int*)sAddress);
+		for (vector<DigitalDevice>::iterator it = digitalDevices.begin(); it != digitalDevices.end(); ++it) {
+			if (it->getInAddress1() == address || it->getInAddress2() == address) {
+				it->setState(outputValue);
+				it->setStatus(1); //status 1 je ok
+			}
+		}
+
+		/*DigitalDevice *dd = rtu->digitalDevices[0].data();
 		dd->setState(outputValue); //stavi char u state
 		dd->setStatus(1); // status 1 je ok
+		*/
 	}
 	else if (fCode == 3) { //citanje analognih izlaza
-		char numEnt = *((char*)(recvBuf + 8));
-		short inpVal = ntohs(*((short*)(recvBuf + 9))); //ne znam da li treba ntohs
-		int temp = int(numEnt) / 2;
+		char numEnt = *((char*)(data + 8));
+		short inpVal = ntohs(*((short*)(data + 9))); //ne znam da li treba ntohs
 
-		AnalogOutput *rtuOut = rtu->analogOutputs[0].data();
-		rtuOut->setRaw(inpVal);
+		//koji analogni izlaz upisujem??
+		vector<AnalogOutput> analogOutputs = rtu->getAnalogOutputs();
+		int address = ntohs(*(int*)sAddress);
+
+		for (vector<AnalogOutput>::iterator it = analogOutputs.begin(); it != analogOutputs.end(); ++it) {
+			if (it->getAddress() == address) {
+				it->setRaw(inpVal);
+				
+				if (inpVal < it->getRawMax() || inpVal > it->getRawMin()) {
+					//formula za konverziju iz analog u egu
+					//rtuIn.EGU = (rtuIn.Raw * rtuIn.EGUMax)/rtuIn.RawMax;
+					//rtuIn->setEGU((rtuIn->getRaw() * rtuIn->getEGUMax()) / rtuIn->getEGUMin()); //proveri formulu
+					it->setEGU(((it->getEGUMax() - it->getEGUMin()) / (it->getRawMax() - it->getRawMin()))*(it->getRaw() - it->getRawMin()) + it->getEGUMin());
+					it->setStatus(1); //status 1 je ok, postavi status u rtuIn na ok
+				}
+				else {
+					it->setStatus(0); //status 0 je err, postavi status u rtuIn na err
+				}
+				break;
+			}
+		}
+
+		/*rtuOut->setRaw(inpVal);
 
 		if (inpVal < rtuOut->getRawMax() || inpVal > rtuOut->getRawMin()) {
 			//formula za konverziju iz analog u egu
@@ -50,35 +90,57 @@ void DataProcessing::dataProcessingEngine(Buffer * recvBuf, /*char * data,*/ RTU
 		}
 		else {
 			rtuOut->setStatus(0); //status 0 je err
-		}
+		}*/
 
 	}
 	else if (fCode == 4) {  //un.,sp. temp,citanje vrednosti iz registara
-		char numEnt = *((char*)(recvBuf + 8));
-		short inpVal = ntohs(*((short*)(recvBuf + 9))); //ne znam da li treba ntohs
-		int temp = int(numEnt) / 2;
+		//00 01 00 00 05 01 04 00 10 00
+		char numEnt = *((char*)(data + 8));
+		short inpVal = ntohs(*((short*)(data + 9))); //ne znam da li treba ntohs
+		
+		//koji analogni uzal upisujem??
+		vector<AnalogInput> analogInputs = rtu->getAnalogInputs();
+		int address = ntohs(*(int*)sAddress);
 
-		AnalogInput *rtuIn = rtu->analogInputs[0].data();
-		rtuIn->setRaw(inpVal); //potrebno je na rtu input[0].Raw postaviti inpVal
+		for (vector<AnalogInput>::iterator it = analogInputs.begin(); it != analogInputs.end(); ++it) {
+			if (it->getAddress() == address) {
+				it->setRaw(inpVal);
 
-		if (inpVal < rtuIn->getRawMax() || inpVal > rtuIn->getRawMin()) {
+				if (inpVal < it->getRawMax() || inpVal > it->getRawMin()) {
+					//formula za konverziju iz analog u egu
+					//rtuIn.EGU = (rtuIn.Raw * rtuIn.EGUMax)/rtuIn.RawMax;
+					//rtuIn->setEGU((rtuIn->getRaw() * rtuIn->getEGUMax()) / rtuIn->getEGUMin()); //proveri formulu
+					it->setEGU(((it->getEGUMax() - it->getEGUMin()) / (it->getRawMax() - it->getRawMin()))*(it->getRaw() - it->getRawMin()) + it->getEGUMin());
+					it->setStatus(1); //status 1 je ok, postavi status u rtuIn na ok
+				}
+				else {
+					it->setStatus(0); //status 0 je err, postavi status u rtuIn na err
+				}
+				break;
+			}
+		}
+		//AnalogInput rtuIn = rtu->getAnalogInputs().at(0);
+		/*rtuIn.setRaw(inpVal); //potrebno je na rtu input[0].Raw postaviti inpVal
+
+		if (inpVal < rtuIn.getRawMax() || inpVal > rtuIn.getRawMin()) {
 			//formula za konverziju iz analog u egu
 			//rtuIn.EGU = (rtuIn.Raw * rtuIn.EGUMax)/rtuIn.RawMax;
 			//rtuIn->setEGU((rtuIn->getRaw() * rtuIn->getEGUMax()) / rtuIn->getEGUMin()); //proveri formulu
-			rtuIn->setEGU(((rtuIn->getEGUMax() - rtuIn->getEGUMin()) / (rtuIn->getRawMax() - rtuIn->getRawMin()))*(rtuIn->getRaw() - rtuIn->getRawMin()) + rtuIn->getEGUMin());
-			rtuIn->setStatus(1); //status 1 je ok, postavi status u rtuIn na ok
+			rtuIn.setEGU(((rtuIn.getEGUMax() - rtuIn.getEGUMin()) / (rtuIn.getRawMax() - rtuIn.getRawMin()))*(rtuIn.getRaw() - rtuIn.getRawMin()) + rtuIn.getEGUMin());
+			rtuIn.setStatus(1); //status 1 je ok, postavi status u rtuIn na ok
 		}
 		else {
-			rtuIn->setStatus(0); //status 0 je err, postavi status u rtuIn na err
+			rtuIn.setStatus(0); //status 0 je err, postavi status u rtuIn na err
 		}
+		*/
 
 	}
 
-	else if (fCode == 5) { // pisanje dig.izlaza
+	else if (fCode == 5) { // pisanje dig.izlaza, nista se ne upisuje
 		char byteCount = *((char*)(recvBuf + 8));
 		char result = *((char*)(recvBuf + 9));
 	}
-	else if (fCode == 6) { //pisanje analognih izlaza
+	else if (fCode == 6) { //pisanje analognih izlaza, nista se ne upisuje
 		int inp = (int)(*((char*)(recvBuf + 11)));
 		std::cout << "Upisuje se vrednost" << std::endl;
 

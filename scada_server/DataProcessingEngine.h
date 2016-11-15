@@ -8,7 +8,7 @@
 class DataProcessing {
 public:
 	DataProcessing() {}
-	void dataProcessingEngine(Buffer *recvBuf, /*char * data,*/ RTU * rtu);
+	void dataProcessingEngine(Buffer *recvBuf, char * sAddress, RTU * rtu);
 	~DataProcessing() {}
 private:
 	//Buffer *myBuffer;

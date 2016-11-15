@@ -7,7 +7,6 @@
 class DigitalDevice {
 
 	std::string name;
-	char state;
 	int status;
 	int readOnly; // nema komandovanja i onda nema outaddreses
 	int inAddress1;
@@ -16,6 +15,7 @@ class DigitalDevice {
 	int outAddress2;
 	//char inAddresses[2]; // da li se desio
 	//char outAddresses[2]; //odkomandovao, ocilovi kojima se komanduje
+	char state;
 	char command[2]; //salji nopr 01 na out adreses
 public:
 	string getName() { return name; }
@@ -38,8 +38,8 @@ public:
 
 	DigitalDevice() {}
 
-	DigitalDevice(std::string m_name, int m_readOnly, int m_inAddress1, int m_inAddress2, int m_outAddress1, int m_outAddress2, int m_status) :
-		name(m_name), readOnly(m_readOnly), inAddress1(m_inAddress1), inAddress2(m_inAddress2), outAddress1(m_outAddress1), outAddress2(m_outAddress2), status(m_status) {}
+	DigitalDevice(std::string m_name, int m_readOnly, int m_inAddress1, int m_inAddress2, int m_outAddress1, int m_outAddress2, int m_status, char m_state) :
+		name(m_name), readOnly(m_readOnly), inAddress1(m_inAddress1), inAddress2(m_inAddress2), outAddress1(m_outAddress1), outAddress2(m_outAddress2), status(m_status), state(m_state)  {}
 
 	~DigitalDevice() {}
 

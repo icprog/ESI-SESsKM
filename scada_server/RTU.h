@@ -13,7 +13,7 @@ public:
 	std::string industrialProtocol;
 	std::string transportProtocol;
 	std::string ipAddress;
-	unsigned short port;
+	int port;
 	int analogInputNum;
 	int analogOutputNum;
 	int digitalInputNum;
@@ -23,7 +23,7 @@ public:
 	std::vector<AnalogOutput> *analogOutputs;
 	std::vector<DigitalDevice> *digitalDevices;
 public:
-	RTU(std::string id, std::string m_industrialProtocol, std::string m_transportProtocol, std::string m_ipAddress, unsigned short m_port, int m_analogInputNum,
+	RTU(std::string id, std::string m_industrialProtocol, std::string m_transportProtocol, std::string m_ipAddress, int m_port, int m_analogInputNum,
 		int m_analogOutputNum, int m_digitalInputNum, int m_digitalOutputNum,
 		std::vector<AnalogInput> *m_analogInputs, std::vector<AnalogOutput> *m_analogOutputs, std::vector<DigitalDevice> *m_digitalDevices
 	) : id(id), industrialProtocol(m_industrialProtocol), transportProtocol(m_transportProtocol), ipAddress(m_ipAddress), port(m_port),

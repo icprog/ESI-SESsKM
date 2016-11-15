@@ -16,6 +16,7 @@ private:
 	int size;
 	CRITICAL_SECTION cs;
 public:
+	char *getData() { return data; }
 	void expand();		//exprend buffer size
 	int push(char *data);		//adding data to buffer	
 	int pop(char *data);		//remove data from buffer

@@ -223,7 +223,7 @@ void Util::readFromFile()
 	cout << "Zadata temp. Raw max: " << ZadataTempRawMax << endl;
 	cout << "Zadata temp. Raw: " << ZadataTempRaw << endl;
 	cout << "Zadata temp. value: " << ZadataTempValue << endl;
-	AnalogInput *ai3 = new AnalogInput(ZadataTempName, (unsigned short)ZadataTempAdress, ZadataTempEGUMin, ZadataTempEGUMax, ZadataTempEGU, ZadataTempRawMin, ZadataTempRawMax, ZadataTempRaw, ZadataTempValue);
+	AnalogInput *ai3 = new AnalogInput(ZadataTempName, ZadataTempAdress, ZadataTempEGUMin, ZadataTempEGUMax, ZadataTempEGU, ZadataTempRawMin, ZadataTempRawMax, ZadataTempRaw, ZadataTempValue);
 
 	cout << "Spoljasnja temp. name: " << SpTempName << endl;
 	cout << "Spoljasnja temp. ip adress: " << SpTempAdress << endl;
@@ -234,7 +234,7 @@ void Util::readFromFile()
 	cout << "Spoljasnja temp. Raw max: " << SpTempRawMax << endl;
 	cout << "Spoljasnja temp. Raw: " << SpTempRaw << endl;
 	cout << "Spoljasnja temp. value: " << SpTempValue << endl;
-	AnalogInput *ai1 = new AnalogInput(SpTempName, (unsigned short)SpTempAdress, SpTempEGUMin, SpTempEGUMax, SpTempEGU, SpTempRawMin, SpTempRawMax, SpTempRaw, SpTempValue);
+	AnalogInput *ai1 = new AnalogInput(SpTempName, SpTempAdress, SpTempEGUMin, SpTempEGUMax, SpTempEGU, SpTempRawMin, SpTempRawMax, SpTempRaw, SpTempValue);
 
 	cout << "Unutrasnja temp. name: " << UnTempName << endl;
 	cout << "Unutrasnja temp. ip adress: " << UnTempAdress << endl;
@@ -245,7 +245,7 @@ void Util::readFromFile()
 	cout << "Unutrasnja temp. Raw max: " << UnTempRawMax << endl;
 	cout << "Unutrasnja temp. Raw: " << UnTempRaw << endl;
 	cout << "Unutrasnja temp. Raw value: " << UnTempValue << endl;
-	AnalogInput *ai2 = new AnalogInput(UnTempName, (unsigned short)UnTempAdress, UnTempEGUMin, UnTempEGUMax, UnTempEGU, UnTempRawMin, UnTempRawMax, UnTempRaw, UnTempValue);
+	AnalogInput *ai2 = new AnalogInput(UnTempName, UnTempAdress, UnTempEGUMin, UnTempEGUMax, UnTempEGU, UnTempRawMin, UnTempRawMax, UnTempRaw, UnTempValue);
 
 	cout << "Stanje grejaca name: " << StGrejacaName << endl;
 	cout << "Stanje grejaca read only: " << StGrejacReadOnly << endl;
@@ -254,9 +254,8 @@ void Util::readFromFile()
 	cout << "Stanje grejaca out adress1: " << StGrejacOutAdress1 << endl;
 	cout << "Stanje grejaca out adress2: " << StGrejacOutAdress2 << endl;
 	cout << "Stanje grejaca status: " << StGrejacStatus << endl;
-	
 
-	DigitalDevice *dd1 = new DigitalDevice(StGrejacaName, StGrejacReadOnly, StGrejacInAdress1, StGrejacInAdress2, StGrejacOutAdress1, StGrejacOutAdress2, StGrejacStatus);
+	DigitalDevice *dd1 = new DigitalDevice(StGrejacaName, StGrejacReadOnly, StGrejacInAdress1, StGrejacInAdress2, StGrejacOutAdress1, StGrejacOutAdress2, StGrejacStatus, 0);
 
 	analogInputs.push_back(*ai1);
 	analogInputs.push_back(*ai2);
@@ -267,16 +266,17 @@ void Util::readFromFile()
 	//int digOutputNum
 
 
-	RTU *rt1 = new RTU(RTUName, "Modbus", "TCP/IP", RTUIpAdress, (unsigned short)RTUport, analogInputNum, analogOutputNum, digInputNum, digInputNum, &analogInputs, &analogOutputs, &digitalDevices);
+	RTU *rt1 = new RTU(RTUName, "Modbus", "TCP/IP", RTUIpAdress, RTUport, analogInputNum, analogOutputNum, digInputNum, digInputNum, &analogInputs, &analogOutputs, &digitalDevices);
 
 	CRITICAL_SECTION cs;
 	InitializeCriticalSection(&cs);
 
 	Buffer *b1 = new Buffer("buf11", 512, &cs);
 	char data[11];
-	data[0]= 0x01; //tcp header
-	data[1] = 0x00;
-	data[2] = 0x01;
+	//response u bafer
+	data[0]= 0x00; //tcp header
+	data[1] = 0x01;
+	data[2] = 0x00;
 	data[3] = 0x00;
 	data[4] = 0x00; 
 	data[5] = 0x05;
@@ -284,13 +284,17 @@ void Util::readFromFile()
 
 	data[7] = 0x04; //fun. code
 	data[8] = 0x01;
-	data[9] = 0x10;
-	data[10] = 0x00;
+	data[9] = 0x00;
+	data[10] = 0x01;
 
 	b1->push(data);
-
+	char sa[2];
+	sa[0] = 0x0F;
+	sa[1] = 0xA1;
 	DataProcessing *dp = new DataProcessing();
-	dp->dataProcessingEngine(b1, rt1);
+	dp->dataProcessingEngine(b1, sa, rt1);
 	
 	inFile.close();
 }
+
+
