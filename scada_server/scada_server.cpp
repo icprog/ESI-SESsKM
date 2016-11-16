@@ -57,6 +57,7 @@ private:
 #include "DataProcessingEngine.h"
 #include "RTU.h"
 #include <vector>
+#include "ClientHandler.h"
 bool InitializeWindowsSockets();
 int main() {
 	/*
@@ -161,7 +162,7 @@ int main() {
 	Buffer *buffer = new Buffer("red1", 512, &cs);
 	//buffer->createBuffer("red1", 512, &cs);
 	char response[600];
-
+	/*
 	std::unique_ptr<PollEngine> pollEngineThread(new PollEngine(1, buffer, &vec, 1, false, "127.0.0.1", 502, &sock));
 	pollEngineThread->start();
 	int result1 = reinterpret_cast<int>(pollEngineThread->join());
@@ -169,7 +170,15 @@ int main() {
 	std::unique_ptr<DataProcessing> dataProcessingThread(new DataProcessing(2, buffer, rtu));
 	dataProcessingThread->start();
 	int result2 = reinterpret_cast<int>(dataProcessingThread->join());
-	
+	*/
+
+	char *message = "Ovo je poruka!";
+	buffer->push(message, 1);
+
+	SOCKET ls = INVALID_SOCKET, as = INVALID_SOCKET;
+	std::unique_ptr<ClientHandler> pollEngineThread(new ClientHandler(1, 1, false, "127.0.0.1", 27016, &ls, &as, buffer));
+	pollEngineThread->start();
+	int result1 = reinterpret_cast<int>(pollEngineThread->join());
 	// the destructors for thread1 and thread2 will automatically delete the
 	// pointed-at thread objects
 	std::cout << result1 << std::endl;

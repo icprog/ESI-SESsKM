@@ -5,8 +5,8 @@
 
 class SocketNB {
 public:
-	int SEND(SOCKET* socket, char* buffer);
-	int RECEIVE(SOCKET* socket, char* buffer);
+	int SEND(SOCKET* socket, char* buffer, int type);
+	int RECEIVE(SOCKET* socket, char* buffer, int type);
 	int getMessageLength(char *buffer);
 private:
 	int sendNB(SOCKET* socket, char* buffer, int bufferLength);

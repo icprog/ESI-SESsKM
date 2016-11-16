@@ -112,12 +112,14 @@ int SocketNB::receiveNB(SOCKET* socket, char* buffer, int bufferLength, int cont
 	return iResult; // success code: 0;
 }
 
-int SocketNB::SEND(SOCKET* socket, char* buffer) {
+int SocketNB::SEND(SOCKET* socket, char* buffer, int type) {
 
 	int i = 0;
 	int len = getMessageLength(buffer);
 	int iResult = 0;
-	while (i < 12) {
+	if(type != 0)
+		len = sizeof(buffer) / sizeof(*buffer);
+	while (i < len) {
 		do {
 			iResult = sendNB(socket, buffer, 12 - i);
 		} while (iResult == SLEEP);
@@ -136,11 +138,29 @@ int SocketNB::SEND(SOCKET* socket, char* buffer) {
 }
 
 
-int SocketNB::RECEIVE(SOCKET* socket, char* buffer) {
+int SocketNB::RECEIVE(SOCKET* socket, char* buffer, int type) {
 
 	int i = 0;
 	int len;
 	int iResult = 0;
+	if (type != 0) {
+		len = sizeof(buffer) / sizeof(*buffer);
+		while (i < len) {
+			do {
+				iResult = receiveNB(socket, buffer, len - i, i);
+			} while (iResult == SLEEP);
+			if (iResult == SOCKET_ERROR)
+			{
+				printf("reeiving the whole message failed with error: %d\n", WSAGetLastError());
+				closesocket(*socket);
+				//socket = INVALID_SOCKET;
+				//WSACleanup();
+				return REC_ERR; // connection error code: 2
+			}
+			i += iResult;
+		}
+		return 0;
+	}
 	char *duzina = new char[7];
 	while (i < 7) {
 		do {

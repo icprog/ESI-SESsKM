@@ -30,7 +30,7 @@ int TCPDriver::receiveResponse(SOCKET * connectSocket,char *request, char * resp
 {
 	int iResult = -1;
 	do {
-		iResult = socketNB->RECEIVE(connectSocket, response);
+		iResult = socketNB->RECEIVE(connectSocket, response, 0);
 		printf("%d", iResult);
 		if (iResult > 0)
 		{
@@ -272,7 +272,7 @@ int TCPDriver::sendMessage(SOCKET * socket, char * data)
 
 	printf("\nSENDING MESSAGE: %s", data);
 
-	iResult = socketNB->SEND(socket, data);
+	iResult = socketNB->SEND(socket, data, 0);
 
 	if (iResult == SOCKET_ERROR)
 	{

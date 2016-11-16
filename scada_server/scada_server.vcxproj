@@ -177,6 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="ClientHandler.cpp" />
     <ClCompile Include="DataProcessingEngine.cpp" />
     <ClCompile Include="Message.cpp" />
     <ClCompile Include="PDU.cpp" />

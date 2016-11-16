@@ -50,6 +50,9 @@ int Buffer::push(char * data, int type)
 		sizeOfData = *(short *)(data + 16);
 		sizeOfData = ntohs(sizeOfData)+18;
 	}
+	else {
+		sizeOfData = 16;
+	}
 
 	// ako je bafer vec pun count == size, radi prosirivanje, ali prvo utvrdi za koliko puta
 	// ili ako je velicina podataka veca od velicine ostatka slobodnog prostora u baferu
@@ -102,9 +105,8 @@ int Buffer::pop(char * data, int type)
 		velicina = ntohs(velicina) + 18;
 	}
 	else {
-		velicina = *((int*)(this->data + popIdx));
-	}
-	
+		velicina = 16;
+	}
 	if (this->count == 0) {
 		return false;
 	}
