@@ -44,15 +44,16 @@ int TCPDriver::receiveResponse(SOCKET * connectSocket,char *request, char * resp
 			char *wholeMessage;
 			int len = *((short*)response + 2);
 			len = ntohs(len);
-			int size = 11 + 6 + len;
+			int size = 12 + 6 + len;
 			wholeMessage = new char[size];
-			memcpy(wholeMessage, request, 11);
-			memcpy(wholeMessage + 11, response, size - 11);
+			memcpy(wholeMessage, request, 12);
+			memcpy(wholeMessage + 12, response, size - 12);
 
 			//////////////////////////////////////// HASHMAPA ZAHTEV - RESPONSE npr: ENUM - CHAR *
 			b->push(wholeMessage, 0);
+			iResult = 0;
 		}
-		else if (iResult == 0)
+		if (iResult == 0)
 		{
 			// connection was closed gracefully
 			printf("Connection with server established.\n");

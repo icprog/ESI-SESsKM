@@ -36,9 +36,10 @@ std::vector<Request>* PollEngine::initializeRequests()
 void * PollEngine::run()
 {
 	int iResult = this->makeConnection(this->sock, nullptr, this->ipAddress, this->port, this->nonBlockingMode);
-
-	this->sendRequests(this->sock, this->requests, this->response, this->myBuffer, this->closeConn, this->nonBlockingMode);
-
+	while(1){
+		this->sendRequests(this->sock, this->requests, this->response, this->myBuffer, this->closeConn, this->nonBlockingMode);
+		Sleep(2000);
+	}
 	return reinterpret_cast<void*>(threadId);
 }
 

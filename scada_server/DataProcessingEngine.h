@@ -9,15 +9,14 @@
 class DataProcessing : public Thread{
 public:
 	DataProcessing() {}
-	DataProcessing(int threadId_, Buffer *buffer_, vector<int> *address_, RTU *rtu_) : threadId(threadId_), myBuffer(buffer_), addresses(address_), rtu(rtu_) {}
-	void dataProcessingEngine(Buffer *recvBuf, vector<int> *address, RTU * rtu);
+	DataProcessing(int threadId_, Buffer *buffer_, RTU *rtu_) : threadId(threadId_), myBuffer(buffer_), rtu(rtu_) {}
+	void dataProcessingEngine(Buffer *recvBuf, RTU * rtu);
 	virtual void* run();
 	~DataProcessing() {}
 private:
 	int threadId;
 	Buffer *myBuffer;
-	std::vector<int> *addresses;
-	//char *data;
+	//std::vector<int> *addresses;
 	RTU *rtu;
 };
 

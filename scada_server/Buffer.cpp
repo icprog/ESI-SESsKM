@@ -47,51 +47,32 @@ int Buffer::push(char * data, int type)
 	EnterCriticalSection(&this->cs);
 	short sizeOfData = 0;
 	if(type == 0){
-		sizeOfData = *(short *)(data + 15);
-		sizeOfData = ntohs(sizeOfData)+17;
+		sizeOfData = *(short *)(data + 16);
+		sizeOfData = ntohs(sizeOfData)+18;
 	}
 
 	// ako je bafer vec pun count == size, radi prosirivanje, ali prvo utvrdi za koliko puta
 	// ili ako je velicina podataka veca od velicine ostatka slobodnog prostora u baferu
-	if ((this->count == this->size) || ((this->size - this->count) < sizeOfData)) {
+	if ((this->count >= this->size) || ((this->size - this->count) < sizeOfData)) {
 		if (sizeOfData > this->size * 2) {
-			for (int i = 0; i < sizeOfData / this->size + 1; i++)
-			{
-				expand();
-			}
-		}
-		else {
 			expand();
 		}
+		else
+			expand();
+			printf("EXPAND");
+
 	}
 
-	int rest = this->size - this->pushIdx + 1;
-	if (sizeOfData > rest) {
-		//buffer->popIdx = buffer->pushIdx;
-		//memcpy(buffer->data + buffer->pushIdx, data, rest);
-		for (int i = 0; i < rest; i++) {
-			//this->data[i] + this->pushIdx = data[i];
-			this->data[i + this->pushIdx] = data[i];
-		}
+	for (int i = 0; i < sizeOfData; i++) {
+		this->data[this->pushIdx] = data[i];
+		this->pushIdx++;
 
-		//memcpy(buffer->data, data + rest - 1, sizeOfData - rest);
-		for (int i = 0; i < sizeOfData - rest; i++) {
-			this->data[i] = data[i + rest - 1];
-		}
-		this->pushIdx = sizeOfData - rest;
-		this->count += sizeOfData;
+		if (this->pushIdx == this->size)
+			this->pushIdx = 0;
 	}
-	else {
-		//buffer->popIdx = buffer->count;
-		//memcpy(buffer->data + buffer->pushIdx, data, sizeOfData);
-		for (int i = 0; i < sizeOfData; i++) {
-			//this->data[i] + this->pushIdx = data[i];
-			this->data[i + this->pushIdx] = data[i];
-		}
 
-		this->count += sizeOfData;
-		this->pushIdx = this->count;
-	}
+	this->count += sizeOfData;
+
 
 	/*debug output*/
 	cout << "\nSadrzaj bafera: ";
@@ -117,8 +98,8 @@ int Buffer::pop(char * data, int type)
 	if (type == 0) {
 		//sizeOfData = *(short *)((char *)((short *)data + 6) + 1);
 		
-		velicina = *(short *)(this->data + 15);
-		velicina = ntohs(velicina) + 17;
+		velicina = *(short *)(this->data + 16);
+		velicina = ntohs(velicina) + 18;
 	}
 	else {
 		velicina = *((int*)(this->data + popIdx));
@@ -218,12 +199,11 @@ int Buffer::pop(char * data, int type)
 void Buffer::shrink()
 {
 	EnterCriticalSection(&this->cs);
-	int rest = this->size - this->popIdx;
 	double fullness = this->count / this->size;
 
 	// ako je bafer popunjen manje od jedne cetvrtine smanji ga za pola
 	if (fullness <= 0.25) {
-		char *newData = nullptr;
+		char *newData;
 		int newSize = 0;
 
 		// za slucaj da bafer nije bio povecavan uvek za 2 puta
@@ -232,41 +212,28 @@ void Buffer::shrink()
 		else
 			newSize = this->size / 2 + 2;
 
-		newData = new char[newSize + 1]; //malloc
-		if (this->pushIdx < this->popIdx) {
-			int rest = this->size - this->popIdx;
+		// malloc new array
+		newData = (char *)malloc(sizeof(char) * newSize);      // allocate 50 ints
 
-			//memcpy(newData, buffer->data + buffer->popIdx, rest);
-			for (int i = 0; i < rest; i++)
-			{
-				newData[i] = this->data[i + this->popIdx];
-			}
 
-			//memcpy(newData + rest, buffer->data, buffer->pushIdx);
-			for (int i = 0; i < this->pushIdx; i++)
-			{
-				newData[i + rest] = this->data[i];
-			}
+															   // prepisi podatke
+		for (int i = 0; i < this->count; i++) {
+			// ako je pokazivac na prvi za citanje ujedno i poslednja lokacija, postavi ga na 0
+			if (this->popIdx == this->size)
+				this->popIdx = 0;
+
+			newData[i] = this->data[i];
 		}
-		else
-		{
-			//memcpy(newData, buffer->data + buffer->popIdx, buffer->count);
-			for (int i = 0; i < this->count; i++)
-			{
-				newData[i] = this->data[i + this->popIdx];
-			}
-		}
-		// prepisi podatke
 
 		this->data = newData;
 		this->size = newSize;
 		this->pushIdx = this->count;
 		this->popIdx = 0;
-
-		LeaveCriticalSection(&this->cs);
 	}
 
+		LeaveCriticalSection(&this->cs);
 }
+
 
 /*void Buffer::createBuffer(char * name, int bufferLength, CRITICAL_SECTION * cs)
 {

@@ -261,6 +261,7 @@ RTU *Util::readFromFile()
 	//dd1->setCommand(command);
 	analogInputs.push_back(*ai1);
 	analogInputs.push_back(*ai2);
+	analogInputs.push_back(*ai3);
 	digitalDevices.push_back(*dd1);
 	int analogInputNum = analogInputs.size();
 	int analogOutputNum = analogOutputs.size();

@@ -7,7 +7,7 @@
 using namespace std;
 
 
-void DataProcessing::dataProcessingEngine(Buffer * recvBuf, vector<int> *addresses, RTU * rtu)
+void DataProcessing::dataProcessingEngine(Buffer * recvBuf, RTU * rtu)
 {
 	
 	//get first address only for debug purpose
@@ -17,20 +17,18 @@ void DataProcessing::dataProcessingEngine(Buffer * recvBuf, vector<int> *address
 	while(1){
 		while (recvBuf->getPopIdx() != recvBuf->getPushIdx())
 		{
-			for (int i = 0; i < addresses->size(); i++) {
-				int address = addresses->at(i);
-
+				//int address = addresses->at(i);
 				char dataBuf[512];
 				memset(dataBuf, 0, 512);
 				recvBuf->pop(dataBuf, 0);
 
-				//preuzimanje zaglavlja i function koda iz bufera
-				//char *data = recvBuf->getData();
-				short transId = ntohs(*((short*)dataBuf)); //ntohs
-				short protID = ntohs(*((short*)(dataBuf + 2))); //ntohs
-				short length = ntohs(*((short*)(dataBuf + 4))); //ntohs
-				char unitID = *((char*)(dataBuf + 6));
-				char fCode = *((char*)(dataBuf + 7));
+				int address = ntohs(*((short*)(dataBuf + 8)));
+			
+				//short transId = ntohs(*((short*)dataBuf+6)); //ntohs
+				//short protID = ntohs(*((short*)(dataBuf + 8))); //ntohs
+				//short length = ntohs(*((short*)(dataBuf + 10))); //ntohs
+				//char unitID = *((char*)(dataBuf + 6+12));
+				char fCode = *((char*)(dataBuf + 7+12));
 
 
 				if (fCode == 1) {  //citanje digitalnih izlaza
@@ -70,8 +68,8 @@ void DataProcessing::dataProcessingEngine(Buffer * recvBuf, vector<int> *address
 					*/
 				}
 				else if (fCode == 3) { //citanje analognih izlaza
-					char numEnt = *((char*)(dataBuf + 8));
-					short inpVal = ntohs(*((short*)(dataBuf + 9))); //ne znam da li treba ntohs
+					char numEnt = *((char*)(dataBuf + 20));
+					short inpVal = ntohs(*((short*)(dataBuf + 21))); //ne znam da li treba ntohs
 					//koji analogni izlaz upisujem??
 					vector<AnalogOutput> analogOutputs = rtu->getAnalogOutputs();
 
@@ -108,8 +106,8 @@ void DataProcessing::dataProcessingEngine(Buffer * recvBuf, vector<int> *address
 				}
 				else if (fCode == 4) {  //un.,sp. temp,citanje vrednosti iz registara
 					//00 01 00 00 05 01 04 00 10 00
-					char numEnt = *((char*)(dataBuf + 8));
-					short inpVal = ntohs(*((short*)(dataBuf + 9))); //ne znam da li treba ntohs
+					char numEnt = *((char*)(dataBuf + 20));
+					short inpVal = ntohs(*((short*)(dataBuf + 21))); //ne znam da li treba ntohs
 					//koji analogni uzal upisujem??
 					vector<AnalogInput> analogInputs = rtu->getAnalogInputs();
 
@@ -165,7 +163,7 @@ void DataProcessing::dataProcessingEngine(Buffer * recvBuf, vector<int> *address
 					//ako je nepoznat fun code mozda bi mogao da se napravi alarm
 				}
 
-			}
+			
 		
 		}
 		Sleep(200); //spava 200 i onda pokusa ponovo
@@ -174,6 +172,6 @@ void DataProcessing::dataProcessingEngine(Buffer * recvBuf, vector<int> *address
 
 void * DataProcessing::run()
 {
-	this->dataProcessingEngine(this->myBuffer, this->addresses, this->rtu);
+	this->dataProcessingEngine(this->myBuffer, this->rtu);
 	return reinterpret_cast<void*>(threadId);
 }
