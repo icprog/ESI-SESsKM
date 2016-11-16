@@ -51,8 +51,7 @@ void DataProcessing::dataProcessingEngine(Buffer * recvBuf, RTU * rtu)
 				}
 				else if (fCode == 2) { //citanje digitalnih ulaza
 					char byteCount = *((char*)(dataBuf + 20));
-					//char outputValue = *((char*)(dataBuf + 21));
-					short outputValue = *((short*)((char*)(dataBuf + 21)));
+					char outputValue = *((char*)(dataBuf + 21));
 					cout << "Vrednost je: " << outputValue << endl;
 					//upisuje se u rtdb, dig.ulaz
 					vector<DigitalDevice> digitalDevices = rtu->getDigitalDevices();

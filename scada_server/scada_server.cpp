@@ -124,37 +124,37 @@ int main() {
 	val2[1] = 0x01;
 	/////
 	/////request 3 unutrasnja temp.
-	/*char f3 = 0x04;
+	char f3 = 0x04;
 	char sa3[2];
 	char val3[2];
 	sa3[0] = 0x00;
 	sa3[1] = 0x03;
 	val3[0] = 0x00;
-	val3[1] = 0x01;*/
+	val3[1] = 0x01;
 	/////
 	/////request 4 digitalni ulaz, stanje grejaca
-	/*char f4 = 0x02;
+	char f4 = 0x02;
 	char sa4[2];
 	char val4[2];
 	sa4[0] = 0x00;
 	sa4[1] = 0x04;
 	val4[0] = 0x00;
-	val4[1] = 0x01;*/
+	val4[1] = 0x01;
 	/////
 
 	PDU *pdu1 = new PDU(f1, sa1, val1);
 	Request *req1 = new Request(tcpHeader, pdu1);
 	PDU *pdu2 = new PDU(f2, sa2, val2);
 	Request *req2 = new Request(tcpHeader, pdu2);
-	//PDU *pdu3 = new PDU(f3, sa3, val3);
-	//Request *req3 = new Request(tcpHeader, pdu3);
-	//PDU *pdu4 = new PDU(f4, sa4, val4);
-	//Request *req4 = new Request(tcpHeader, pdu4);
+	PDU *pdu3 = new PDU(f3, sa3, val3);
+	Request *req3 = new Request(tcpHeader, pdu3);
+	PDU *pdu4 = new PDU(f4, sa4, val4);
+	Request *req4 = new Request(tcpHeader, pdu4);
 	std::vector<Request*> vec;
 	vec.push_back(req1);
 	vec.push_back(req2);
-	//vec.push_back(req3);
-	//vec.push_back(req4);
+	vec.push_back(req3);
+	vec.push_back(req4);
 
 	CRITICAL_SECTION cs;
 	InitializeCriticalSection(&cs);
