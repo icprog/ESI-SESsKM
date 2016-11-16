@@ -19,14 +19,14 @@ public:
 	int digitalInputNum;
 	int digitalOutputNum;
 
-	std::vector<AnalogInput> *analogInputs;
-	std::vector<AnalogOutput> *analogOutputs;
-	std::vector<DigitalDevice> *digitalDevices;
+	std::vector<AnalogInput> analogInputs;
+	std::vector<AnalogOutput> analogOutputs;
+	std::vector<DigitalDevice> digitalDevices;
 public:
 	RTU() {}
 	RTU(std::string id, std::string m_industrialProtocol, std::string m_transportProtocol, std::string m_ipAddress, int m_port, int m_analogInputNum,
 		int m_analogOutputNum, int m_digitalInputNum, int m_digitalOutputNum,
-		std::vector<AnalogInput> *m_analogInputs, std::vector<AnalogOutput> *m_analogOutputs, std::vector<DigitalDevice> *m_digitalDevices
+		std::vector<AnalogInput> m_analogInputs, std::vector<AnalogOutput> m_analogOutputs, std::vector<DigitalDevice> m_digitalDevices
 	) : id(id), industrialProtocol(m_industrialProtocol), transportProtocol(m_transportProtocol), ipAddress(m_ipAddress), port(m_port),
 		analogInputNum(m_analogInputNum), analogOutputNum(m_analogOutputNum), digitalInputNum(m_digitalInputNum), digitalOutputNum(m_digitalOutputNum),
 		analogInputs(m_analogInputs), analogOutputs(m_analogOutputs), digitalDevices(m_digitalDevices)
@@ -41,9 +41,9 @@ public:
 	int getAnalogOutputNum() { return analogOutputNum; }
 	int getDigitalInputNum() { return digitalInputNum; }
 	int getDigitalOutputNum() { return digitalOutputNum; }
-	vector<AnalogInput> getAnalogInputs() { return *analogInputs; }
-	vector<AnalogOutput> getAnalogOutputs() { return *analogOutputs; }
-	vector<DigitalDevice> getDigitalDevices() { return *digitalDevices; }
+	vector<AnalogInput> getAnalogInputs() { return analogInputs; }
+	vector<AnalogOutput> getAnalogOutputs() { return analogOutputs; }
+	vector<DigitalDevice> getDigitalDevices() { return digitalDevices; }
 
 	void setId(string newName) { id = newName; }
 	void setIndProt(string newIndProt) { industrialProtocol = newIndProt; }
@@ -52,9 +52,9 @@ public:
 	void setPort(unsigned short newPort) { port = newPort; }
 
 	~RTU() {
-		delete analogInputs, analogInputs = 0;
-		delete analogOutputs, analogOutputs = 0;
-		delete digitalDevices, digitalDevices = 0;
+		delete &analogInputs;
+		delete &analogOutputs;
+		delete &digitalDevices;
 	}
 
 };

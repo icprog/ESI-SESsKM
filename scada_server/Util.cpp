@@ -17,11 +17,11 @@ void Util::initialize(char *arr1, char *arr2, int startIdx, int endIdx, int j)
 	}
 }
 
-void Util::readFromFile(RTU *rt1)
+RTU *Util::readFromFile()
 {
-	std::vector<AnalogInput> analogInputs;
-	std::vector<AnalogOutput> analogOutputs;
-	std::vector<DigitalDevice> digitalDevices;
+	vector<AnalogInput> analogInputs;
+	vector<AnalogOutput> analogOutputs;
+	vector<DigitalDevice> digitalDevices;
 
 	//vrednosti koje popunjavam za rtu
 	string RTUName;
@@ -269,8 +269,8 @@ void Util::readFromFile(RTU *rt1)
 	//int digOutputNum
 
 
-	rt1 = new RTU(RTUName, "Modbus", "TCP/IP", RTUIpAdress, RTUport, analogInputNum, analogOutputNum, digInputNum, digInputNum, &analogInputs, &analogOutputs, &digitalDevices);
-
+	RTU *rt1 = new RTU(RTUName, "Modbus", "TCP/IP", RTUIpAdress, RTUport, analogInputNum, analogOutputNum, digInputNum, digInputNum, analogInputs, analogOutputs, digitalDevices);
+	/*
 	CRITICAL_SECTION cs;
 	InitializeCriticalSection(&cs);
 
@@ -299,11 +299,13 @@ void Util::readFromFile(RTU *rt1)
 	/* 1
 	sa[0] = 0x00;
 	sa[1] = 0x01;
-	*/
+	
 	DataProcessing *dp = new DataProcessing();
 	dp->dataProcessingEngine(b1, sa, rt1);
-	
+	*/
 	inFile.close();
+
+	return rt1;
 }
 
 

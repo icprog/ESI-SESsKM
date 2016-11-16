@@ -82,8 +82,9 @@ int main() {
 		return 1;
 	}
 
-	RTU *rtu = new RTU();
-	Util::readFromFile(rtu); //ucitavanje konf. fajla i punjenje modela
+	RTU *rtu = Util::readFromFile();
+	//RTU *rtu = new RTU();
+	//Util::readFromFile(rtu); //ucitavanje konf. fajla i punjenje modela
 
 	IServerMediator *med = new ServerMediator();
 
@@ -140,6 +141,12 @@ int main() {
 	val4[0] = 0x00;
 	val4[1] = 0x01;
 	/////
+	std::vector<int> adresses; //= {sa1, sa2, sa3, sa4};
+	adresses.push_back(ntohs(*(int*)sa1));
+	adresses.push_back(ntohs(*(int*)sa2));
+	adresses.push_back(ntohs(*(int*)sa3));
+	adresses.push_back(ntohs(*(int*)sa4));
+
 	PDU *pdu1 = new PDU(f1, sa1, val1);
 	Request *req1 = new Request(tcpHeader, pdu1);
 	PDU *pdu2 = new PDU(f2, sa2, val2);
@@ -154,6 +161,8 @@ int main() {
 	vec.push_back(req3);
 	vec.push_back(req4);
 
+	
+
 	CRITICAL_SECTION cs;
 	InitializeCriticalSection(&cs);
 	Buffer *buffer = new Buffer("red1", 512, &cs);
@@ -164,8 +173,10 @@ int main() {
 	pollEngineThread->start();
 	int result1 = reinterpret_cast<int>(pollEngineThread->join());
 
-	//char *address = "\0";
-	//std::unique_ptr<DataProcessing> dataProcessingThread(new DataProcessing(1, buffer, address, rtu));
+	std::unique_ptr<DataProcessing> dataProcessingThread(new DataProcessing(2, buffer, &adresses, rtu));
+	dataProcessingThread->start();
+	int result2 = reinterpret_cast<int>(dataProcessingThread->join());
+	
 	// the destructors for thread1 and thread2 will automatically delete the
 	// pointed-at thread objects
 	std::cout << result1 << std::endl;

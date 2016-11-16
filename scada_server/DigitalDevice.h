@@ -2,6 +2,7 @@
 #ifndef DIGITAL_DEVICE_H
 #define DIGITAL_DEVICE_H
 #include <iostream>
+#include <string>
 #include <ctime>
 using namespace std;
 
@@ -16,12 +17,11 @@ private:
 	int outAddress2;
 	//char inAddresses[2]; // da li se desio
 	//char outAddresses[2]; //odkomandovao, ocilovi kojima se komanduje
-
 	int state;
 	//char command[2]; //salji nopr 01 na out adreses
 public:
 	string getName() { return name; }
-	char getState() { return state; }
+	int getState() { return state; }
 	int getStatus() { return status; }
 	int getReadOnly() { return readOnly; }
 	int getInAddress1() { return inAddress1; }
@@ -42,7 +42,8 @@ public:
 	DigitalDevice() {}
 
 	DigitalDevice(string m_name, int m_readOnly, int m_inAddress1, int m_inAddress2, int m_outAddress1, int m_outAddress2, int m_status) :
-		name(m_name), readOnly(m_readOnly), inAddress1(m_inAddress1), inAddress2(m_inAddress2), outAddress1(m_outAddress1), outAddress2(m_outAddress2), status(m_status) {}
+		name(m_name), readOnly(m_readOnly), inAddress1(m_inAddress1), inAddress2(m_inAddress2), outAddress1(m_outAddress1), outAddress2(m_outAddress2), status(m_status) {
+	}
 
 	~DigitalDevice() {}
 

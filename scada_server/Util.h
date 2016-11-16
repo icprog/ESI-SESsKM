@@ -7,7 +7,7 @@ class Util {
 
 public:
 	static void initialize(char *, char*, int startIdx, int endIdx, int j);
-	static void readFromFile(RTU *rtu);
+	static RTU *readFromFile();
 };
 
 #endif // ! UTIL_H
