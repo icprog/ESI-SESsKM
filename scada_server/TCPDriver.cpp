@@ -41,11 +41,16 @@ int TCPDriver::receiveResponse(SOCKET * connectSocket,char *request, char * resp
 				return -1;
 			}
 
-
-
+			char *wholeMessage;
+			int len = *((short*)response + 2);
+			len = ntohs(len);
+			int size = 11 + 6 + len;
+			wholeMessage = new char[size];
+			memcpy(wholeMessage, request, 11);
+			memcpy(wholeMessage + 11, response, size - 11);
 
 			//////////////////////////////////////// HASHMAPA ZAHTEV - RESPONSE npr: ENUM - CHAR *
-			b->push(response);
+			b->push(wholeMessage);
 		}
 		else if (iResult == 0)
 		{
