@@ -20,7 +20,7 @@ public:
 	int getPopIdx() { return popIdx; }
 	char *getData() { return data; }
 	void expand();		//exprend buffer size
-	int push(char *data);		//adding data to buffer	
+	int push(char *data, int type);		//adding data to buffer	
 	int pop(char *data, int type);		//remove data from buffer
 	void shrink();		//shrink buffer
 						//void createBuffer(char *name, int bufferLength, CRITICAL_SECTION * cs);		//create buffer

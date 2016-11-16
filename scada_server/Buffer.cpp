@@ -42,12 +42,15 @@ void Buffer::expand()
 	this->popIdx = 0;
 }
 
-int Buffer::push(char * data)
+int Buffer::push(char * data, int type)
 {
 	EnterCriticalSection(&this->cs);
+	short sizeOfData = 0;
+	if(type == 0){
+		sizeOfData = *(short *)(data + 15);
+		sizeOfData = ntohs(sizeOfData)+17;
+	}
 
-	short sizeOfData = *((short *)data + 2);
-	sizeOfData = ntohs(sizeOfData)+6;
 	// ako je bafer vec pun count == size, radi prosirivanje, ali prvo utvrdi za koliko puta
 	// ili ako je velicina podataka veca od velicine ostatka slobodnog prostora u baferu
 	if ((this->count == this->size) || ((this->size - this->count) < sizeOfData)) {
@@ -112,8 +115,10 @@ int Buffer::pop(char * data, int type)
 	//short velicina = *((short *)this->data + 2);
 	short velicina = -1;
 	if (type == 0) {
-		velicina = *((short*)(this->data + popIdx) + 2);
-		velicina = ntohs(velicina) + 6;
+		//sizeOfData = *(short *)((char *)((short *)data + 6) + 1);
+		
+		velicina = *(short *)(this->data + 15);
+		velicina = ntohs(velicina) + 17;
 	}
 	else {
 		velicina = *((int*)(this->data + popIdx));

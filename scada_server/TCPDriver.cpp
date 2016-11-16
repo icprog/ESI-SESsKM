@@ -50,7 +50,7 @@ int TCPDriver::receiveResponse(SOCKET * connectSocket,char *request, char * resp
 			memcpy(wholeMessage + 11, response, size - 11);
 
 			//////////////////////////////////////// HASHMAPA ZAHTEV - RESPONSE npr: ENUM - CHAR *
-			b->push(wholeMessage);
+			b->push(wholeMessage, 0);
 		}
 		else if (iResult == 0)
 		{
