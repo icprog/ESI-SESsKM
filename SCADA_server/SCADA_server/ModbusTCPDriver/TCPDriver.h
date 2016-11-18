@@ -10,12 +10,10 @@ public:
 		This function is used for creating request. It makes tcpHeader internally and glue it to the rest of the the message,
 		making complete modbus-tcp request.
 
-		@param functionCode - 1 byte
-		@param startingAddress - 2 bytes
-		@param quantityOfCoils - 2 bytes
+		@param req - 1 byte function code, 2 bytes starting address, 2 bytes quantity of coils
 		@return request - 12 bytes
 	*/
-	char *createRequest(char functionCode, char *startingAddress, char *quantityOfCoils);
+	char *createRequest(char *req);
 	/*
 		This function is used for sending request over tcp connection.
 

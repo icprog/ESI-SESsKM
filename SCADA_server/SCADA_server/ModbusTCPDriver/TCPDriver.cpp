@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "TCPDriver.h"
 
-char * TCPDriver::createRequest(char functionCode, char * startingAddress, char * quantityOfCoils)
+char * TCPDriver::createRequest(char *req)
 {
 	char request[12];
 	request[0] = 0x01;
@@ -11,11 +11,11 @@ char * TCPDriver::createRequest(char functionCode, char * startingAddress, char 
 	request[4] = 0x06;
 	request[5] = 0x00;
 	request[6] = 0x00;
-	request[7] = functionCode;
-	request[8] = startingAddress[1];
-	request[9] = startingAddress[0];
-	request[10] = quantityOfCoils[1];
-	request[11] = quantityOfCoils[0];
+	request[7] = req[0];
+	request[8] = req[1];
+	request[9] = req[2];
+	request[10] = req[3];
+	request[11] = req[4];
 	return request;
 }
 
@@ -35,8 +35,9 @@ int TCPDriver::sendRequest(char * request)
 		//WSACleanup();
 		return 1;
 	}
-
+	
 	cout << "\nMESSAGE SENT! Bytes Sent: %ld\n" << iResult << endl;
+	receiveResponse(request);
 	return 0;
 }
 

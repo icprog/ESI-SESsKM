@@ -5,7 +5,11 @@
 class PollEngine {
 public:
 	PollEngine() {}
-	~PollEngine() {}
+	PollEngine(std::vector<char *> *vector_) : vector(vector_) {
+	}
+	~PollEngine() {
+		delete vector, vector = 0;
+	}
 
 	void setVector(std::vector<char *> *vector_);
 	std::vector<char *> *getVector();
