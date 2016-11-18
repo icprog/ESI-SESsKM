@@ -12,7 +12,10 @@
 
 
 // TODO: reference additional headers your program requires here
+#include <WinSock2.h>
+#include <WS2tcpip.h>
 #include <iostream>
-#include "../Util/NonBlockingSocket.h"
+
+
 
 using namespace std;

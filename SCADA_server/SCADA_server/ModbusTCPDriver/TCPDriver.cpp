@@ -19,6 +19,27 @@ char * TCPDriver::createRequest(char functionCode, char * startingAddress, char 
 	return request;
 }
 
+int TCPDriver::sendRequest(char * request)
+{
+	int iResult = -1;
+	// Send an prepared message with null terminator included
+
+	cout << "\nSENDING MESSAGE: %s" << request << endl;
+
+	iResult = nonBlockingSocket->SEND(&sock, request, 0);
+
+	if (iResult == SOCKET_ERROR)
+	{
+		cout << "send failed with error: %d\n" << WSAGetLastError() << endl;
+		closesocket(sock);
+		//WSACleanup();
+		return 1;
+	}
+
+	cout << "\nMESSAGE SENT! Bytes Sent: %ld\n" << iResult << endl;
+	return 0;
+}
+
 int TCPDriver::tcpConnect()
 {
 	int iResult = -1;
