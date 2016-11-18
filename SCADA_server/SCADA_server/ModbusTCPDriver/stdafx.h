@@ -14,5 +14,5 @@
 // TODO: reference additional headers your program requires here
 #include <iostream>
 #include "../Util/NonBlockingSocket.h"
-
+#include "../Util/Buffer.h"
 using namespace std;

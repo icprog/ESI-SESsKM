@@ -67,7 +67,8 @@ private:
 		sock = INVALID_SOCKET;
 		tcpConnect();
 	}
-	TCPDriver(char *ipAddress_, int port_/*, Buffer *sharedBuffer*/, unsigned long int nonBlockingMode_): ipAddress(ipAddress_), port(port_), nonBlockingMode(nonBlockingMode_){
+	TCPDriver(char *ipAddress_, int port_, Buffer *sharedBuffer_, unsigned long int nonBlockingMode_): 
+		ipAddress(ipAddress_), port(port_), nonBlockingMode(nonBlockingMode_), sharedBuffer(sharedBuffer_){
 		nonBlockingSocket = new NonBlockingSocket();
 		sock = INVALID_SOCKET;
 		tcpConnect();
@@ -78,7 +79,7 @@ private:
 		tcpCloseConnection();
 	}
 	SOCKET sock;
-	//Buffer *sharedBuffer;
+	Buffer *sharedBuffer;
 	//char *response;
 	char *ipAddress;
 	int port;

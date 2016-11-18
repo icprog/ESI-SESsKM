@@ -70,7 +70,7 @@ int TCPDriver::receiveResponse(char *request)
 			memcpy(wholeMessage+8, response, len);
 			memcpy(wholeMessage + 8 + len, request, 12);
 
-			//b->push(wholeMessage, 0);  // SMESTITI U BAFER!
+			sharedBuffer->push(wholeMessage, 0);  // SMESTITI U BAFER!
 			delete wholeMessage, wholeMessage = 0;
 			iResult = 0;
 		}
