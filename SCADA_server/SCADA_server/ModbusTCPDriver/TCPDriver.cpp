@@ -40,6 +40,59 @@ int TCPDriver::sendRequest(char * request)
 	return 0;
 }
 
+int TCPDriver::receiveResponse(char *request)
+{
+	int iResult = -1;
+	char response[512];
+	do {
+		iResult = nonBlockingSocket->RECEIVE(&sock, response, 0);
+		cout << iResult << endl;
+		if (iResult > 0)
+		{
+			cout << "Message received from server as a server: %s.\n" << response << endl;
+
+			// prvo proveri sta ima da se radi
+			if (response[7] == 0x80 || response[7] == (0x80 + request[7])) {
+				return -1;
+			}
+
+			char *wholeMessage;
+			int len = *((short*)response + 2);
+			len = ntohs(len);
+			len += 6;
+			int wholeMessageSize = 4 + 12 + len; // 4 duzina cele poruke, 12 duzina requesta, i len je duzina responsa
+			
+			wholeMessage = new char[wholeMessageSize];
+			*(int *)wholeMessage = wholeMessageSize;
+			*((int *)wholeMessage + 1) = len;
+
+			memcpy(wholeMessage+8, response, len);
+			memcpy(wholeMessage + 8 + len, request, 12);
+
+			//b->push(wholeMessage, 0);  // SMESTITI U BAFER!
+			delete wholeMessage, wholeMessage = 0;
+			iResult = 0;
+		}
+		if (iResult == 0)
+		{
+			// connection was closed gracefully
+			printf("Connection with server established.\n");
+			//closesocket(*acceptedSocket);
+			break;
+		}
+		else
+		{
+			// there was an error during recv
+			printf("recv failed with error: %d\n", WSAGetLastError());
+			//closesocket(*acceptedSocket);
+			break;
+		}
+
+	} while (iResult > 0);
+
+	return 0;
+}
+
 int TCPDriver::tcpConnect()
 {
 	int iResult = -1;

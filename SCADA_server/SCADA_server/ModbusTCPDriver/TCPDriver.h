@@ -23,8 +23,17 @@ public:
 		@return enum value
 	*/
 	int sendRequest(char *request);
-	int receiveResponse();
-	int pushInBuffer();
+	/*
+		This function is used for receiving response from the modbus simulator. 
+		It makes message that has this format:
+		4 bytes for the length of the whole message +
+		4 bytes for the length of the response +
+		n bytes for the response +
+		12 bytes for the request
+		@param request is request that produces the given response.
+		
+	*/
+	int receiveResponse(char *request);
 	/*
 		Connection is made with the modbus simulator. Supporting functions are private.
 	*/
