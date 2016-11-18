@@ -7,10 +7,18 @@ class ClientHandler {
 public:
 	ClientHandler() {
 		acceptSocketArray = new Pool<SOCKET>(INVALID_SOCKET);
+		nonBlockingSocket = new NonBlockingSocket();
+	}
+	ClientHandler(Buffer *commandingBuffer_, Buffer *streamBuffer_, unsigned long nonBlockingMode_, char *ipAddress_, char *port_):
+	commandingBuffer(commandingBuffer_), streamBuffer(streamBuffer_), nonBlockingMode(nonBlockingMode_), ipAddress(ipAddress_), port(port_)
+	{
+		acceptSocketArray = new Pool<SOCKET>(INVALID_SOCKET);
+		nonBlockingSocket = new NonBlockingSocket();
 	}
 	~ClientHandler() {
 		delete ipAddress, ipAddress = 0;
 		delete port, port = 0;
+		delete nonBlockingSocket, nonBlockingSocket = 0;
 		//delete acceptSocketArray, acceptSocketArray = 0;
 		tcpCloseConnection();
 	}
@@ -22,17 +30,25 @@ public:
 		Close all sockets.
 	*/
 	int tcpCloseConnection();
-	int sendMessage(char *message);  // if stream buffer is not empty it pops from it and sends to client
-	int receiveMessage();
+
+	int sendMessage(char *message, SOCKET *accSock);  // if stream buffer is not empty it pops from it and sends to client
+	void sendData(char * message, SOCKET * accSock);
+	char * receiveMessage(SOCKET *accSock);
 	void pushCommand();
+	char *popFromStreamBuffer();
 private:
 	//SOCKET acceptSocket;
 	SOCKET listenSocket;
 	char *ipAddress;
 	char *port;
+	unsigned long int nonBlockingMode;
 	Pool<SOCKET> *acceptSocketArray;
-	// Buffer *commandingBuffer;
-	// Buffer *streamBuffer;
+	Buffer *commandingBuffer;
+	Buffer *streamBuffer;
+	NonBlockingSocket *nonBlockingSocket;
+	int listenSocketFunc(SOCKET * listenSocket, char * port);
+	int selectt(SOCKET * socket, int type, int * exit);
+	int acceptt(SOCKET * acceptedSocket, SOCKET * listenSocket);
 
 };
 

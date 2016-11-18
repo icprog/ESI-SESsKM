@@ -22,7 +22,7 @@ public:
 	void remove(T value, int defaultValue);
 	int getSize() const;
 	int getCount() const;
-	T getValue(int idx) const;
+	T* getValue(int idx) const;
 private:
 	T *pool;
 	int size;
@@ -99,8 +99,8 @@ inline int Pool<T>::getCount() const
 }
 
 template<class T>
-inline T Pool<T>::getValue(int idx) const
+inline T* Pool<T>::getValue(int idx) const
 {
-	return pool[idx];
+	return &pool[idx];
 }
 
