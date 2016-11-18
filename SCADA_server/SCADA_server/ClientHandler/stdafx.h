@@ -8,15 +8,15 @@
 #include "targetver.h"
 
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
-
+#pragma comment(lib, "Ws2_32.lib")
 
 
 // TODO: reference additional headers your program requires here
-#include <WinSock2.h>
-#include <WS2tcpip.h>
+
 #include "../Util/Pool.h"
 #include "../Util/Buffer.h"
 #include "../Util/NonBlockingSocket.h"
 #include <iostream>
 #include <thread>
-using namespace std;
+#include <WinSock2.h>
+#include <WS2tcpip.h>

@@ -4,7 +4,8 @@
 #include "stdafx.h"
 #include<iostream>
 #include <windows.h>
-using namespace std;
+
+
 
 class Buffer {
 private:

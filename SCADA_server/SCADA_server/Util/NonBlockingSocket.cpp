@@ -24,7 +24,7 @@ int NonBlockingSocket::sendNB(SOCKET* socket, char* buffer, int bufferLength) {
 	// lets check if there was an error during select
 	if (iResult == SOCKET_ERROR)
 	{
-		cout << stderr << "select failed with error: %ld\n" << WSAGetLastError() << endl;
+		std::cout << stderr << "select failed with error: %ld\n" << WSAGetLastError() << std::endl;
 		return SOCK_ERR; //error code: -1
 	}
 
@@ -41,7 +41,7 @@ int NonBlockingSocket::sendNB(SOCKET* socket, char* buffer, int bufferLength) {
 
 	if (iResult == SOCKET_ERROR)
 	{
-		cout << "sendto failed with error: %ld\n" << WSAGetLastError() << endl;
+		std::cout << "sendto failed with error: %ld\n" << WSAGetLastError() << std::endl;
 		closesocket(*socket);
 		*socket = INVALID_SOCKET;
 		//WSACleanup();
@@ -70,7 +70,7 @@ int NonBlockingSocket::receiveNB(SOCKET* socket, char* buffer, int bufferLength,
 	// lets check if there was an error during select
 	if (iResult == SOCKET_ERROR)
 	{
-		cout << stderr << "select failed with error: %ld\n" << WSAGetLastError() << endl;
+		std::cout << stderr << "select failed with error: %ld\n" << WSAGetLastError() << std::endl;
 		return SOCK_ERR; //error code: -1
 	}
 
@@ -87,12 +87,12 @@ int NonBlockingSocket::receiveNB(SOCKET* socket, char* buffer, int bufferLength,
 	iResult = recv(*socket, buffer + continueFrom, bufferLength, 0);
 	if (iResult > 0)
 	{
-		cout << "message received from client: " << buffer << endl;
+		std::cout << "message received from client: " << buffer << std::endl;
 	}
 	else if (iResult == 0)
 	{
 		// connection was closed gracefully
-		cout <<  "Connection with client closed."  << endl;
+		std::cout <<  "Connection with client closed."  << std::endl;
 		//closesocket(*socket);
 		//*socket = INVALID_SOCKET;
 		return 0;
@@ -100,7 +100,7 @@ int NonBlockingSocket::receiveNB(SOCKET* socket, char* buffer, int bufferLength,
 	else
 	{
 		// there was an error during recv
-		cout << "recv failed with error: %ld\n" << WSAGetLastError() << endl;
+		std::cout << "recv failed with error: %ld\n" << WSAGetLastError() << std::endl;
 		//closesocket(*socket);
 		//*socket = INVALID_SOCKET;
 		//WSACleanup();
@@ -124,7 +124,7 @@ int NonBlockingSocket::SEND(SOCKET* socket, char* buffer, int type) {
 		} while (iResult == SLEEP);
 		if (iResult == SOCKET_ERROR)
 		{
-			cout << "sendto failed with error: %ld\n" << WSAGetLastError() << endl;
+			std::cout << "sendto failed with error: %ld\n" << WSAGetLastError() << std::endl;
 			closesocket(*socket);
 			*socket = INVALID_SOCKET;
 			//WSACleanup();
@@ -150,7 +150,7 @@ int NonBlockingSocket::RECEIVE(SOCKET* socket, char* buffer, int type) {
 			} while (iResult == SLEEP);
 			if (iResult == SOCKET_ERROR)
 			{
-				cout <<  "receiving the whole message failed with error: %ld\n" << WSAGetLastError() << endl;
+				std::cout <<  "receiving the whole message failed with error: %ld\n" << WSAGetLastError() << std::endl;
 				closesocket(*socket);
 				//socket = INVALID_SOCKET;
 				//WSACleanup();
@@ -169,7 +169,7 @@ int NonBlockingSocket::RECEIVE(SOCKET* socket, char* buffer, int type) {
 		} while (iResult == SLEEP);
 		if (iResult == SOCKET_ERROR)
 		{
-			cout <<  "receiving lenght failed with error" << WSAGetLastError() << endl;
+			std::cout <<  "receiving lenght failed with error" << WSAGetLastError() << std::endl;
 			//closesocket(*socket);
 			//socket = INVALID_SOCKET;
 			//WSACleanup();
@@ -192,7 +192,7 @@ int NonBlockingSocket::RECEIVE(SOCKET* socket, char* buffer, int type) {
 		} while (iResult == SLEEP);
 		if (iResult == SOCKET_ERROR)
 		{
-			cout << "receiving the whole message failed with error: %ld\n" << WSAGetLastError() << endl;
+			std::cout << "receiving the whole message failed with error: %ld\n" << WSAGetLastError() << std::endl;
 			closesocket(*socket);
 			//socket = INVALID_SOCKET;
 			//WSACleanup();

@@ -1,4 +1,4 @@
-#include "..\Buffer\Buffer.h"
+#include "Buffer.h"
 
 #include "stdafx.h"
 #include "Buffer.h"

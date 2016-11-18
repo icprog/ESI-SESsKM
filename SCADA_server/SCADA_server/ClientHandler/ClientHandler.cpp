@@ -9,9 +9,9 @@ int ClientHandler::tcpConnect()
 		// Ako je ovde greska, kraj rada
 		return 1;
 	}
-	while (!exit)
+	while (1)
 	{
-		cout << "\nLISTEN SOCKET IZ SERVERA: %d\n" << listenSocket << endl;
+		std::cout << "\nLISTEN SOCKET IZ SERVERA: %d\n" << listenSocket << std::endl;
 		iResult = ioctlsocket(listenSocket, FIONBIO, &nonBlockingMode);
 		selectt(&listenSocket, 0, 0);
 		// Wait for clients and accept client connections.
@@ -32,7 +32,7 @@ int ClientHandler::tcpConnect()
 		}
 		
 		if (full) {
-			SOCKET soc;
+			SOCKET soc = INVALID_SOCKET;
 			acceptSocketArray->add(soc, INVALID_SOCKET); 
 			closesocket(soc);
 		}
@@ -57,19 +57,19 @@ int ClientHandler::sendMessage(char * message, SOCKET *accSock) // thread functi
 		int iResult = -1;
 		// Send an prepared message with null terminator included
 
-		cout << "\nSENDING MESSAGE: %s" << req << endl;
+		std::cout << "\nSENDING MESSAGE: %s" << req << std::endl;
 
 		iResult = nonBlockingSocket->SEND(accSock, req, 0);
 
 		if (iResult == SOCKET_ERROR)
 		{
-			cout << "send failed with error: %d\n" << WSAGetLastError() << endl;
+			std::cout << "send failed with error: %d\n" << WSAGetLastError() << std::endl;
 			closesocket(*accSock);
 			//WSACleanup();
 			return 1;
 		}
 
-		cout << "\nMESSAGE SENT! Bytes Sent: %ld\n" << iResult << endl;
+		std::cout << "\nMESSAGE SENT! Bytes Sent: %ld\n" << iResult << std::endl;
 		delete req, req = 0;
 
 	}
@@ -79,13 +79,14 @@ int ClientHandler::sendMessage(char * message, SOCKET *accSock) // thread functi
 char * ClientHandler::receiveMessage(SOCKET *accSock)
 {
 	int iResult = -1;
+	char *response = nullptr;
 	do {
-		char *response = new char[8012];
+		response = new char[8012];
 		iResult = nonBlockingSocket->RECEIVE(accSock, response, 0);
-		cout << iResult << endl;
+		std::cout << iResult << std::endl;
 		if (iResult > 0)
 		{
-			cout << "Message received from server as a server: %s.\n" << response << endl;
+			std::cout << "Message received from server as a server: %s.\n" << response << std::endl;
 
 			// if there is alarm in the stream, then the response should look like this: 
 			// 4 bytes for size and 4 bytes for confirmation of the alarm( number 1 is confirmation) and 4 bytes for the alarm id
@@ -142,7 +143,7 @@ char * ClientHandler::popFromStreamBuffer()
 	return stream;
 }
 
-int ClientHandler::listenSocketFunc(SOCKET * listenSocket, char * port)
+int ClientHandler::listenSocketFunc(SOCKET * ls, char * port)
 {
 
 	// variable used to store function return value
@@ -162,19 +163,19 @@ int ClientHandler::listenSocketFunc(SOCKET * listenSocket, char * port)
 	iResult = getaddrinfo(NULL, port, &hints, &resultingAddress);
 	if (iResult != 0)
 	{
-		cout << "getaddrinfo failed with error: %d\n" <<  iResult << endl;
+		std::cout << "getaddrinfo failed with error: %d\n" <<  iResult << std::endl;
 		WSACleanup();
 		return 1;
 	}
 
 	// Create a SOCKET for connecting to server
-	*listenSocket = socket(AF_INET,      // IPv4 address famly
+	*ls = socket(AF_INET,      // IPv4 address famly
 		SOCK_STREAM,  // stream socket
 		IPPROTO_TCP); // TCP
 
-	if (*listenSocket == INVALID_SOCKET)
+	if (*ls == INVALID_SOCKET)
 	{
-		cout << "socket failed with error: %ld\n" << WSAGetLastError() << endl;
+		std::cout << "socket failed with error: %ld\n" << WSAGetLastError() << std::endl;
 		freeaddrinfo(resultingAddress);
 		WSACleanup();
 		return 1;
@@ -182,12 +183,12 @@ int ClientHandler::listenSocketFunc(SOCKET * listenSocket, char * port)
 
 	// Setup the TCP listening socket - bind port number and local address 
 	// to socket
-	iResult = bind(*listenSocket, resultingAddress->ai_addr, (int)resultingAddress->ai_addrlen);
+	iResult = bind(*ls, resultingAddress->ai_addr, (int)resultingAddress->ai_addrlen);
 	if (iResult == SOCKET_ERROR)
 	{
-		cout << "bind failed with error: %d\n" << WSAGetLastError() << endl;
+		std::cout << "bind failed with error: %d\n" << WSAGetLastError() << std::endl;
 		freeaddrinfo(resultingAddress);
-		closesocket(*listenSocket);
+		closesocket(*ls);
 		WSACleanup();
 		return 1;
 	}
@@ -196,19 +197,19 @@ int ClientHandler::listenSocketFunc(SOCKET * listenSocket, char * port)
 	freeaddrinfo(resultingAddress);
 
 	unsigned long int nonBlockingMode = 1;
-	iResult = ioctlsocket(*listenSocket, FIONBIO, &nonBlockingMode);
+	iResult = ioctlsocket(*ls, FIONBIO, &nonBlockingMode);
 
 	// Set listenSocket in listening mode
-	iResult = listen(*listenSocket, SOMAXCONN);
+	iResult = listen(*ls, SOMAXCONN);
 	if (iResult == SOCKET_ERROR)
 	{
-		cout << "listen failed with error: %d\n" <<WSAGetLastError() << endl;
-		closesocket(*listenSocket);
+		std::cout << "listen failed with error: %d\n" <<WSAGetLastError() << std::endl;
+		closesocket(*ls);
 		WSACleanup();
 		return 1;
 	}
 
-	cout << "Server initialized, waiting for clients.\n" << endl;
+	std::cout << "Server initialized, waiting for clients.\n" << std::endl;
 
 	return iResult;
 }
@@ -239,7 +240,7 @@ int ClientHandler::selectt(SOCKET * socket, int type, int *exit)
 		// lets check if there was an error during select
 		if (iResult == SOCKET_ERROR)
 		{
-			cout << stderr << "select failed with error: %ld\n" << WSAGetLastError() << endl;
+			std::cout << stderr << "select failed with error: %ld\n" << WSAGetLastError() << std::endl;
 			return -1; //error code: -1
 		}
 
@@ -262,7 +263,7 @@ int ClientHandler::acceptt(SOCKET * acceptedSocket, SOCKET* listenSocket)
 
 	if (*acceptedSocket == INVALID_SOCKET)
 	{
-		cout << "accept failed with error: %d\n" << WSAGetLastError() << endl;
+		std::cout << "accept failed with error: %d\n" << WSAGetLastError() << std::endl;
 		closesocket(*acceptedSocket);
 		WSACleanup();
 		return 1;

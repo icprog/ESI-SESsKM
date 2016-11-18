@@ -9,7 +9,7 @@ public:
 	Pool(int defaultValue) {
 		pool = new T[DEFAULT_ARR_LENGTH];
 		for (int i = 0; i < DEFAULT_ARR_LENGTH; i++) {
-			pool = defaultValue;
+			*pool = defaultValue;
 		}
 		size = DEFAULT_ARR_LENGTH;
 		count = 0;
@@ -37,7 +37,7 @@ template<class T>
 inline void Pool<T>::add(T value, int defaultValue)
 {
 	if (count % size < 5)
-		expand();
+		expand(defaultValue);
 
 	pool[count] = value;
 }
@@ -46,7 +46,7 @@ template<class T>
 inline void Pool<T>::remove(T value, int defaultValue)
 {
 	if (count % size < 2.5)
-		shrink();
+		shrink(defaultValue);
 }
 
 template<class T>
