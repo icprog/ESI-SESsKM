@@ -4,46 +4,50 @@
 #include <iostream>
 #include <string>
 #include <ctime>
-using namespace std;
 
 class DigitalDevice {
+public:
+	static enum status { FINISHED = 0, IN_PROGRESS = 1 };
+	static enum state { ON = 0, OFF = 1, TRANSIENT = 2, ERR = 3 };
 private:
-	enum status { FINISHED = 0, IN_PROGRESS = 1 };
-	enum state { ON = 0, OFF = 1, TRANSIENT = 2, ERROR = 3 };
-	string name;
+	std::string name;
 	bool readOnly; // nema komandovanja i onda nema outaddreses
 	short inAddresses[2]; // da li se desio
 	short outAddresses[2]; //odkomandovao, ocilovi kojima se komanduje
 	state state;     //on, off, transient i errror
 	char command[2]; //salji npr 01 na out adreses
 	status status;
+
 public:
-	string getName() { return name; }
-	int getState() { return state; }
-	int getStatus() { return status; }
-	int getReadOnly() { return readOnly; }
-	int getInAddress1() { return inAddress1; }
-	int getInAddress2() { return inAddress2; }
-	int getOutAddress1() { return outAddress1; }
-	int getOutAddress2() { return outAddress2; }
-
-	void setName(string newName) { name = newName; }
-	void setState(int newState) { state = newState; }
-	void setStatus(int newStatus) { status = newStatus; }
-	void setReadOnly(int newRead) { readOnly = newRead; }
-	void setInAddress1(int newInAddress1) { inAddress1 = newInAddress1; }
-	void setInAddress2(int newInAddress2) { inAddress2 = newInAddress2; }
-	void setOutAddress1(int newOutAddress1) { outAddress1 = newOutAddress1; }
-	void setOutAddress2(int newOutAddress2) { outAddress2 = newOutAddress2; }
-	//void setCommand(char* newCommand) { *command = *newCommand; }
-
+	
 	DigitalDevice() {}
-
-	DigitalDevice(string m_name, int m_readOnly, int m_inAddress1, int m_inAddress2, int m_outAddress1, int m_outAddress2, int m_status) :
-		name(m_name), readOnly(m_readOnly), inAddress1(m_inAddress1), inAddress2(m_inAddress2), outAddress1(m_outAddress1), outAddress2(m_outAddress2), status(m_status) {
+	DigitalDevice(std::string m_name, bool m_readOnly, short m_inAddresses[2], short m_outAddresses[2]) : name(m_name), readOnly(m_readOnly) {
+		inAddresses[0] = m_inAddresses[0];
+		inAddresses[1] = m_inAddresses[1];
+		outAddresses[0] = m_outAddresses[0];
+		outAddresses[1] = m_outAddresses[1];
+	}
+	DigitalDevice(std::string m_name, bool m_readOnly, short m_inAddresses[2], short m_outAddresses[2], enum status m_status) :  status(m_status) {
+		DigitalDevice(m_name, m_readOnly, m_inAddresses, m_outAddresses);
 	}
 
 	~DigitalDevice() {}
+
+	std::string getName() const { return name; }
+	enum state getState() const { return state; }
+	enum status getStatus() const { return status; }
+	bool getReadOnly() const { return readOnly; }
+	short *getInAddresses() { return inAddresses; }
+	short *getOutAddresses() { return outAddresses; }
+	char *getCommand() { return command; }
+
+	void setName(std::string newName) { name = newName; }
+	void setState(enum state newState) { state = newState; }
+	void setStatus(enum status newStatus) { status = newStatus; }
+	void setReadOnly(bool newRead) { readOnly = newRead; }
+	void setInAddresses(short newInAddrresses[2]) { inAddresses[0] = newInAddrresses[0]; inAddresses[1] = newInAddrresses[1]; }
+	void setOutAddresses(short newOutAddrresses[2]) { outAddresses[0] = newOutAddrresses[0]; outAddresses[1] = newOutAddrresses[1]; }
+	void setCommand(short newCommand[2]) { command[0] = newCommand[0]; command[1] = newCommand[1]; }
 
 };
 

@@ -130,6 +130,12 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Alarm.h" />
+    <ClInclude Include="AnalogInput.h" />
+    <ClInclude Include="AnalogOutput.h" />
+    <ClInclude Include="DigitalDevice.h" />
+    <ClInclude Include="EngineeringUnit.h" />
+    <ClInclude Include="RemoteTelemetryUnit.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>

@@ -24,38 +24,38 @@ public:
 	std::vector<DigitalDevice> digitalDevices;
 public:
 	RemoteTelemetryUnit() {}
-	RemoteTelemetryUnit(std::string id, std::string m_industrialProtocol, std::string m_transportProtocol, std::string m_ipAddress, int m_port, int m_analogInputNum,
+
+	RemoteTelemetryUnit(std::string m_id, std::string m_industrialProtocol, std::string m_transportProtocol, std::string m_ipAddress, int m_port, int m_analogInputNum,
 		int m_analogOutputNum, int m_digitalInputNum, int m_digitalOutputNum,
 		std::vector<AnalogInput> m_analogInputs, std::vector<AnalogOutput> m_analogOutputs, std::vector<DigitalDevice> m_digitalDevices
-	) : id(id), industrialProtocol(m_industrialProtocol), transportProtocol(m_transportProtocol), ipAddress(m_ipAddress), port(m_port),
+	) : id(m_id), industrialProtocol(m_industrialProtocol), transportProtocol(m_transportProtocol), ipAddress(m_ipAddress), port(m_port),
 		analogInputNum(m_analogInputNum), analogOutputNum(m_analogOutputNum), digitalInputNum(m_digitalInputNum), digitalOutputNum(m_digitalOutputNum),
-		analogInputs(m_analogInputs), analogOutputs(m_analogOutputs), digitalDevices(m_digitalDevices)
-	{}
-
-	string getId() { return id; }
-	string getIndProt() { return industrialProtocol; }
-	string getTransProt() { return transportProtocol; }
-	string getIpAddress() { return ipAddress; }
-	unsigned short getPort() { return port; }
-	int getAnalogInputNum() { return analogInputNum; }
-	int getAnalogOutputNum() { return analogOutputNum; }
-	int getDigitalInputNum() { return digitalInputNum; }
-	int getDigitalOutputNum() { return digitalOutputNum; }
-	vector<AnalogInput> getAnalogInputs() { return analogInputs; }
-	vector<AnalogOutput> getAnalogOutputs() { return analogOutputs; }
-	vector<DigitalDevice> getDigitalDevices() { return digitalDevices; }
-
-	void setId(string newName) { id = newName; }
-	void setIndProt(string newIndProt) { industrialProtocol = newIndProt; }
-	void setTransProt(string newTransProt) { transportProtocol = newTransProt; }
-	void setIpAddress(string newIpAddress) { ipAddress = newIpAddress; }
-	void setPort(unsigned short newPort) { port = newPort; }
+		analogInputs(m_analogInputs), analogOutputs(m_analogOutputs), digitalDevices(m_digitalDevices) {}
 
 	~RemoteTelemetryUnit() {
 		delete &analogInputs;
 		delete &analogOutputs;
 		delete &digitalDevices;
 	}
+
+	std::string getId() const { return id; }
+	std::string getIndProt() const { return industrialProtocol; }
+	std::string getTransProt() const { return transportProtocol; }
+	std::string getIpAddress() const { return ipAddress; }
+	int getPort() const { return port; }
+	int getAnalogInputNum() const { return analogInputNum; }
+	int getAnalogOutputNum() const { return analogOutputNum; }
+	int getDigitalInputNum() const { return digitalInputNum; }
+	int getDigitalOutputNum() const { return digitalOutputNum; }
+	std::vector<AnalogInput> getAnalogInputs() { return analogInputs; }
+	std::vector<AnalogOutput> getAnalogOutputs() { return analogOutputs; }
+	std::vector<DigitalDevice> getDigitalDevices() { return digitalDevices; }
+
+	void setId(std::string newName) { id = newName; }
+	void setIndProt(std::string newIndProt) { industrialProtocol = newIndProt; }
+	void setTransProt(std::string newTransProt) { transportProtocol = newTransProt; }
+	void setIpAddress(std::string newIpAddress) { ipAddress = newIpAddress; }
+	void setPort(int newPort) { port = newPort; }
 
 };
 

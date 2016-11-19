@@ -4,26 +4,28 @@
 #include <iostream>
 #include <ctime>
 #include "EngineeringUnit.h"
-using namespace std;
 class AnalogInput {
 public:
 	AnalogInput() {}
+	AnalogInput(std::string m_name) : name(m_name) {}
+	AnalogInput(std::string m_name, short m_address, double m_EGUMin, double m_EGUMax, short m_rawMin, short m_rawMax, short m_raw, double m_value, char m_status) : name(m_name), address(m_address),
+		EGUMin(m_EGUMin), EGUMax(m_EGUMax), RawMin(m_rawMin), RawMax(m_rawMax), Raw(m_raw), value(m_value), status(m_status) {}
 	~AnalogInput() {
 		delete egu, egu = 0;
 	}
 
-	string getName() { return name; }
-	short getAddress() { return address; }
-	short getRaw() { return Raw; }
-	short getRawMin() { return RawMin; }
-	short getRawMax() { return RawMax; }
-	EngineeringUnit *getEGU() { return &egu; }
-	double getEGUMax() { return EGUMax; }
-	double getEGUMin() { return EGUMin; }
-	int getStatus() { return status; }
-	double getValue() { return value; }
+	std::string getName() const { return name; }
+	short getAddress() const { return address; }
+	short getRaw() const { return Raw; }
+	short getRawMin() const { return RawMin; }
+	short getRawMax() const { return RawMax; }
+	EngineeringUnit *getEGU() const { return egu; }
+	double getEGUMax() const { return EGUMax; }
+	double getEGUMin() const { return EGUMin; }
+	int getStatus() const { return status; }
+	double getValue() const { return value; }
 
-	void setName(string newName) { name = newName; }
+	void setName(std::string newName) { name = newName; }
 	void setAddress(short newAddress) { address = newAddress; }
 	void setRaw(short newRaw) { Raw = newRaw; }
 	void setRawMin(short newRawMin) { RawMin = newRawMin; }
@@ -36,7 +38,7 @@ public:
 
 
 protected:
-	string name;
+	std::string name;
 	short address;
 	double EGUMin;
 	double EGUMax;
