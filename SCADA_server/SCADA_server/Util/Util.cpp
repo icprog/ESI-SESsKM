@@ -246,7 +246,7 @@ RemoteTelemetryUnit *Util::parseXMLConfig()
 
 	}
 
-	return rtu1 = new RemoteTelemetryUnit(RTUname, RTUindustrialProtocol, RTUtransportProtocol, RTUipAddress, RTUport, RTUanalogInputNum, RTUanalogOutputNum, RTUdigitalInputNum, RTUdigitalOutputNum, analogInputs, analogOutputs, digitalDevices);
+//	return rtu1 = new RemoteTelemetryUnit(RTUname, RTUindustrialProtocol, RTUtransportProtocol, RTUipAddress, RTUport, RTUanalogInputNum, RTUanalogOutputNum, RTUdigitalInputNum, RTUdigitalOutputNum, analogInputs, analogOutputs, digitalDevices);
 }
 
 

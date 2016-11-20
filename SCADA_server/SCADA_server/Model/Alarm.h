@@ -16,13 +16,16 @@ public:
 	void setName(std::string newName) { name = newName; }
 	bool getConfirmed() const { return confirmed; }
 	void setConfirmed(bool conf) { confirmed = conf;  }
-
+	short getAddress() const { return address; }
+	void setAddress(short add) { address = add; }
+	std::string getMessage() const { return message; }
+	void setMessage(std::string mes) { message = mes; }
 private:
 	time_t timeStamp;
 	std::string name;
 	bool confirmed;
-
-
+	short address;
+	std::string message;
 };
 
 

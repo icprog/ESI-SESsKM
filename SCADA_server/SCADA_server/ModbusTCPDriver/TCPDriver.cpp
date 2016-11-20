@@ -50,11 +50,11 @@ int TCPDriver::receiveResponse(char *request)
 		std::cout << iResult << std::endl;
 		if (iResult > 0)
 		{
-			std::cout << "Message received from server as a server: %s.\n" << response << std::endl;
+			std::cout << "Message received modbus simulator: %s.\n" << response << std::endl;
 
 			// prvo proveri sta ima da se radi
 			if (response[7] == 0x80 || response[7] == (0x80 + request[7])) {
-				return -1;
+				std::cout << "Modbus simulator returned an error. Please try again." << std::endl;
 			}
 
 			char *wholeMessage;

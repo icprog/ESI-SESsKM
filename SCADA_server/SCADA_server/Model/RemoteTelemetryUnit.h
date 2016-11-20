@@ -6,6 +6,7 @@
 #include "AnalogInput.h"
 #include "AnalogOutput.h"
 #include "DigitalDevice.h"
+#include "Alarm.h"
 
 class RemoteTelemetryUnit {
 public:
@@ -19,23 +20,27 @@ public:
 	int digitalInputNum;
 	int digitalOutputNum;
 
-	std::vector<AnalogInput> analogInputs;
-	std::vector<AnalogOutput> analogOutputs;
-	std::vector<DigitalDevice> digitalDevices;
+	std::vector<AnalogInput> *analogInputs;
+	std::vector<AnalogOutput> *analogOutputs;
+	std::vector<DigitalDevice> *digitalDevices;
+	std::vector<Alarm> *alarms;
 public:
 	RemoteTelemetryUnit() {}
 
 	RemoteTelemetryUnit(std::string m_id, std::string m_industrialProtocol, std::string m_transportProtocol, std::string m_ipAddress, int m_port, int m_analogInputNum,
 		int m_analogOutputNum, int m_digitalInputNum, int m_digitalOutputNum,
-		std::vector<AnalogInput> m_analogInputs, std::vector<AnalogOutput> m_analogOutputs, std::vector<DigitalDevice> m_digitalDevices
+		std::vector<AnalogInput>* m_analogInputs, std::vector<AnalogOutput>* m_analogOutputs, std::vector<DigitalDevice> *m_digitalDevices
 	) : id(m_id), industrialProtocol(m_industrialProtocol), transportProtocol(m_transportProtocol), ipAddress(m_ipAddress), port(m_port),
 		analogInputNum(m_analogInputNum), analogOutputNum(m_analogOutputNum), digitalInputNum(m_digitalInputNum), digitalOutputNum(m_digitalOutputNum),
-		analogInputs(m_analogInputs), analogOutputs(m_analogOutputs), digitalDevices(m_digitalDevices) {}
+		analogInputs(m_analogInputs), analogOutputs(m_analogOutputs), digitalDevices(m_digitalDevices) {
+		alarms = new std::vector<Alarm>;
+	}
 
 	~RemoteTelemetryUnit() {
-		delete &analogInputs;
-		delete &analogOutputs;
-		delete &digitalDevices;
+		delete analogInputs;
+		delete analogOutputs;
+		delete digitalDevices;
+		delete alarms;
 	}
 
 	std::string getId() const { return id; }
@@ -47,10 +52,10 @@ public:
 	int getAnalogOutputNum() const { return analogOutputNum; }
 	int getDigitalInputNum() const { return digitalInputNum; }
 	int getDigitalOutputNum() const { return digitalOutputNum; }
-	std::vector<AnalogInput> getAnalogInputs() { return analogInputs; }
-	std::vector<AnalogOutput> getAnalogOutputs() { return analogOutputs; }
-	std::vector<DigitalDevice> getDigitalDevices() { return digitalDevices; }
-
+	std::vector<AnalogInput> *getAnalogInputs() { return analogInputs; }
+	std::vector<AnalogOutput> *getAnalogOutputs() { return analogOutputs; }
+	std::vector<DigitalDevice> *getDigitalDevices() { return digitalDevices; }
+	std::vector<Alarm> *getAlarms() { return alarms; }
 	void setId(std::string newName) { id = newName; }
 	void setIndProt(std::string newIndProt) { industrialProtocol = newIndProt; }
 	void setTransProt(std::string newTransProt) { transportProtocol = newTransProt; }

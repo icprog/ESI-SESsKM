@@ -113,18 +113,26 @@ void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp)
 			std::cout << "Message received from server as a server: %s.\n" << response << std::endl;
 
 			// if there is alarm in the stream, then the response should look like this: 
-			// 4 bytes for size and 4 bytes for confirmation of the alarm( number 1 is confirmation) and 4 bytes for the alarm id
+			// 4 bytes for size and 2 bytes for the alarm address
 			int size = *(int *)response;
-			if (size == 12) {
-
-				//ALARM CONFIRMATION
-				//SET ALARM CONFIRMED
+			if (size == 6) {
+				
+				for (int i = 0; i < tmp->getRTU()->getAlarms()->size(); i++) {
+					if (tmp->getRTU()->getAlarms()->at(i).getAddress() == *(short*)(response + 4)) {
+						tmp->getRTU()->getAlarms()->at(i).setConfirmed(true);
+						break;
+					}
+				}
 
 			}
 			else {
-
-				// IT IS COMMAND
-				// PUT IT INTO COMMAND BUFFER
+				// if it is a command, put it into the command buffer! 
+				char *data = new char[size];
+				for (int i = 0; i < size; i++) {
+					data[i] = response[i];
+				}
+				tmp->getCommandingBuffer()->push(data, size);
+				delete data, data = 0;
 
 			}
 
