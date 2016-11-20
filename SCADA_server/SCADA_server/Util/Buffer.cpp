@@ -95,13 +95,25 @@ int Buffer::push(char * data, int sizeOfData)
 
 	int rest = this->size - this->pushIdx;
 	if (sizeOfData > rest) {
-		memcpy(this->data + this->pushIdx, data, rest);
-		memcpy(this->data, data + rest, sizeOfData - rest);
+		int j = 0;
+		for (int i = this->pushIdx; i < this->pushIdx + rest; i++) {
+			this->data[i] = data[j];
+			j++;
+		}
+		j = 0;
+		for (int i = 0; i < sizeOfData - rest; i++) {
+			this->data[i] = data[j];
+			j++;
+		}
 		this->pushIdx = sizeOfData - rest;
 		this->count += sizeOfData;
 	}
 	else {
-		memcpy(this->data + this->pushIdx, data, sizeOfData);
+		int j = 0;
+		for (int i = this->pushIdx; i < this->pushIdx + sizeOfData; i++) {
+			this->data[i] = data[j];
+			j++;
+		}
 		this->count += sizeOfData;
 		this->pushIdx += sizeOfData;
 	}
@@ -144,16 +156,30 @@ int Buffer::pop(char * data, int velicina)
 	int rest = this->size - this->popIdx;
 	//prvi slucaj da je data negde u sredini i onda je pomeramo na pocetak
 	if (this->popIdx < this->pushIdx || rest-velicina > 0) {
-		memcpy(data, this->data + this->popIdx, velicina); //kopiraj data na pocetak buffer-a
+		int j = 0;
+		for (int i = this->popIdx; i < this->popIdx+velicina; i++) {
+			data[j] = this->data[i];
+			this->data[i] = 0;
+			j++;
+		}
 		memset(this->data + this->popIdx, 0, velicina);
 		this->popIdx += velicina;
 	}
 	else {
 		//iz dva dela, prvo kopiraj kraj data na pocetak, pa onda sa pocetka pomeri
-		memcpy(data, this->data + this->popIdx, rest);
-		memcpy(data+rest, this->data, velicina - rest);
-		memset(this->data + this->popIdx, 0, rest);
-		memset(this->data, 0, velicina - rest);
+		int j = 0;
+		for (int i = this->popIdx; i < this->popIdx + rest; i++) {
+			data[j] = this->data[i];
+			this->data[i] = 0;
+			j++;
+		}
+		j = 0;
+		for (int i = 0; i < velicina - rest; i++) {
+			data[j] = this->data[i];
+			this->data[i] = 0;
+			j++;
+		}
+
 		this->popIdx = velicina - rest;	
 	}
 	this->count -= velicina;

@@ -61,6 +61,8 @@ public:
 	void setIpAddress(char *ipAddress);
 	int getPort() const;
 	void setPort(int port);
+	void setSharedBuffer(Buffer *buffer);
+	Buffer *getSharedBuffer();
 private:
 	TCPDriver() {
 		nonBlockingSocket = new NonBlockingSocket();

@@ -61,23 +61,32 @@ int TCPDriver::receiveResponse(char *request)
 			int len = *((short*)response + 2);
 			len = ntohs(len);
 			len += 6;
-			int wholeMessageSize = 4 + 12 + len; // 4 duzina cele poruke, 12 duzina requesta, i len je duzina responsa
+			int wholeMessageSize = 8 + 12 + len; // 4 duzina cele poruke, 4 za len, len za responsem, 12 duzina requesta
 			
 			wholeMessage = new char[wholeMessageSize];
 			*(int *)wholeMessage = wholeMessageSize;
 			*((int *)wholeMessage + 1) = len;
 
-			memcpy(wholeMessage+8, response, len);
-			memcpy(wholeMessage + 8 + len, request, 12);
+			int j = 0;
+			for (int i = 8; i < len+8; i++) {
+				wholeMessage[i] = response[j];
+				j++;
+			}
+			j = 0;
+			for (int i = 8+len; i < 20+len; i++) {
+				wholeMessage[i] = request[j];
+				j++;
+			}
 
-			sharedBuffer->push(wholeMessage, 0);  // SMESTITI U BAFER!
+
+			sharedBuffer->push(wholeMessage, wholeMessageSize);  // SMESTITI U BAFER!
 			delete wholeMessage, wholeMessage = 0;
-			iResult = 0;
+			//iResult = 0;
 		}
-		if (iResult == 0)
+		else if (iResult == 0)
 		{
 			// connection was closed gracefully
-			std::cout << "Connection with server established.\n" << std::endl;
+			std::cout << "Message received. Finishing." << std::endl;
 			//closesocket(*acceptedSocket);
 			break;
 		}
@@ -99,11 +108,6 @@ int TCPDriver::tcpConnect()
 	int iResult = -1;
 	iResult = createSocket(); //1 is nonBlockingMode
 
-	if (iResult != 0) {
-		//WSACleanup();
-
-		// ERROR
-	}
 	return iResult;
 }
 
@@ -220,4 +224,14 @@ int TCPDriver::getPort() const
 void TCPDriver::setPort(int port)
 {
 	this->port = port;
+}
+
+void TCPDriver::setSharedBuffer(Buffer * buffer)
+{
+	sharedBuffer = buffer;
+}
+
+Buffer * TCPDriver::getSharedBuffer()
+{
+	return sharedBuffer;
 }
