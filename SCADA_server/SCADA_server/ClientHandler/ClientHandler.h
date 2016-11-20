@@ -2,23 +2,56 @@
 #ifndef  CLIENT_HANDLER_H
 #define CLIENT_HANDLER_H
 #include "stdafx.h"
-
+#define DEFAULT_POOL_SIZE 10
 class ClientHandler {
 public:
 	ClientHandler() {
-		acceptSocketArray = new Pool<SOCKET>(INVALID_SOCKET);
+		acceptSocketArray = new std::vector<SOCKET>();
+		SOCKET s = INVALID_SOCKET;
+		for (int i = 0; i < DEFAULT_POOL_SIZE; i++) {
+			acceptSocketArray->push_back(s);
+		}
+		threadArray = new std::vector<std::thread*>();
+		
+		for (int i = 0; i < DEFAULT_POOL_SIZE; i++) {
+			threadArray->push_back(new std::thread());
+			//delete t, t = 0;
+		}
+		
+		threadFinished = new std::vector<bool>();
+		for (int i = 0; i < DEFAULT_POOL_SIZE; i++) {
+			threadFinished->push_back(true);
+		}	
+
 		nonBlockingSocket = new NonBlockingSocket();
 	}
 	ClientHandler(Buffer *commandingBuffer_, Buffer *streamBuffer_, unsigned long nonBlockingMode_, char *ipAddress_, char *port_):
 	commandingBuffer(commandingBuffer_), streamBuffer(streamBuffer_), nonBlockingMode(nonBlockingMode_), ipAddress(ipAddress_), port(port_)
 	{
-		acceptSocketArray = new Pool<SOCKET>(INVALID_SOCKET);
+		/* INITIALIZE SOCKET AND THREAD ARRAYS */
+		acceptSocketArray = new std::vector<SOCKET>();
+		SOCKET s = INVALID_SOCKET;
+		for (int i = 0; i < DEFAULT_POOL_SIZE; i++) {
+			acceptSocketArray->push_back(s);
+		}
+		threadArray = new std::vector<std::thread*>();
+		std::thread *t = new std::thread();
+		for (int i = 0; i < DEFAULT_POOL_SIZE; i++) {
+			threadArray->push_back(new std::thread());
+		}
+		delete t, t = 0;
+		threadFinished = new std::vector<bool>();
+		for (int i = 0; i < DEFAULT_POOL_SIZE; i++) {
+			threadFinished->push_back(true);
+		}
 		nonBlockingSocket = new NonBlockingSocket();
 	}
 	~ClientHandler() {
 		delete ipAddress, ipAddress = 0;
 		delete port, port = 0;
 		delete nonBlockingSocket, nonBlockingSocket = 0;
+		delete acceptSocketArray, acceptSocketArray = 0;
+		delete threadArray, threadArray = 0;
 		//delete acceptSocketArray, acceptSocketArray = 0;
 		tcpCloseConnection();
 	}
@@ -31,18 +64,21 @@ public:
 	*/
 	int tcpCloseConnection();
 
-	int sendMessage(char *message, SOCKET *accSock);  // if stream buffer is not empty it pops from it and sends to client
+	static int sendMessage(SOCKET *accSock,ClientHandler*tmp);  // if stream buffer is not empty it pops from it and sends to client
 	void sendData(char * message, SOCKET * accSock);
-	char * receiveMessage(SOCKET *accSock);
+	static void receiveMessage(SOCKET *accSock, ClientHandler*tmp);
 	void pushCommand();
 	char *popFromStreamBuffer();
+	NonBlockingSocket *getNonBlockingSocket();
 private:
 	//SOCKET acceptSocket;
 	SOCKET listenSocket;
 	char *ipAddress;
 	char *port;
 	unsigned long int nonBlockingMode;
-	Pool<SOCKET> *acceptSocketArray;
+	std::vector<SOCKET> *acceptSocketArray;
+	std::vector<std::thread*> *threadArray;
+	std::vector<bool> *threadFinished;
 	Buffer *commandingBuffer;
 	Buffer *streamBuffer;
 	NonBlockingSocket *nonBlockingSocket;

@@ -9,7 +9,7 @@ public:
 	Pool(int defaultValue) {
 		pool = new T[DEFAULT_ARR_LENGTH];
 		for (int i = 0; i < DEFAULT_ARR_LENGTH; i++) {
-			*pool = defaultValue;
+			*pool = new T(defaultValue);
 		}
 		size = DEFAULT_ARR_LENGTH;
 		count = 0;
@@ -22,7 +22,7 @@ public:
 	void remove(T value, int defaultValue);
 	int getSize() const;
 	int getCount() const;
-	T* getValue(int idx) const;
+	T* getValue(int idx);
 private:
 	T *pool;
 	int size;
@@ -99,7 +99,7 @@ inline int Pool<T>::getCount() const
 }
 
 template<class T>
-inline T* Pool<T>::getValue(int idx) const
+inline T* Pool<T>::getValue(int idx)
 {
 	return &pool[idx];
 }

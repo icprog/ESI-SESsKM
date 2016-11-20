@@ -19,13 +19,33 @@ int ClientHandler::tcpConnect()
 		// Client<->Server communication. This version of
 		// server will handle more clients.
 		bool full = true;
-		for (int i = 0; i < acceptSocketArray->getSize(); i++) {
-			if (*acceptSocketArray->getValue(i) == INVALID_SOCKET) {
-				iResult = acceptt(acceptSocketArray->getValue(i), &listenSocket);
+		for (int i = 0; i < acceptSocketArray->size(); i++) {
+			if (acceptSocketArray->at(i) == INVALID_SOCKET) {
+				iResult = acceptt(&acceptSocketArray->at(i), &listenSocket);
 				if (iResult == 1) {
 					// Ako je ovde greska, kraj rada
 					return 1;
 				}
+
+				/*
+				// create new thread for this client
+				bool threadFull = true;
+				for (int i = 0; i < threadFinished->size(); i++) {
+					if (threadFinished->at(i) == true) { // this thread is free, it can be used
+						threadArray->at(i)->join();
+						threadFull = false;
+						break;
+					}
+				}
+
+				if (threadFull) {
+					// ADD NEW THREAD
+				}
+				*/
+				std::thread sendThread(ClientHandler::sendMessage, &acceptSocketArray->at(i), this);
+				std::thread receiveThread(ClientHandler::receiveMessage, &acceptSocketArray->at(i), this);
+				sendThread.detach();
+				receiveThread.detach();
 				full = false;
 				break;
 			}
@@ -33,7 +53,7 @@ int ClientHandler::tcpConnect()
 		
 		if (full) {
 			SOCKET soc = INVALID_SOCKET;
-			acceptSocketArray->add(soc, INVALID_SOCKET); 
+			acceptSocketArray->push_back(soc);
 			closesocket(soc);
 		}
 	}
@@ -42,24 +62,28 @@ int ClientHandler::tcpConnect()
 
 int ClientHandler::tcpCloseConnection()
 {
-	for (int i = 0; i < acceptSocketArray->getSize(); i++) {
-		closesocket(*acceptSocketArray->getValue(i));
+	for (int i = 0; i < acceptSocketArray->size(); i++) {
+		closesocket(acceptSocketArray->at(i));
 	}
 	closesocket(listenSocket);
 	return 0;
 }
 
-int ClientHandler::sendMessage(char * message, SOCKET *accSock) // thread function
+ int ClientHandler::sendMessage( SOCKET *accSock, ClientHandler*tmp) // thread function
 {
-	while(1){
+	 while (1) {
 
-		char *req = popFromStreamBuffer();
+		 char *req = tmp->popFromStreamBuffer();
+		 if (req == nullptr){ // buffer is empty
+			 Sleep(200);
+			 continue;
+		}
 		int iResult = -1;
 		// Send an prepared message with null terminator included
 
 		std::cout << "\nSENDING MESSAGE: %s" << req << std::endl;
 
-		iResult = nonBlockingSocket->SEND(accSock, req, 0);
+		iResult = tmp->getNonBlockingSocket()->SEND(accSock, req, 0);
 
 		if (iResult == SOCKET_ERROR)
 		{
@@ -71,18 +95,18 @@ int ClientHandler::sendMessage(char * message, SOCKET *accSock) // thread functi
 
 		std::cout << "\nMESSAGE SENT! Bytes Sent: %ld\n" << iResult << std::endl;
 		delete req, req = 0;
-
+		
 	}
 	return 0;
 }
 
-char * ClientHandler::receiveMessage(SOCKET *accSock)
+void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp)
 {
 	int iResult = -1;
 	char *response = nullptr;
 	do {
 		response = new char[8012];
-		iResult = nonBlockingSocket->RECEIVE(accSock, response, 0);
+		iResult = tmp->nonBlockingSocket->RECEIVE(accSock, response, 0);
 		std::cout << iResult << std::endl;
 		if (iResult > 0)
 		{
@@ -122,8 +146,7 @@ char * ClientHandler::receiveMessage(SOCKET *accSock)
 		}
 
 	} while (iResult > 0);
-
-	return response;
+	delete response, response = 0;
 }
 
 char * ClientHandler::popFromStreamBuffer()
@@ -141,6 +164,11 @@ char * ClientHandler::popFromStreamBuffer()
 
 	}
 	return stream;
+}
+
+NonBlockingSocket * ClientHandler::getNonBlockingSocket()
+{
+	return nonBlockingSocket;
 }
 
 int ClientHandler::listenSocketFunc(SOCKET * ls, char * port)
@@ -252,7 +280,7 @@ int ClientHandler::selectt(SOCKET * socket, int type, int *exit)
 			Sleep(200);
 		}
 
-	} while (iResult == 0 && *exit == 0);
+	} while (iResult == 0);
 
 	return iResult;
 }

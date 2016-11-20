@@ -1,22 +1,22 @@
 #include "stdafx.h"
 #include "TCPDriver.h"
 
-char * TCPDriver::createRequest(char *req)
+void TCPDriver::createRequest(char *req, char *whole_req)
 {
-	char request[12];
-	request[0] = 0x01;
-	request[1] = 0x00;
-	request[2] = 0x00;
-	request[3] = 0x00;
-	request[4] = 0x06;
-	request[5] = 0x00;
-	request[6] = 0x00;
-	request[7] = req[0];
-	request[8] = req[1];
-	request[9] = req[2];
-	request[10] = req[3];
-	request[11] = req[4];
-	return request;
+
+	whole_req[0] = 0x01;
+	whole_req[1] = 0x00;
+	whole_req[2] = 0x00;
+	whole_req[3] = 0x00;
+	whole_req[4] = 0x06;
+	whole_req[5] = 0x00;
+	whole_req[6] = 0x00;
+	whole_req[7] = req[0];
+	whole_req[8] = req[1];
+	whole_req[9] = req[2];
+	whole_req[10] = req[3];
+	whole_req[11] = req[4];
+
 }
 
 int TCPDriver::sendRequest(char * request)
@@ -24,19 +24,19 @@ int TCPDriver::sendRequest(char * request)
 	int iResult = -1;
 	// Send an prepared message with null terminator included
 
-	cout << "\nSENDING MESSAGE: %s" << request << endl;
+	//std::cout << "\nSENDING MESSAGE: %s" << request << std::endl;
 
 	iResult = nonBlockingSocket->SEND(&sock, request, 0);
 
 	if (iResult == SOCKET_ERROR)
 	{
-		cout << "send failed with error: %d\n" << WSAGetLastError() << endl;
+		std::cout << "send failed with error: %d\n" << WSAGetLastError() << std::endl;
 		closesocket(sock);
 		//WSACleanup();
 		return 1;
 	}
 	
-	cout << "\nMESSAGE SENT! Bytes Sent: %ld\n" << iResult << endl;
+	std::cout << "\nMESSAGE SENT! Bytes Sent: %ld\n" << iResult << std::endl;
 	receiveResponse(request);
 	return 0;
 }
@@ -47,10 +47,10 @@ int TCPDriver::receiveResponse(char *request)
 	char response[512];
 	do {
 		iResult = nonBlockingSocket->RECEIVE(&sock, response, 0);
-		cout << iResult << endl;
+		std::cout << iResult << std::endl;
 		if (iResult > 0)
 		{
-			cout << "Message received from server as a server: %s.\n" << response << endl;
+			std::cout << "Message received from server as a server: %s.\n" << response << std::endl;
 
 			// prvo proveri sta ima da se radi
 			if (response[7] == 0x80 || response[7] == (0x80 + request[7])) {
@@ -77,14 +77,14 @@ int TCPDriver::receiveResponse(char *request)
 		if (iResult == 0)
 		{
 			// connection was closed gracefully
-			printf("Connection with server established.\n");
+			std::cout << "Connection with server established.\n" << std::endl;
 			//closesocket(*acceptedSocket);
 			break;
 		}
 		else
 		{
 			// there was an error during recv
-			printf("recv failed with error: %d\n", WSAGetLastError());
+			std::cout << "recv failed with error: %d\n" << WSAGetLastError() << std::endl;
 			//closesocket(*acceptedSocket);
 			break;
 		}
@@ -123,7 +123,7 @@ int TCPDriver::createSocket()
 
 	if (sock == INVALID_SOCKET)
 	{
-		printf("socket failed with error: %ld\n", WSAGetLastError());
+		std::cout << "socket failed with error: %ld\n" << WSAGetLastError() << std::endl;
 		//WSACleanup();
 		return 1; //fail!
 	}
@@ -136,7 +136,7 @@ int TCPDriver::createSocket()
 	// connect to server specified in serverAddress and socket connectSocket
 	if (connect(sock, (SOCKADDR*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR)
 	{
-		printf("Unable to connect to server.\n");
+		std::cout << "Unable to connect to server.\n" << std::endl;
 		closesocket(sock);
 		//WSACleanup();
 		return 1;
@@ -175,7 +175,7 @@ int TCPDriver::selectt(int type) // 0 is receive, 1 is send
 		// lets check if there was an error during select
 		if (iResult == SOCKET_ERROR)
 		{
-			fprintf(stderr, "select failed with error: %ld\n", WSAGetLastError());
+			std::cout << stderr<< "select failed with error: %ld\n"<< WSAGetLastError() << std::endl;
 			return -1; //error code: -1
 		}
 
@@ -192,7 +192,7 @@ int TCPDriver::selectt(int type) // 0 is receive, 1 is send
 	return iResult;
 }
 
-SOCKET * TCPDriver::getSocket() const
+SOCKET * TCPDriver::getSocket()
 {
 	return &sock;
 }

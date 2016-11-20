@@ -13,7 +13,7 @@ public:
 		@param req - 1 byte function code, 2 bytes starting address, 2 bytes quantity of coils
 		@return request - 12 bytes
 	*/
-	char *createRequest(char *req);
+	void createRequest(char *req, char *whole_req);
 	/*
 		This function is used for sending request over tcp connection.
 
@@ -55,7 +55,7 @@ public:
 	TCPDriver(TCPDriver const&) = delete;
 	void operator=(TCPDriver const&) = delete;
 
-	SOCKET *getSocket() const;
+	SOCKET *getSocket();
 	void setSocket(SOCKET *socket);
 	char *getIpAddress() const;
 	void setIpAddress(char *ipAddress);
@@ -65,13 +65,13 @@ private:
 	TCPDriver() {
 		nonBlockingSocket = new NonBlockingSocket();
 		sock = INVALID_SOCKET;
-		tcpConnect();
+		//tcpConnect();
 	}
 	TCPDriver(char *ipAddress_, int port_, Buffer *sharedBuffer_, unsigned long int nonBlockingMode_): 
 		ipAddress(ipAddress_), port(port_), nonBlockingMode(nonBlockingMode_), sharedBuffer(sharedBuffer_){
 		nonBlockingSocket = new NonBlockingSocket();
 		sock = INVALID_SOCKET;
-		tcpConnect();
+		//tcpConnect();
 	}
 	~TCPDriver() {
 		delete ipAddress, ipAddress = 0;

@@ -114,7 +114,7 @@ int NonBlockingSocket::receiveNB(SOCKET* socket, char* buffer, int bufferLength,
 int NonBlockingSocket::SEND(SOCKET* socket, char* buffer, int type) {
 
 	int i = 0;
-	int len = getMessageLength(buffer);
+	int len = getMessageLength(buffer) + 6;
 	int iResult = 0;
 	if (type != 0)
 		len = sizeof(buffer) / sizeof(*buffer);
