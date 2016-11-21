@@ -15,15 +15,15 @@
 RemoteTelemetryUnit *Util::parseXMLConfig()
 {
 	int analogInputSize = 0;
-	int digitalDeviceSize = 0;
+	int analogOutputSize = 0;
+	int digitalDeviceInputSize = 0;
+	int digitalDeviceOutputSize = 0;
 	RemoteTelemetryUnit *rtu1;
-	AnalogInput *ai1;
-	AnalogInput *ai2;
-	AnalogInput *ai3;
+	AnalogInput *ai;
 	DigitalDevice *dd1;
-	std::vector<AnalogInput> analogInputs;
-	std::vector<AnalogOutput> analogOutputs;
-	std::vector<DigitalDevice> digitalDevices;
+	std::vector<AnalogInput*> analogInputs;
+	std::vector<AnalogOutput*> analogOutputs;
+	std::vector<DigitalDevice*> digitalDevices;
 
 	//RTU properties
 	std::string RTUname;
@@ -32,10 +32,6 @@ RemoteTelemetryUnit *Util::parseXMLConfig()
 	std::string RTUtransportProtocol;
 	std::string RTUipAddress;
 	int RTUport;
-	int RTUanalogInputNum;
-	int RTUanalogOutputNum;
-	int RTUdigitalInputNum;
-	int RTUdigitalOutputNum;
 
 	//analog input properties
 	std::string analogInputName;
@@ -60,7 +56,7 @@ RemoteTelemetryUnit *Util::parseXMLConfig()
 	enum status digitalDeviceStatus;
 
 	pugi::xml_document doc;
-	if (!doc.load_file("ConfigurationXML.xml")) {
+	if (!doc.load_file("../Util/ConfigurationXML.xml")) {
 		std::cout << "Unable to load configuration file!" << std::endl;
 		return NULL;
 	}
@@ -94,26 +90,6 @@ RemoteTelemetryUnit *Util::parseXMLConfig()
 
 		if (childName.compare("port") == 0) {
 			RTUport = std::stoi(rtuChild.child_value());
-			continue;
-		}
-
-		if (childName.compare("analog_input_num") == 0) {
-			RTUanalogInputNum = std::stoi(rtuChild.child_value());
-			continue;
-		}
-
-		if (childName.compare("analog_output_num") == 0) {
-			RTUanalogOutputNum = std::stoi(rtuChild.child_value());
-			continue;
-		}
-
-		if (childName.compare("digital_input_num") == 0) {
-			RTUdigitalInputNum = std::stoi(rtuChild.child_value());
-			continue;
-		}
-
-		if (childName.compare("digital_output_num") == 0) {
-			RTUdigitalOutputNum = std::stoi(rtuChild.child_value());
 			continue;
 		}
 
@@ -168,30 +144,14 @@ RemoteTelemetryUnit *Util::parseXMLConfig()
 					//continue;
 				}
 
-				if (analogInputSize == 1) {
-					std::cout << "pravim prvi" << std::endl;
-					//ai1 = new AnalogInput(analogInputName);
-					ai1 = new AnalogInput(analogInputName, analogInputAddress, analogInputEGUMin, analogInputEGUMax, analogInputRawMin, analogInputRawMax, analogInputRaw, analogInputValue, analogInputStatus);
-					analogInputs.push_back(*ai1);
-				}
-
-				if (analogInputSize == 2) {
-					std::cout << "pravim drugi" << std::endl;
-					ai2 = new AnalogInput(analogInputName, analogInputAddress, analogInputEGUMin, analogInputEGUMax, analogInputRawMin, analogInputRawMax, analogInputRaw, analogInputValue, analogInputStatus);
-					analogInputs.push_back(*ai2);
-				}
-
-				if (analogInputSize == 3) {
-					std::cout << "pravim treci" << std::endl;
-					ai3 = new AnalogInput(analogInputName, analogInputAddress, analogInputEGUMin, analogInputEGUMax, analogInputRawMin, analogInputRawMax, analogInputRaw, analogInputValue, analogInputStatus);
-					analogInputs.push_back(*ai3);
-				}
+				ai = new AnalogInput(analogInputName, analogInputAddress, analogInputEGUMin, analogInputEGUMax, analogInputRawMin, analogInputRawMax, analogInputRaw, analogInputValue, analogInputStatus);
+				analogInputs.push_back(ai);
 				continue;
 			}
 		}
 
 		if (childName.compare("digital_device") == 0) {
-			digitalDeviceSize++;
+			digitalDeviceInputSize++;
 			for (pugi::xml_node_iterator it = rtuChild.children().begin(); it != rtuChild.children().end(); ++it)
 			{
 				std::string inputName = it->name();
@@ -234,19 +194,29 @@ RemoteTelemetryUnit *Util::parseXMLConfig()
 					//digitalDeviceStatus = convertToStatus(std::stoi(it->child_value()));
 				}
 
-				if (digitalDeviceSize == 1) {
-					dd1 = new DigitalDevice(digitalDeviceName, readOnly, inAddress, outAddress);
-					//dd1->setStatus(digitalDeviceStatus);
-					digitalDevices.push_back(*dd1);
-				}
+				dd1 = new DigitalDevice(digitalDeviceName, readOnly, inAddress, outAddress);
+				//dd1->setStatus(digitalDeviceStatus);
+				digitalDevices.push_back(dd1);
 				continue;
 			}
-
 		}
-
+		if (childName.compare("analog_output") == 0) {
+			analogOutputSize++;
+			continue;
+		}
 	}
 
-//	return rtu1 = new RemoteTelemetryUnit(RTUname, RTUindustrialProtocol, RTUtransportProtocol, RTUipAddress, RTUport, RTUanalogInputNum, RTUanalogOutputNum, RTUdigitalInputNum, RTUdigitalOutputNum, analogInputs, analogOutputs, digitalDevices);
+	return rtu1 = new RemoteTelemetryUnit(RTUname, RTUindustrialProtocol, RTUtransportProtocol, RTUipAddress, RTUport, analogInputSize, analogOutputSize, digitalDeviceInputSize, digitalDeviceOutputSize, analogInputs, analogOutputs, digitalDevices);
+}
+
+int Util::getSharedMesageSize(Buffer * sharedBuffer)
+{
+	return *(int*)sharedBuffer->getData();
+}
+
+int Util::getSharedResponseSize(Buffer * sharedBuffer)
+{
+	return *((int*)(sharedBuffer->getData() + 4));
 }
 
 

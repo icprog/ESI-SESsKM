@@ -1,0 +1,52 @@
+<RTU>
+	<id>RemoteTelemetryUnit</id>
+	<industrial_protocol>Modbus</industrial_protocol>
+	<transport_protocol>TCP/IP</transport_protocol>
+	<ip_address>127.0.0.1</ip_address>
+	<port>502</port>
+	<analog_input>
+		<ai_name>SpoljasnjaTemperatura</ai_name>
+		<address>1</address>
+		<EGUMin>0</EGUMin>
+		<EGUMax>100</EGUMax>
+		<RawMin>0</RawMin>
+		<RawMax>4000</RawMax>
+		<Raw>1000</Raw>
+		<Value>0</Value>
+		<ai_Status>0</ai_Status>
+	</analog_input>
+	
+	<analog_input>
+		<ai_name>UnutrasnjaTemperatura</ai_name>
+		<address>2</address>
+		<EGUMin>0</EGUMin>
+		<EGUMax>100</EGUMax>
+		<RawMin>0</RawMin>
+		<RawMax>4000</RawMax>
+		<Raw>500</Raw>
+		<Value>0</Value>
+		<ai_Status>0</ai_Status>
+	</analog_input>
+	
+	<analog_input>
+		<ai_name>ZadataTemperatura</ai_name>
+		<address>3</address>
+		<EGUMin>0</EGUMin>
+		<EGUMax>100</EGUMax>
+		<RawMin>0</RawMin>
+		<RawMax>4000</RawMax>
+		<Raw>2000</Raw>
+		<Value>0</Value>
+		<ai_Status>0</ai_Status>
+	</analog_input>
+	
+	<digital_device>
+		<dd_name>StanjeGrejaca</dd_name>
+		<read_only>true</read_only>
+		<in_address1>4</in_address1>
+		<in_address2>5</in_address2>
+		<out_address1>6</out_address1>
+		<out_address2>7</out_address2>
+		<dd_status>0</dd_status>
+	</digital_device>
+</RTU>	

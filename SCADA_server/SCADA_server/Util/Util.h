@@ -4,6 +4,7 @@
 #include<iostream>
 #include <string>
 #include "pugixml.h"
+#include "Buffer.h"
 #include "../Model/RemoteTelemetryUnit.h"
 #include "../Model/AnalogInput.h"
 #include "../Model/DigitalDevice.h"
@@ -12,6 +13,8 @@ class Util {
 
 public:
 	static RemoteTelemetryUnit *parseXMLConfig();
+	static int getSharedMesageSize(Buffer * sharedBuffer);
+	static int getSharedResponseSize(Buffer * sharedBuffer);
 };
 
 #endif // ! UTIL_H
