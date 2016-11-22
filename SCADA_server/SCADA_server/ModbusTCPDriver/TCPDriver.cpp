@@ -46,7 +46,7 @@ int TCPDriver::sendRequest(char * request, char *response)
 int TCPDriver::receiveResponse(char *request, char *resp)
 {
 	int iResult = -1;
-	char resp[512];
+	char response[512];
 	do {
 
 		iResult = nonBlockingSocket->RECEIVE(&sock, response, 7);

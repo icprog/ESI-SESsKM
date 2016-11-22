@@ -1,19 +1,20 @@
 #include "stdafx.h"
 #include "ClientHandler.h"
 
-int ClientHandler::tcpConnect(ClientHandler *that)
+int ClientHandler::tcpConnect()
 {
 
-	int iResult = that->listenSocketFunc(that->getListenSocket(), that->getPort());
+	int iResult = listenSocketFunc(&listenSocket, port);
 	if (iResult == 1) {
 		// Ako je ovde greska, kraj rada
 		return 1;
 	}
 	while (1)
 	{
-		std::cout << "\nLISTEN SOCKET IZ SERVERA: %d\n" << *that->getListenSocket() << std::endl;
-		iResult = ioctlsocket(*that->getListenSocket(), FIONBIO, that->getNonBlockingMode());
-		selectt(that->getListenSocket(), 0, 0);
+		u_long nb = 1;
+		std::cout << "\nLISTEN SOCKET IZ SERVERA: %d\n" << listenSocket << std::endl;
+		iResult = ioctlsocket(listenSocket, FIONBIO, &nb);
+		selectt(&listenSocket, 0, 0);
 		// Wait for clients and accept client connections.
 		// Returning value is acceptedSocket used for further
 		// Client<->Server communication. This version of

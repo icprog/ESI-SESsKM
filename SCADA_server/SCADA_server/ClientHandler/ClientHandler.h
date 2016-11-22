@@ -46,8 +46,6 @@ public:
 		}
 		nonBlockingSocket = new NonBlockingSocket();
 
-		std::thread clientHandlerThread(ClientHandler::sendRequests, this);
-		pollEngineThread.detach();
 	}
 	~ClientHandler() {
 		delete ipAddress, ipAddress = 0;
@@ -61,7 +59,7 @@ public:
 	/*
 		Connection is made with clients. There are supporting private functions.
 	*/
-	static int tcpConnect(ClientHandler *that);
+	int tcpConnect();
 	/*
 		Close all sockets.
 	*/
@@ -80,8 +78,9 @@ public:
 	int acceptt(SOCKET * acceptedSocket, SOCKET * listenSocket);
 	SOCKET *getListenSocket() { return &listenSocket; }
 	char *getPort() { return port; }
-	char *ipAddress() { return ipAddress; }
+	char *getIpAddress() { return ipAddress; }
 	unsigned long int getNonBlockingMode() { return nonBlockingMode; }
+
 private:
 	//SOCKET acceptSocket;
 	SOCKET listenSocket;

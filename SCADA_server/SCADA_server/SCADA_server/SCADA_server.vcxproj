@@ -161,9 +161,6 @@
     <ProjectReference Include="..\ClientHandler\ClientHandler.vcxproj">
       <Project>{0cb70d6f-5b61-47f5-8947-9db2d0b9591b}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\CommandingEngine\CommandingEngine.vcxproj">
-      <Project>{333ff530-aec1-4b4b-9bdd-966ff3ed01de}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\DataProcessingEngine\DataProcessingEngine.vcxproj">
       <Project>{595ba006-a2b4-42b4-9a9e-3e30d7c9d307}</Project>
     </ProjectReference>
