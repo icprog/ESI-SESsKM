@@ -240,7 +240,7 @@ void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu) {
 	do {
 		response = new char[1024];
 		
-		iResult = nbs->RECEIVE(accSock, response, 0);
+		iResult = nbs->RECEIVE(accSock, response, 4);
 		std::cout << iResult << std::endl;
 		if (iResult > 0)
 		{

@@ -32,13 +32,6 @@ void CommandingEngine::closedLoop(CommandingEngine * that)
 
 int CommandingEngine::turnHeaterOn(CommandingEngine * that)
 {
-	char request[5];
-	Util::createRequest(request, that->getRTU()->getDigitalDevices().at(0), nullptr, nullptr, 0);
-	char *wholeRequest = new char[12];
-	TCPDriver::getInstance().createRequest(request, wholeRequest);
-	TCPDriver::getInstance().sendRequest(wholeRequest, response);
-	sharedBuffer->push(response, getResponseSize());
-	Stopwatch<> sw;
 
 	while (sw.timePassed() < 15) {
 		Util::createRequest(request, that->getRTU()->getDigitalDevices().at(0), nullptr, nullptr, 1);
@@ -52,6 +45,7 @@ int CommandingEngine::turnHeaterOn(CommandingEngine * that)
 			Sleep(200);
 	}*/
 	sw.stop();
+
 }
 
 int CommandingEngine::turnHeaterOff()
@@ -74,4 +68,10 @@ void CommandingEngine::receiveResponse()
 		return true;
 	}else
 		return false;
+
 }*/
+
+void CommandingEngine::makeAlarm(CommandingEngine *that) {
+
+}
+
