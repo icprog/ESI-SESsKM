@@ -2,6 +2,7 @@
 #ifndef  DATA_PROCESSING_ENGINE_H
 #define DATA_PROCESSING_ENGINE_H
 #include "stdafx.h"
+#include "../Util/BlockingQueue.h"
 #include "../Util/Buffer.h"
 #include "../Util/Util.h"
 #include "../Model/AnalogInput.h"
@@ -11,7 +12,7 @@ class DataProcessingEngine {
 
 public:
 	DataProcessingEngine() {}
-	DataProcessingEngine(Buffer *m_sharedBuffer,Buffer *streamBuffer_, RemoteTelemetryUnit *m_rtu) : sharedBuffer(m_sharedBuffer),streamBuffer(streamBuffer_), rtu(m_rtu) {
+	DataProcessingEngine(BlockingQueue<char *> *m_sharedBuffer, BlockingQueue<char *> *streamBuffer_, RemoteTelemetryUnit *m_rtu) : sharedBuffer(m_sharedBuffer),streamBuffer(streamBuffer_), rtu(m_rtu) {
 		std::thread dataProccesingEngineThread(DataProcessingEngine::process, this);
 		dataProccesingEngineThread.detach();
 	}
@@ -23,11 +24,11 @@ public:
 		delete rtu, rtu = 0;
 	}
 
-	Buffer *getStreamBuffer() { return streamBuffer; }
-	Buffer *getSharedBuffer() { return sharedBuffer; }
+	BlockingQueue<char *> *getStreamBuffer() { return streamBuffer; }
+	BlockingQueue<char *> *getSharedBuffer() { return sharedBuffer; }
 	RemoteTelemetryUnit *getRTU() { return rtu; }
-	void setStreamBuffer(Buffer *newStreamBuffer) { streamBuffer = newStreamBuffer; }
-	void setSharedBuffer(Buffer *newSharedBuffer) { sharedBuffer = newSharedBuffer; }
+	void setStreamBuffer(BlockingQueue<char *> *newStreamBuffer) { streamBuffer = newStreamBuffer; }
+	void setSharedBuffer(BlockingQueue<char *> *newSharedBuffer) { sharedBuffer = newSharedBuffer; }
 	void setRTU(RemoteTelemetryUnit *newRTU) { rtu = newRTU; }
 
 	static void process(DataProcessingEngine *that);
@@ -35,8 +36,8 @@ public:
 	//char * makeClientMessage();
 
 private:
-	Buffer *streamBuffer;
-	Buffer *sharedBuffer;
+	BlockingQueue<char *> *streamBuffer;
+	BlockingQueue<char *> *sharedBuffer;
 	RemoteTelemetryUnit *rtu;
 };
 

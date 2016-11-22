@@ -6,18 +6,18 @@
 void DataProcessingEngine::process(DataProcessingEngine *that)
 {
 	std::cout << "Obradjuju se podaci!!!" << std::endl;
-	Buffer *sharedBuffer = that->getSharedBuffer();
+	BlockingQueue<char *> *sharedBuffer = that->getSharedBuffer();
 	RemoteTelemetryUnit *rtu = that->getRTU();
 	while (1) {
-		while (sharedBuffer->getPopIdx() != sharedBuffer->getPushIdx()) {
+		while (sharedBuffer->size() > 0) {
 			//dobijemo velicinu poruke i responsa iz shared buffera
 			int messageLength = Util::getSharedMesageSize(sharedBuffer);
 			int responseLength = Util::getSharedResponseSize(sharedBuffer);
 
 			//niz u koji smestam poruku koju skinem sa shared buffera
-			char dataBuf[BUFFER_SIZE];
+			char *dataBuf = new char[BUFFER_SIZE];
 			memset(dataBuf, 0, BUFFER_SIZE);
-			sharedBuffer->pop(dataBuf, messageLength);
+			dataBuf = sharedBuffer->pop();
 
 			//uzimamo adresu i function code iz poruke
 			short address = ntohs(*((short*)(dataBuf + 8 + responseLength + 8))); //8 bajta duzine,  response size ,i onda jos 8 bajta u req    27
@@ -142,6 +142,6 @@ void DataProcessingEngine::pushInStreamBuffer(DigitalDevice *dd, AnalogInput *it
 		*((int *)(stream + 10)) = dd->getState();
 		*((int *)(stream + 14)) = 0;
 	}
-	streamBuffer->push(stream, 18);
+	streamBuffer->push(stream);
 	delete stream;
 }

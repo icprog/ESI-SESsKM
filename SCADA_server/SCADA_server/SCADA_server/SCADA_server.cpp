@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "../Util/Repository.h"
+#include "../Util/BlockingQueue.h"
 bool InitializeWindowsSockets();
 enum fcodes { AI = 0x04, DI = 0x02 };
 void makeRequests(DigitalDevice *dd, AnalogInput *ai, char *request);
@@ -14,9 +14,9 @@ int main()
 		// by InitializeWindowsSockets() function
 		return 1;
 	}
-	Buffer *commandingBuffer = new Buffer("commanding_buffer", 512);
-	Repository *sharedBuffer = new Repository();
-	Buffer *streamBuffer = new Buffer("stream_buffer", 8000);
+	BlockingQueue<char *> *commandingBuffer = new BlockingQueue<char *>();
+	BlockingQueue<char *> *sharedBuffer = new BlockingQueue<char *>();
+	BlockingQueue<char *> *streamBuffer = new BlockingQueue<char *>();
 	RemoteTelemetryUnit *rtu = Util::parseXMLConfig();
 
 	TCPDriver::getInstance().setIpAddress("127.0.0.1");
@@ -42,7 +42,7 @@ int main()
 		vector->push_back(req);
 		//delete req;
 	}
-//	DataProcessingEngine *processEngine = new DataProcessingEngine(sharedBuffer,streamBuffer, rtu);
+	DataProcessingEngine *processEngine = new DataProcessingEngine(sharedBuffer,streamBuffer, rtu);
 
 	PollEngine *pollEngine = new PollEngine(vector);
 

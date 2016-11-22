@@ -132,6 +132,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BlockingQueue.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="NonBlockingSocket.h" />
     <ClInclude Include="Pool.h" />

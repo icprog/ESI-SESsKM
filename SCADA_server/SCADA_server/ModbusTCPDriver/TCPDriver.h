@@ -61,15 +61,15 @@ public:
 	void setIpAddress(char *ipAddress);
 	int getPort() const;
 	void setPort(int port);
-	void setSharedBuffer(Repository *buffer) { sharedBuffer = buffer; }
-	Repository *getSharedBuffer();
+	void setSharedBuffer(BlockingQueue<char *> *buffer) { sharedBuffer = buffer; }
+	BlockingQueue<char *> *getSharedBuffer();
 private:
 	TCPDriver() {
 		nonBlockingSocket = new NonBlockingSocket();
 		sock = INVALID_SOCKET;
 		//tcpConnect();
 	}
-	TCPDriver(char *ipAddress_, int port_, Repository *sharedBuffer_, unsigned long int nonBlockingMode_) :
+	TCPDriver(char *ipAddress_, int port_, BlockingQueue<char *> *sharedBuffer_, unsigned long int nonBlockingMode_) :
 		ipAddress(ipAddress_), port(port_), nonBlockingMode(nonBlockingMode_), sharedBuffer(sharedBuffer_) {
 		nonBlockingSocket = new NonBlockingSocket();
 		sock = INVALID_SOCKET;
@@ -81,7 +81,7 @@ private:
 		tcpCloseConnection();
 	}
 	SOCKET sock;
-	Repository *sharedBuffer;
+	BlockingQueue<char *> *sharedBuffer;
 	//char *response;
 	char *ipAddress;
 	int port;

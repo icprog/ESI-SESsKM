@@ -80,10 +80,8 @@ int TCPDriver::receiveResponse(char *request)
 				j++;
 			}
 
-			Structure *struc = new Structure();
-			struc->setMessage(wholeMessage, wholeMessageSize);
-			sharedBuffer->add(*struc);  // SMESTITI U BAFER!
-			delete wholeMessage, wholeMessage = 0;
+			sharedBuffer->push(wholeMessage);  // SMESTITI U BAFER!
+			//delete wholeMessage, wholeMessage = 0;
 			delete request, request = 0;
 			iResult = 0;
 		}
