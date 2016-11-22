@@ -17,5 +17,6 @@
 #include "../Util/Util.h"
 #include "../Model/RemoteTelemetryUnit.h"
 #include "../ModbusTCPDriver/TCPDriver.h"
+#include "../Model/DigitalDevice.h"
 #include <thread>
 #include <iostream>

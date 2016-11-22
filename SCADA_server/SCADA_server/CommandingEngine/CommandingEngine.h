@@ -20,9 +20,12 @@ public:
 	static void closedLoop(CommandingEngine *that);
 	Buffer *getStreamBuffer() { return streamBuffer; }
 	Buffer *getCommandingBuffer() { return commandingBuffer; }
+	Buffer *getSharedBuffer() { return sharedBuffer; }
 	RemoteTelemetryUnit *getRTU() { return rtu; }
 	char *getResponse() { return response; }
 	int getResponseSize() { return *(int *)response; }
+	bool turnedOn(CommandingEngine *that);
+
 private:
 	Buffer *streamBuffer;
 	Buffer *commandingBuffer;
@@ -32,6 +35,7 @@ private:
 	int turnHeaterOff();
 	void sendRequest();
 	void receiveResponse();
+	void makeAlarm(CommandingEngine *that);
 	char *response = nullptr;
 	// TCPDriver::getInstance()
 

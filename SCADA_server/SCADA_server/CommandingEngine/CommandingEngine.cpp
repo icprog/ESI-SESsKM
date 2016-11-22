@@ -32,26 +32,16 @@ void CommandingEngine::closedLoop(CommandingEngine * that)
 
 int CommandingEngine::turnHeaterOn(CommandingEngine * that)
 {
+	while (that->getRTU()->getDigitalDevices().at(0)->getStatus() == DigitalDevice::IN_PROGRESS) {
+		// WAIT for status to be changed
+	}
 	char request[5];
 	Util::createRequest(request, that->getRTU()->getDigitalDevices().at(0), nullptr, nullptr, 0);
 	char *wholeRequest = new char[12];
 	TCPDriver::getInstance().createRequest(request, wholeRequest);
 	TCPDriver::getInstance().sendRequest(wholeRequest, response);
 	sharedBuffer->push(response, getResponseSize());
-	Stopwatch<> sw;
 
-	while (sw.timePassed() < 15) {
-		Util::createRequest(request, that->getRTU()->getDigitalDevices().at(0), nullptr, nullptr, 1);
-		wholeRequest = new char[12];
-		TCPDriver::getInstance().createRequest(request, wholeRequest);
-		TCPDriver::getInstance().sendRequest(wholeRequest, response);
-		if (that->turnedOn(that)) {
-			// IZMENI STANJE DIGITALNOG IZLAZA!
-		}
-		else
-			Sleep(200);
-	}
-	sw.stop();
 }
 
 int CommandingEngine::turnHeaterOff()
@@ -74,4 +64,7 @@ bool CommandingEngine::turnedOn(CommandingEngine * that)
 		return true;
 	}else
 		return false;
+}
+void CommandingEngine::makeAlarm(CommandingEngine *that) {
+
 }
