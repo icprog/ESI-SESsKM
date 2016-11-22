@@ -219,4 +219,39 @@ int Util::getSharedResponseSize(Buffer *sharedBuffer)
 	return (*(int*)(sharedBuffer->getData() + 4));
 }
 
+void Util::createRequest(char *request, DigitalDevice * dd, AnalogInput * ai, AnalogOutput * ao, int type)
+{
+	if (dd == nullptr && ai == nullptr) {
+		if (type == 0) {
+			request[0] = 0x06;
+			*((short*)(request + 1)) = htons(ao->getAddress());
+		}
+		else {
+			request[0] = 0x03;
+			*((short*)(request + 1)) = htons(ao->getAddress());
+		}
+	}
+	else if(dd == nullptr && ao==nullptr) {
+		if (type == 0) {
+			return;
+		}
+		else {
+			request[0] = 0x01;
+			*((short*)(request + 1)) = htons(ai->getAddress());
+		}
+	}
+	else if (ai == nullptr && ao == nullptr) {
+		if (type == 0) {
+			request[0] = 0x05;
+			*((short*)(request + 1)) = htons(dd->getOutAddresses()[0]);
+		}
+		else {
+			request[0] = 0x02;
+			*((short*)(request + 1)) = htons(dd->getInAddresses()[0]);
+		}
+	}
+	request[3] = 0x00;
+	request[4] = 0x01;
+}
+
 

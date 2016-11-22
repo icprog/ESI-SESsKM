@@ -17,7 +17,9 @@ void PollEngine::sendRequests(PollEngine *that)
 		for (int i = 0; i < that->vector->size(); i++) {
 			char *request = new char[12];
 			TCPDriver::getInstance().createRequest(that->vector->at(i), request);
-			TCPDriver::getInstance().sendRequest(request);
+			TCPDriver::getInstance().sendRequest(request, that->response);
+			that->getSharedBuffer()->push(that->getResponse(), that->getResponseSize());
+			delete that->getResponse();
 			//delete request, request = 0;
 		}
 		Sleep(2000);
