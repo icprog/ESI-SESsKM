@@ -33,8 +33,8 @@ int main()
 	std::vector<char *> *vector = new std::vector<char *>();
 	char req[5];
 	req[0] = 0x04;
-	req[1] = 0x01;
-	req[2] = 0x00;
+	req[1] = 0x00;
+	req[2] = 0x01;
 	req[3] = 0x00;
 	req[4] = 0x01;
 	vector->push_back(req);

@@ -20,7 +20,7 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 			sharedBuffer->pop(dataBuf, messageLength);
 
 			//uzimamo adresu i function code iz poruke
-			short address = *((short*)(dataBuf + 8 + responseLength + 8)); //8 bajta duzine,  response size ,i onda jos 8 bajta u req    27
+			short address = ntohs(*((short*)(dataBuf + 8 + responseLength + 8))); //8 bajta duzine,  response size ,i onda jos 8 bajta u req    27
 			char fCode = *((char*)(dataBuf + 8 + 7)); //dataBuf +4(za duzinu cele poruke) +4(duzina responsa) +7(response header)
 
 			if (fCode == 1) {  //citanje digitalnih izlaza
