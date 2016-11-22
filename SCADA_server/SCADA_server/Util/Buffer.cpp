@@ -147,7 +147,6 @@ int Buffer::pop(char * data, int velicina)
 		velicina = *((int*)(this->data + popIdx));
 	}*/
 
-	shrink();
 
 	if (this->count == 0) {
 		return 0;
@@ -195,6 +194,7 @@ int Buffer::pop(char * data, int velicina)
 	printf("Count: %d\n", this->count);
 	printf("Size: %d\n", this->size);
 	///////////
+	shrink();
 
 	LeaveCriticalSection(&this->cs);
 	return 0;

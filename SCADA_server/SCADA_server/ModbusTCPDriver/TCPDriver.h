@@ -18,9 +18,10 @@ public:
 		This function is used for sending request over tcp connection.
 
 		@param request - 12 bytes got from createRequest function. Example call: sendRequest(createRequest(...))
+		@param response - char array that will be pushed into some buffer
 		@return enum value
 	*/
-	int sendRequest(char *request);
+	int sendRequest(char *request, char *response);
 	/*
 		This function is used for receiving response from the modbus simulator. 
 		It makes message that has this format:
@@ -31,7 +32,7 @@ public:
 		@param request is request that produces the given response.
 		
 	*/
-	int receiveResponse(char *request);
+	int receiveResponse(char *request, char *response);
 	/*
 		Connection is made with the modbus simulator. Supporting functions are private.
 	*/
@@ -61,27 +62,20 @@ public:
 	void setIpAddress(char *ipAddress);
 	int getPort() const;
 	void setPort(int port);
-	void setSharedBuffer(Buffer *buffer);
-	Buffer *getSharedBuffer();
+
 private:
 	TCPDriver() {
 		nonBlockingSocket = new NonBlockingSocket();
 		sock = INVALID_SOCKET;
 		//tcpConnect();
 	}
-	TCPDriver(char *ipAddress_, int port_, Buffer *sharedBuffer_, unsigned long int nonBlockingMode_): 
-		ipAddress(ipAddress_), port(port_), nonBlockingMode(nonBlockingMode_), sharedBuffer(sharedBuffer_){
-		nonBlockingSocket = new NonBlockingSocket();
-		sock = INVALID_SOCKET;
-		//tcpConnect();
-	}
+
 	~TCPDriver() {
 		delete ipAddress, ipAddress = 0;
 		delete nonBlockingSocket, nonBlockingSocket = 0;
 		tcpCloseConnection();
 	}
 	SOCKET sock;
-	Buffer *sharedBuffer;
 	//char *response;
 	char *ipAddress;
 	int port;

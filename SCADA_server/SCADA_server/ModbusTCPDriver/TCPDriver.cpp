@@ -17,9 +17,11 @@ void TCPDriver::createRequest(char *req, char *whole_req)
 	whole_req[10] = req[3];
 	whole_req[11] = req[4];
 
+
+
 }
 
-int TCPDriver::sendRequest(char * request)
+int TCPDriver::sendRequest(char * request, char *response)
 {
 	int iResult = -1;
 	// Send an prepared message with null terminator included
@@ -37,11 +39,11 @@ int TCPDriver::sendRequest(char * request)
 	}
 	
 	std::cout << "\nMESSAGE SENT! Bytes Sent: %ld\n" << iResult << std::endl;
-	receiveResponse(request);
+	receiveResponse(request, response);
 	return 0;
 }
 
-int TCPDriver::receiveResponse(char *request)
+int TCPDriver::receiveResponse(char *request, char *response)
 {
 	int iResult = -1;
 	char response[512];
@@ -57,33 +59,30 @@ int TCPDriver::receiveResponse(char *request)
 				std::cout << "Modbus simulator returned an error. Please try again." << std::endl;
 			}
 
-			char *wholeMessage;
 			int len = *((short*)response + 2);
 			len = ntohs(len);
 			len += 6;
 			int wholeMessageSize = 8 + 12 + len; // 4 duzina cele poruke, 4 za len, len za responsem, 12 duzina requesta
 			
-			wholeMessage = new char[wholeMessageSize];
-			*(int *)wholeMessage = wholeMessageSize;
-			*((int *)wholeMessage + 1) = len;
+			response = new char[wholeMessageSize];
+			*(int *)response = wholeMessageSize;
+			*((int *)response + 1) = len;
 
 			int j = 0;
 			for (int i = 8; i < len+8; i++) {
-				wholeMessage[i] = response[j];
+				response[i] = response[j];
 				j++;
 			}
 			j = 0;
 			for (int i = 8+len; i < 20+len; i++) {
-				wholeMessage[i] = request[j];
+				response[i] = request[j];
 				j++;
 			}
 
-
-			sharedBuffer->push(wholeMessage, wholeMessageSize);  // SMESTITI U BAFER!
-			delete wholeMessage, wholeMessage = 0;
-			//iResult = 0;
+			delete request, request = 0;
+			iResult = 0;
 		}
-		else if (iResult == 0)
+		if (iResult == 0)
 		{
 			// connection was closed gracefully
 			std::cout << "Message received. Finishing." << std::endl;
@@ -226,12 +225,3 @@ void TCPDriver::setPort(int port)
 	this->port = port;
 }
 
-void TCPDriver::setSharedBuffer(Buffer * buffer)
-{
-	sharedBuffer = buffer;
-}
-
-Buffer * TCPDriver::getSharedBuffer()
-{
-	return sharedBuffer;
-}

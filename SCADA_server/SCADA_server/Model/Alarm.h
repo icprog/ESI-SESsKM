@@ -7,7 +7,10 @@
 class Alarm {
 public:
 	Alarm() {}
-	Alarm(std::string m_name, time_t m_time) : name(m_name), timeStamp(m_time) {}
+	Alarm(std::string m_name, time_t m_time) : name(m_name), timeStamp(m_time) {
+		confirmed = false;
+		corrected = false;
+	}
 	~Alarm() {}
 
 	time_t getTime() const { return timeStamp; }
@@ -16,6 +19,8 @@ public:
 	void setName(std::string newName) { name = newName; }
 	bool getConfirmed() const { return confirmed; }
 	void setConfirmed(bool conf) { confirmed = conf;  }
+	bool getCorrected() const { return corrected; }
+	void setCorrected(bool corr) { corrected = corr; }
 	short getAddress() const { return address; }
 	void setAddress(short add) { address = add; }
 	std::string getMessage() const { return message; }
@@ -24,6 +29,7 @@ private:
 	time_t timeStamp;
 	std::string name;
 	bool confirmed;
+	bool corrected;
 	short address;
 	std::string message;
 };
