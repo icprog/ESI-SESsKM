@@ -57,6 +57,8 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 						if (outputValue == 1) {
 							it->setState(DigitalDevice::OFF);
 						}
+						that->pushInStreamBuffer(it, nullptr);
+						break;
 					}
 				}
 			}
@@ -88,6 +90,9 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 				for (int i = 0; i < analogInputs.size(); i++) {
 					AnalogInput *it = analogInputs.at(i);
 					if (it->getAddress() == address) {
+						if (it->getRaw() == inpVal) {
+							break;
+						}
 						it->setRaw(inpVal);
 
 						if (inpVal <= it->getRawMax() || inpVal >= it->getRawMin()) {
@@ -98,6 +103,7 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 						else {
 							it->setStatus(0); //status 0 je err, postavi status u rtuIn na err
 						}
+						that->pushInStreamBuffer(nullptr, it);
 						break;
 					}
 				}
@@ -117,4 +123,25 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 		}
 		//std::cout << "Value from DP is: " << rtu->getAnalogInputs().at(0)->getValue() << std::endl;
 	}
+}
+
+void DataProcessingEngine::pushInStreamBuffer(DigitalDevice *dd, AnalogInput *it)
+{
+	char *stream;
+	// 4 duzina cele poruke + 4 oznaka + 2 adresa + 8 vrednost
+	stream = new char[18];
+	*((int *)stream) = 18;
+	if (dd == nullptr) {
+		*((int *)stream + 1) = 1;
+		*((short *)(stream + 8)) = it->getAddress();
+		*((double *)(stream + 10)) = it->getValue();
+	}
+	else {
+		*((int *)stream + 1) = 2;
+		*((short *)(stream + 8)) = dd->getInAddresses()[0];
+		*((int *)(stream + 10)) = dd->getState();
+		*((int *)(stream + 14)) = 0;
+	}
+	streamBuffer->push(stream, 18);
+	delete stream;
 }

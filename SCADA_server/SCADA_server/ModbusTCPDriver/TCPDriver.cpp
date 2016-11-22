@@ -17,6 +17,8 @@ void TCPDriver::createRequest(char *req, char *whole_req)
 	whole_req[10] = req[3];
 	whole_req[11] = req[4];
 
+
+
 }
 
 int TCPDriver::sendRequest(char * request)
@@ -81,9 +83,10 @@ int TCPDriver::receiveResponse(char *request)
 
 			sharedBuffer->push(wholeMessage, wholeMessageSize);  // SMESTITI U BAFER!
 			delete wholeMessage, wholeMessage = 0;
-			//iResult = 0;
+			delete request, request = 0;
+			iResult = 0;
 		}
-		else if (iResult == 0)
+		if (iResult == 0)
 		{
 			// connection was closed gracefully
 			std::cout << "Message received. Finishing." << std::endl;

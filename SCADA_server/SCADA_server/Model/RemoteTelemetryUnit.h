@@ -9,7 +9,7 @@
 #include "Alarm.h"
 
 class RemoteTelemetryUnit {
-public:
+private:
 	std::string id;
 	std::string industrialProtocol;
 	std::string transportProtocol;

@@ -4,6 +4,8 @@
 #include "stdafx.h"
 
 bool InitializeWindowsSockets();
+enum fcodes { AI = 0x04, DI = 0x02 };
+void makeRequests(DigitalDevice *dd, AnalogInput *ai, char *request);
 int main()
 {
 	if (InitializeWindowsSockets() == false)
@@ -26,20 +28,24 @@ int main()
 		WSACleanup();
 		return 0;
 	}
-	/*
-	ClientHandler *ch = new ClientHandler(commandingBuffer, streamBuffer, 1, "127.0.0.1", "27016");
-	ch->tcpConnect();
-	*/
+	
+	//ClientHandler *ch = new ClientHandler(commandingBuffer, streamBuffer, 1, "127.0.0.1", "27016", rtu);
+	//ch->tcpConnect();
+	
 	std::vector<char *> *vector = new std::vector<char *>();
-	char req[5];
-	req[0] = 0x04;
-	req[1] = 0x00;
-	req[2] = 0x01;
-	req[3] = 0x00;
-	req[4] = 0x01;
-	vector->push_back(req);
+
+	char *req = nullptr;
+	for (int i = 0; i < rtu->getAnalogInputNum(); i++) {
+		req = new char[5];
+		makeRequests(nullptr, rtu->getAnalogInputs().at(i), req);
+		req[3] = 0x00;
+		req[4] = 0x01;
+		vector->push_back(req);
+		//delete req;
+	}
+	DataProcessingEngine *processEngine = new DataProcessingEngine(sharedBuffer,streamBuffer, rtu);
+
 	PollEngine *pollEngine = new PollEngine(vector);
-	DataProcessingEngine *processEngine = new DataProcessingEngine(sharedBuffer, rtu);
 //	PollEngine::sendRequests(pollEngine);
 	//delete commandingBuffer, commandingBuffer = 0;
 	//delete streamBuffer, streamBuffer = 0;
@@ -61,4 +67,17 @@ bool InitializeWindowsSockets()
 		return false;
 	}
 	return true;
+}
+
+void makeRequests(DigitalDevice *dd, AnalogInput *ai, char *request) {
+	if(dd == nullptr){
+		request[0] = AI;
+		*((short*)(request + 1)) = htons(ai->getAddress());
+	}
+	else {
+		request[0] = DI;
+		*((short*)(request + 1)) = htons( dd->getInAddresses()[0]);
+	}
+
+
 }

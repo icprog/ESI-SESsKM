@@ -11,7 +11,7 @@ class DataProcessingEngine {
 
 public:
 	DataProcessingEngine() {}
-	DataProcessingEngine(Buffer *m_sharedBuffer, RemoteTelemetryUnit *m_rtu) : sharedBuffer(m_sharedBuffer), rtu(m_rtu) {
+	DataProcessingEngine(Buffer *m_sharedBuffer,Buffer *streamBuffer_, RemoteTelemetryUnit *m_rtu) : sharedBuffer(m_sharedBuffer),streamBuffer(streamBuffer_), rtu(m_rtu) {
 		std::thread dataProccesingEngineThread(DataProcessingEngine::process, this);
 		dataProccesingEngineThread.detach();
 	}
@@ -31,6 +31,7 @@ public:
 	void setRTU(RemoteTelemetryUnit *newRTU) { rtu = newRTU; }
 
 	static void process(DataProcessingEngine *that);
+	void pushInStreamBuffer(DigitalDevice *dd, AnalogInput *it);
 	//char * makeClientMessage();
 
 private:
