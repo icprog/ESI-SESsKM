@@ -13,8 +13,8 @@ class Util {
 
 public:
 	static RemoteTelemetryUnit *parseXMLConfig();
-	static int getSharedMesageSize(Buffer * sharedBuffer);
-	static int getSharedResponseSize(Buffer * sharedBuffer);
+	static int getSharedMesageSize(Buffer *sharedBuffer);
+	static int getSharedResponseSize(Buffer *sharedBuffer);
 };
 
 #endif // ! UTIL_H

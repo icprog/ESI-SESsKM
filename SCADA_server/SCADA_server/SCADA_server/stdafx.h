@@ -16,5 +16,6 @@
 #include "../ClientHandler/ClientHandler.h"
 #include "../ModbusTCPDriver/TCPDriver.h"
 #include "../PollEngine/PollEngine.h"
+#include "../DataProcessingEngine/DataProcessingEngine.h"
 #include <thread>
 #include <vector>

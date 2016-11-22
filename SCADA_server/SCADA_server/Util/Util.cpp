@@ -209,14 +209,14 @@ RemoteTelemetryUnit *Util::parseXMLConfig()
 	return rtu1 = new RemoteTelemetryUnit(RTUname, RTUindustrialProtocol, RTUtransportProtocol, RTUipAddress, RTUport, analogInputSize, analogOutputSize, digitalDeviceInputSize, digitalDeviceOutputSize, analogInputs, analogOutputs, digitalDevices);
 }
 
-int Util::getSharedMesageSize(Buffer * sharedBuffer)
+int Util::getSharedMesageSize(Buffer *sharedBuffer)
 {
 	return *(int*)sharedBuffer->getData();
 }
 
-int Util::getSharedResponseSize(Buffer * sharedBuffer)
+int Util::getSharedResponseSize(Buffer *sharedBuffer)
 {
-	return *((int*)(sharedBuffer->getData() + 4));
+	return (*(int*)(sharedBuffer->getData() + 4));
 }
 
 

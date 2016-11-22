@@ -15,6 +15,7 @@ int main()
 	Buffer *commandingBuffer = new Buffer("commanding_buffer", 512);
 	Buffer *sharedBuffer = new Buffer("shared_buffer", 512);
 	Buffer *streamBuffer = new Buffer("stream_buffer", 8000);
+	RemoteTelemetryUnit *rtu = Util::parseXMLConfig();
 
 	TCPDriver::getInstance().setIpAddress("127.0.0.1");
 	TCPDriver::getInstance().setPort(502);
@@ -32,17 +33,20 @@ int main()
 	std::vector<char *> *vector = new std::vector<char *>();
 	char req[5];
 	req[0] = 0x04;
-	req[1] = 0x00;
+	req[1] = 0x01;
 	req[2] = 0x00;
 	req[3] = 0x00;
 	req[4] = 0x01;
 	vector->push_back(req);
 	PollEngine *pollEngine = new PollEngine(vector);
+	DataProcessingEngine *processEngine = new DataProcessingEngine(sharedBuffer, rtu);
 //	PollEngine::sendRequests(pollEngine);
 	//delete commandingBuffer, commandingBuffer = 0;
 	//delete streamBuffer, streamBuffer = 0;
 	//delete ch, ch = 0;
-
+	
+	//double value = rtu->getAnalogInputs().at(0)->getValue();
+	//std::cout << "Value is: " << value << std::endl;
 	Sleep(INFINITE);
     return 0;
 }

@@ -52,9 +52,12 @@ int main()
 	Buffer *sharedBuffer = new Buffer("buf1", 512);
 	sharedBuffer->push(reqres1, 31);
 
-	DataProcessingEngine *dp = new DataProcessingEngine();
-	dp->process(sharedBuffer, rtu);
-
+	DataProcessingEngine *dp = new DataProcessingEngine(sharedBuffer, rtu);
+	//dp->process(sharedBuffer, rtu);
+	DataProcessingEngine::process(dp);
+	double value = rtu->getAnalogInputs().at(0)->getValue();
+	std::cout<<std::endl;
+	std::cout << "Value is: " << value << std::endl;
 
 	return 0;
 }

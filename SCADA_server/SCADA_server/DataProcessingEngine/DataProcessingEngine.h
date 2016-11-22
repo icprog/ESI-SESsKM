@@ -11,18 +11,26 @@ class DataProcessingEngine {
 
 public:
 	DataProcessingEngine() {}
-	DataProcessingEngine(Buffer *m_streamBuffer, RemoteTelemetryUnit *m_rtu) : streamBuffer(m_streamBuffer), rtu(m_rtu) {}
-	DataProcessingEngine(Buffer *m_streamBuffer, Buffer *m_sharedBuffer, RemoteTelemetryUnit *m_rtu) : streamBuffer(m_streamBuffer), sharedBuffer(m_sharedBuffer), rtu(m_rtu) {}
-	~DataProcessingEngine() {}
+	DataProcessingEngine(Buffer *m_sharedBuffer, RemoteTelemetryUnit *m_rtu) : sharedBuffer(m_sharedBuffer), rtu(m_rtu) {
+		std::thread dataProccesingEngineThread(DataProcessingEngine::process, this);
+		dataProccesingEngineThread.detach();
+	}
+	//DataProcessingEngine(Buffer *m_streamBuffer, RemoteTelemetryUnit *m_rtu) : streamBuffer(m_streamBuffer), rtu(m_rtu) {}
+	//DataProcessingEngine(Buffer *m_streamBuffer, Buffer *m_sharedBuffer, RemoteTelemetryUnit *m_rtu) : streamBuffer(m_streamBuffer), sharedBuffer(m_sharedBuffer), rtu(m_rtu) {}
+	~DataProcessingEngine() {
+		delete streamBuffer, streamBuffer = 0;
+		delete sharedBuffer, sharedBuffer = 0;
+		delete rtu, rtu = 0;
+	}
 
-	Buffer getStreamBuffer() { return *streamBuffer; }
-	Buffer getSharedBuffer() { return *sharedBuffer; }
-	RemoteTelemetryUnit getRTU() { return *rtu; }
+	Buffer *getStreamBuffer() { return streamBuffer; }
+	Buffer *getSharedBuffer() { return sharedBuffer; }
+	RemoteTelemetryUnit *getRTU() { return rtu; }
 	void setStreamBuffer(Buffer *newStreamBuffer) { streamBuffer = newStreamBuffer; }
 	void setSharedBuffer(Buffer *newSharedBuffer) { sharedBuffer = newSharedBuffer; }
 	void setRTU(RemoteTelemetryUnit *newRTU) { rtu = newRTU; }
 
-	void process(Buffer *sharedBuffer, RemoteTelemetryUnit *rtu);
+	static void process(DataProcessingEngine *that);
 	//char * makeClientMessage();
 
 private:
