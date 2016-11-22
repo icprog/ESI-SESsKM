@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "TurnedOn.h"
 
-void TurnedOn::turnOff(Context * c)
+void TurnedOn::turnedOn(Context * c)
 {
 	int zadataTemperatura = 0;
 	int trenutnaTemperatura = 0;

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "TurnOn.h"
 
-void TurnOn::turnedOn(Context * c)
+void TurnOn::turnOn(Context * c)
 {
 	
 	char request[5];

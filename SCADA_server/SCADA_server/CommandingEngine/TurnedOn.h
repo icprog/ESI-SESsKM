@@ -5,6 +5,6 @@
 #include "../Model/DigitalDevice.h"
 class TurnedOn: public State {
 public:
-	void turnOff(Context *c);
+	void turnedOn(Context *c);
 };
 #endif // !TURNED_ON_H

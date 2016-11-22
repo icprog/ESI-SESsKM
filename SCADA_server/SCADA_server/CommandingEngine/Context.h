@@ -19,6 +19,7 @@ public:
 	void error();
 	void idle();
 	void setCommandingEngine(CommandingEngine *ce) { that = ce; }
+	State *getCurrentState() { return current; }
 	CommandingEngine *getCommandingEngine() { return that; }
 };
 

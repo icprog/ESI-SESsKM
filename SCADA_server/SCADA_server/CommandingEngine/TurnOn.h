@@ -7,7 +7,7 @@
 class TurnOn : public State {
 
 public:
-	void turnedOn(Context *c);
+	void turnOn(Context *c);
 
 };
 
