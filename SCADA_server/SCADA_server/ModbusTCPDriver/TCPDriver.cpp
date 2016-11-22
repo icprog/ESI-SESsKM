@@ -43,12 +43,12 @@ int TCPDriver::sendRequest(char * request, char *response)
 	return 0;
 }
 
-int TCPDriver::receiveResponse(char *request, char *response)
+int TCPDriver::receiveResponse(char *request, char *resp)
 {
 	int iResult = -1;
 	char response[512];
 	do {
-		iResult = nonBlockingSocket->RECEIVE(&sock, response, 0);
+		iResult = nonBlockingSocket->RECEIVE(&sock, response, 7);
 		std::cout << iResult << std::endl;
 		if (iResult > 0)
 		{
@@ -64,18 +64,18 @@ int TCPDriver::receiveResponse(char *request, char *response)
 			len += 6;
 			int wholeMessageSize = 8 + 12 + len; // 4 duzina cele poruke, 4 za len, len za responsem, 12 duzina requesta
 			
-			response = new char[wholeMessageSize];
-			*(int *)response = wholeMessageSize;
-			*((int *)response + 1) = len;
+			resp = new char[wholeMessageSize];
+			*(int *)resp = wholeMessageSize;
+			*((int *)resp + 1) = len;
 
 			int j = 0;
 			for (int i = 8; i < len+8; i++) {
-				response[i] = response[j];
+				resp[i] = response[j];
 				j++;
 			}
 			j = 0;
 			for (int i = 8+len; i < 20+len; i++) {
-				response[i] = request[j];
+				resp[i] = request[j];
 				j++;
 			}
 

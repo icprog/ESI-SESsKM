@@ -111,16 +111,25 @@ int NonBlockingSocket::receiveNB(SOCKET* socket, char* buffer, int bufferLength,
 	return iResult; // success code: 0;
 }
 
-int NonBlockingSocket::SEND(SOCKET* socket, char* buffer, int type) {
+int NonBlockingSocket::SEND(SOCKET* socket, char* buffer, int length) {
 
 	int i = 0;
-	int len = getMessageLength(buffer) + 6;
+	int len = 0;
+	if (length == 4) {
+		len = *((int *)buffer);
+	}
+	else
+		len = getMessageLength(buffer) + 6;
+
 	int iResult = 0;
-	if (type != 0)
-		len = sizeof(buffer) / sizeof(*buffer);
+
 	while (i < len) {
 		do {
-			iResult = sendNB(socket, buffer, 12 - i);
+			if(length == 4)
+				iResult = sendNB(socket, buffer, len - i);
+			else
+				iResult = sendNB(socket, buffer, 12 - i);
+
 		} while (iResult == SLEEP);
 		if (iResult == SOCKET_ERROR)
 		{
@@ -137,33 +146,16 @@ int NonBlockingSocket::SEND(SOCKET* socket, char* buffer, int type) {
 }
 
 
-int NonBlockingSocket::RECEIVE(SOCKET* socket, char* buffer, int type) {
+int NonBlockingSocket::RECEIVE(SOCKET* socket, char* buffer, int length) {
 
 	int i = 0;
 	int len;
 	int iResult = 0;
-	if (type != 0) {
-		len = sizeof(buffer) / sizeof(*buffer);
-		while (i < len) {
-			do {
-				iResult = receiveNB(socket, buffer, len - i, i);
-			} while (iResult == SLEEP);
-			if (iResult == SOCKET_ERROR)
-			{
-				std::cout <<  "receiving the whole message failed with error: %ld\n" << WSAGetLastError() << std::endl;
-				closesocket(*socket);
-				//socket = INVALID_SOCKET;
-				//WSACleanup();
-				return REC_ERR; // connection error code: 2
-			}
-			i += iResult;
-		}
-		return 0;
-	}
-	char *duzina = new char[7];
-	while (i < 7) {
+
+	char *duzina = new char[length];
+	while (i < length) {
 		do {
-			iResult = receiveNB(socket, duzina, 7 - i, 0);
+			iResult = receiveNB(socket, duzina, length - i, 0);
 			if (iResult == 0)  // konekcija je zatvorena, nema potrebe raditi ista dalje
 				return 0;
 		} while (iResult == SLEEP);
@@ -180,10 +172,10 @@ int NonBlockingSocket::RECEIVE(SOCKET* socket, char* buffer, int type) {
 
 	len = getMessageLength(duzina);
 	len = ntohs(len);
-	memcpy(buffer, duzina, 7);
+	memcpy(buffer, duzina, length);
 	delete duzina, duzina = 0;
 
-	i = 7;
+	i = length;
 	len += i - 1;
 	iResult = 0;
 	while (i < len) {

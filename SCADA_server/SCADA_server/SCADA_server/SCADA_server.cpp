@@ -21,7 +21,6 @@ int main()
 
 	TCPDriver::getInstance().setIpAddress("127.0.0.1");
 	TCPDriver::getInstance().setPort(502);
-	TCPDriver::getInstance().setSharedBuffer(sharedBuffer);
 	int iResult = TCPDriver::getInstance().tcpConnect();
 	if (iResult != 0) {
 		std::cout << "Error connectiong to the modbus." << std::endl;
@@ -29,8 +28,8 @@ int main()
 		return 0;
 	}
 	
-	//ClientHandler *ch = new ClientHandler(commandingBuffer, streamBuffer, 1, "127.0.0.1", "27016", rtu);
-	//ch->tcpConnect();
+	ClientHandler *ch = new ClientHandler(commandingBuffer, streamBuffer, 1, "127.0.0.1", "27016", rtu);
+	ch->tcpConnect();
 	
 	std::vector<char *> *vector = new std::vector<char *>();
 
@@ -45,7 +44,7 @@ int main()
 	}
 	DataProcessingEngine *processEngine = new DataProcessingEngine(sharedBuffer,streamBuffer, rtu);
 
-	PollEngine *pollEngine = new PollEngine(vector);
+	PollEngine *pollEngine = new PollEngine(vector, sharedBuffer);
 //	PollEngine::sendRequests(pollEngine);
 	//delete commandingBuffer, commandingBuffer = 0;
 	//delete streamBuffer, streamBuffer = 0;

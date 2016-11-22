@@ -5,6 +5,6 @@
 #include "TurnedOn.h"
 
 class AlarmState : public State {
-	void alarm(Contex *c);
+	void alarm(Context *c);
 };
 #endif // !TURNED_ON_H

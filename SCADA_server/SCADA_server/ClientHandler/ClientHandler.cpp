@@ -1,19 +1,19 @@
 #include "stdafx.h"
 #include "ClientHandler.h"
 
-int ClientHandler::tcpConnect()
+int ClientHandler::tcpConnect(ClientHandler *that)
 {
 
-	int iResult = listenSocketFunc(&listenSocket, port);
+	int iResult = that->listenSocketFunc(that->getListenSocket(), that->getPort());
 	if (iResult == 1) {
 		// Ako je ovde greska, kraj rada
 		return 1;
 	}
 	while (1)
 	{
-		std::cout << "\nLISTEN SOCKET IZ SERVERA: %d\n" << listenSocket << std::endl;
-		iResult = ioctlsocket(listenSocket, FIONBIO, &nonBlockingMode);
-		selectt(&listenSocket, 0, 0);
+		std::cout << "\nLISTEN SOCKET IZ SERVERA: %d\n" << *that->getListenSocket() << std::endl;
+		iResult = ioctlsocket(*that->getListenSocket(), FIONBIO, that->getNonBlockingMode());
+		selectt(that->getListenSocket(), 0, 0);
 		// Wait for clients and accept client connections.
 		// Returning value is acceptedSocket used for further
 		// Client<->Server communication. This version of
@@ -83,7 +83,7 @@ int ClientHandler::tcpCloseConnection()
 
 		std::cout << "\nSENDING MESSAGE: %s" << req << std::endl;
 
-		iResult = tmp->getNonBlockingSocket()->SEND(accSock, req, 0);
+		iResult = tmp->getNonBlockingSocket()->SEND(accSock, req, 4);
 
 		if (iResult == SOCKET_ERROR)
 		{
@@ -106,7 +106,7 @@ void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp)
 	char *response = nullptr;
 	do {
 		response = new char[8012];
-		iResult = tmp->nonBlockingSocket->RECEIVE(accSock, response, 0);
+		iResult = tmp->nonBlockingSocket->RECEIVE(accSock, response, 4);
 		std::cout << iResult << std::endl;
 		if (iResult > 0)
 		{
