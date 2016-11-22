@@ -46,20 +46,20 @@ int TCPDriver::sendRequest(char * request, char *response)
 int TCPDriver::receiveResponse(char *request, char *response)
 {
 	int iResult = -1;
-	char response[512];
+	char resp[512];
 	do {
-		iResult = nonBlockingSocket->RECEIVE(&sock, response, 0);
+		iResult = nonBlockingSocket->RECEIVE(&sock, resp, 0);
 		std::cout << iResult << std::endl;
 		if (iResult > 0)
 		{
-			std::cout << "Message received modbus simulator: %s.\n" << response << std::endl;
+			std::cout << "Message received modbus simulator: %s.\n" << resp << std::endl;
 
 			// prvo proveri sta ima da se radi
-			if (response[7] == 0x80 || response[7] == (0x80 + request[7])) {
+			if (resp[7] == 0x80 || resp[7] == (0x80 + request[7])) {
 				std::cout << "Modbus simulator returned an error. Please try again." << std::endl;
 			}
 
-			int len = *((short*)response + 2);
+			int len = *((short*)resp + 2);
 			len = ntohs(len);
 			len += 6;
 			int wholeMessageSize = 8 + 12 + len; // 4 duzina cele poruke, 4 za len, len za responsem, 12 duzina requesta
@@ -70,7 +70,7 @@ int TCPDriver::receiveResponse(char *request, char *response)
 
 			int j = 0;
 			for (int i = 8; i < len+8; i++) {
-				response[i] = response[j];
+				response[i] = resp[j];
 				j++;
 			}
 			j = 0;

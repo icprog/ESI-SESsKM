@@ -40,7 +40,6 @@ void setColor(int ForgC)
 		wColor = (csbi.wAttributes & 0xF0) + (ForgC & 0x0F);
 		SetConsoleTextAttribute(hStdOut, wColor);
 	}
-
 	return;
 }
 
@@ -119,7 +118,6 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 				}
 			}
 		}
-
 	}
 	else if (oznaka == 4) { //digital output
 		double vrednost = *(int*)(dataBuf + 10);
@@ -142,33 +140,36 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 		}
 	}
 	else if (oznaka == 5) { //alarm
-		char *addressAlarm = new char[2];
-		addressAlarm[0] = *(char*)(dataBuf + 8);
-		addressAlarm[1] = *(char*)(dataBuf + 9);
+		char *messageToSend = new char[6];
+		*(int*)messageToSend = 6;
+		messageToSend[4] = *(char*)(dataBuf + 8); //adresa
+		messageToSend[5] = *(char*)(dataBuf + 9); //adresa
 		int alarmMessageSize = *(int*)(dataBuf + 10);
 
 		char *alarmMessage = new char;
 		for (int i = 0; i < alarmMessageSize; i++) {
 			alarmMessage[i] = *(char*)(dataBuf + 14 + i);
 		}
+		bool confirmedBool = false;
+		while (!confirmedBool) {
+			setColor(12); //postavi boju na crvenu
+			std::cout << alarmMessage << std::endl;
 
-		setColor(12); //postavi boju na crvenu
-		std::cout << alarmMessage << std::endl;
-
-		//setColor(7); //postavi boju na belu
-		int confirmed = 0;
-		do {
-			std::cout << "You must confirm alarm! Enter 1 to confirm" << std::endl;
-			scanf("%d", &confirmed);
-		} while (confirmed != 1);
-
+			//setColor(7); //postavi boju na belu
+			int confirmed = 0;
+			do {
+				std::cout << "You must confirm alarm! Enter 1 to confirm" << std::endl;
+				scanf("%d", &confirmed);
+			} while (confirmed != 1);
+			confirmedBool = true;
+		}
 		std::cout << "Potvdio si alarm" << std::endl;
 		//treba sada poslati 2 bajta tj. adresu
 		// Send an prepared message with null terminator included
 		//NonBlockingSocket *nbs = new NonBlockingSocket();
 		//nbs->SEND(connectSocket, addressAlarm, 2);
 		int iResult;
-		iResult = send(*connectSocket, addressAlarm, 2, 0);
+		iResult = send(*connectSocket, messageToSend, 6, 0);
 
 		if (iResult == SOCKET_ERROR)
 		{
@@ -246,6 +247,7 @@ void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu) {
 			int size = *(int *)response;
 			//stavi u streamBuffer
 			//streamBuffer->push(response, size);
+			parseMessage(response, rtu, accSock);
 		}
 		else if (iResult == 0)
 		{
@@ -263,5 +265,5 @@ void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu) {
 		}
 	} while (iResult > 0);
 
-	parseMessage(response, rtu, accSock);
+	
 }

@@ -45,12 +45,12 @@ int CommandingEngine::turnHeaterOn(CommandingEngine * that)
 		wholeRequest = new char[12];
 		TCPDriver::getInstance().createRequest(request, wholeRequest);
 		TCPDriver::getInstance().sendRequest(wholeRequest, response);
-		if (that->turnedOn(that)) {
+	/*	if (that->turnedOn(that)) {
 			// IZMENI STANJE DIGITALNOG IZLAZA!
 		}
 		else
 			Sleep(200);
-	}
+	}*/
 	sw.stop();
 }
 
@@ -67,11 +67,11 @@ void CommandingEngine::receiveResponse()
 {
 }
 
-bool CommandingEngine::turnedOn(CommandingEngine * that)
+/*bool CommandingEngine::turnedOn(CommandingEngine * that)
 {
 	char outputValue = *((char*)(response + 17)); //status dig.izlaza
 	if (outputValue == 0x01) {
 		return true;
 	}else
 		return false;
-}
+}*/
