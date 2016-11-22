@@ -1,12 +1,10 @@
-#include "Buffer.h"
-
 #include "stdafx.h"
 #include "Buffer.h"
 
 
 void Buffer::expand()
 {
-	EnterCriticalSection(&this->cs);
+	m.lock();
 
 	char* newData;
 	int newSize = 0;
@@ -29,12 +27,12 @@ void Buffer::expand()
 	this->pushIdx = this->count;
 	this->popIdx = 0;
 
-	LeaveCriticalSection(&this->cs);
+	m.unlock();
 }
 
 void Buffer::shrink()
 {
-	EnterCriticalSection(&this->cs);
+	m.lock();
 	int rest = this->size - this->popIdx;
 	double fullness = (double)this->count / this->size;
 
@@ -66,14 +64,14 @@ void Buffer::shrink()
 		this->pushIdx = this->count;
 		this->popIdx = 0;
 
-		LeaveCriticalSection(&this->cs);
+		m.unlock();
 	}
 
 }
 
 int Buffer::push(char * data, int sizeOfData)
 {
-	EnterCriticalSection(&this->cs);
+	m.lock();
 
 	/*short sizeOfData = 0;
 	if (type == 0) {
@@ -129,14 +127,14 @@ int Buffer::push(char * data, int sizeOfData)
 	printf("Count: %d\n", this->count);
 	printf("Size: %d\n", this->size);
 	////////
-	LeaveCriticalSection(&this->cs);
+	m.unlock();
 
 	return 0;
 }
 
 int Buffer::pop(char * data, int velicina)
 {
-	EnterCriticalSection(&this->cs);
+	m.lock();
 
 	/*short velicina = -1;
 	if (type == 0) {
@@ -196,7 +194,7 @@ int Buffer::pop(char * data, int velicina)
 	///////////
 	shrink();
 
-	LeaveCriticalSection(&this->cs);
+	m.unlock();
 	return 0;
 }
 
@@ -204,5 +202,5 @@ Buffer::~Buffer()
 {
 	delete name, name = 0;
 	delete data, data = 0;
-	DeleteCriticalSection(&this->cs);
+	//DeleteCriticalSection(&this->cs);
 }

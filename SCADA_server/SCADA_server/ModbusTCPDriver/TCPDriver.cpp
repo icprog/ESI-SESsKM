@@ -21,7 +21,7 @@ void TCPDriver::createRequest(char *req, char *whole_req)
 
 }
 
-int TCPDriver::sendRequest(char * request, char *response)
+int TCPDriver::sendRequest(char * request)
 {
 	int iResult = -1;
 	// Send an prepared message with null terminator included
@@ -37,52 +37,53 @@ int TCPDriver::sendRequest(char * request, char *response)
 		//WSACleanup();
 		return 1;
 	}
-	
+
 	std::cout << "\nMESSAGE SENT! Bytes Sent: %ld\n" << iResult << std::endl;
-	receiveResponse(request, response);
+	receiveResponse(request);
 	return 0;
 }
 
-int TCPDriver::receiveResponse(char *request, char *resp)
+int TCPDriver::receiveResponse(char *request)
 {
 	int iResult = -1;
 	char response[512];
 	do {
-
 		iResult = nonBlockingSocket->RECEIVE(&sock, response, 7);
-
 		std::cout << iResult << std::endl;
 		if (iResult > 0)
 		{
-			std::cout << "Message received modbus simulator: %s.\n" << resp << std::endl;
+			std::cout << "Message received modbus simulator: %s.\n" << response << std::endl;
 
 			// prvo proveri sta ima da se radi
-			if (resp[7] == 0x80 || resp[7] == (0x80 + request[7])) {
+			if (response[7] == 0x80 || response[7] == (0x80 + request[7])) {
 				std::cout << "Modbus simulator returned an error. Please try again." << std::endl;
 			}
 
-			int len = *((short*)resp + 2);
+			char *wholeMessage;
+			int len = *((short*)response + 2);
 			len = ntohs(len);
 			len += 6;
 			int wholeMessageSize = 8 + 12 + len; // 4 duzina cele poruke, 4 za len, len za responsem, 12 duzina requesta
-			
-			resp = new char[wholeMessageSize];
-			*(int *)resp = wholeMessageSize;
-			*((int *)resp + 1) = len;
+
+			wholeMessage = new char[wholeMessageSize];
+			*(int *)wholeMessage = wholeMessageSize;
+			*((int *)wholeMessage + 1) = len;
 
 			int j = 0;
-			for (int i = 8; i < len+8; i++) {
-
-				resp[i] = response[j];
-
+			for (int i = 8; i < len + 8; i++) {
+				wholeMessage[i] = response[j];
 				j++;
 			}
 			j = 0;
-			for (int i = 8+len; i < 20+len; i++) {
-				resp[i] = request[j];
+			for (int i = 8 + len; i < 20 + len; i++) {
+				wholeMessage[i] = request[j];
 				j++;
 			}
 
+			Structure *struc = new Structure();
+			struc->setMessage(wholeMessage, wholeMessageSize);
+			sharedBuffer->add(*struc);  // SMESTITI U BAFER!
+			delete wholeMessage, wholeMessage = 0;
 			delete request, request = 0;
 			iResult = 0;
 		}

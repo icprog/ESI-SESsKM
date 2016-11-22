@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-
+#include "../Util/Repository.h"
 bool InitializeWindowsSockets();
 enum fcodes { AI = 0x04, DI = 0x02 };
 void makeRequests(DigitalDevice *dd, AnalogInput *ai, char *request);
@@ -15,13 +15,13 @@ int main()
 		return 1;
 	}
 	Buffer *commandingBuffer = new Buffer("commanding_buffer", 512);
-	Buffer *sharedBuffer = new Buffer("shared_buffer", 512);
+	Repository *sharedBuffer = new Repository();
 	Buffer *streamBuffer = new Buffer("stream_buffer", 8000);
 	RemoteTelemetryUnit *rtu = Util::parseXMLConfig();
 
 	TCPDriver::getInstance().setIpAddress("127.0.0.1");
 	TCPDriver::getInstance().setPort(502);
-
+	TCPDriver::getInstance().setSharedBuffer(sharedBuffer);
 	int iResult = TCPDriver::getInstance().tcpConnect();
 	if (iResult != 0) {
 		std::cout << "Error connectiong to the modbus." << std::endl;
@@ -42,12 +42,12 @@ int main()
 		vector->push_back(req);
 		//delete req;
 	}
-	DataProcessingEngine *processEngine = new DataProcessingEngine(sharedBuffer,streamBuffer, rtu);
+//	DataProcessingEngine *processEngine = new DataProcessingEngine(sharedBuffer,streamBuffer, rtu);
 
-	PollEngine *pollEngine = new PollEngine(vector, sharedBuffer);
+	PollEngine *pollEngine = new PollEngine(vector);
 
-	ClientHandler *ch = new ClientHandler(commandingBuffer, streamBuffer, 1, "127.0.0.1", "27016", rtu);
-	ch->tcpConnect();
+	//ClientHandler *ch = new ClientHandler(commandingBuffer, streamBuffer, 1, "127.0.0.1", "27016", rtu);
+	//ch->tcpConnect();
 //	PollEngine::sendRequests(pollEngine);
 	//delete commandingBuffer, commandingBuffer = 0;
 	//delete streamBuffer, streamBuffer = 0;

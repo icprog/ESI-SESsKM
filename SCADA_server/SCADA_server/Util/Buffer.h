@@ -15,7 +15,7 @@ private:
 	int popIdx;
 	int count;
 	int size;
-	CRITICAL_SECTION cs;
+	std::mutex m;
 public:
 	int getPushIdx() { return pushIdx; }
 	int getPopIdx() { return popIdx; }
@@ -32,7 +32,7 @@ public:
 		this->pushIdx = 0;
 		this->data = new char[_bufferLength + 1];
 		memset(this->data, 0, _bufferLength);
-		InitializeCriticalSection(&cs);
+	//	InitializeCriticalSection(&cs);
 	}
 	~Buffer();
 
