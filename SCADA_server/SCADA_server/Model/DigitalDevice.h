@@ -14,7 +14,7 @@ private:
 	bool readOnly; // nema komandovanja i onda nema outaddreses
 	short inAddresses[2]; // da li se desio
 	short outAddresses[2]; //odkomandovao, ocilovi kojima se komanduje
-	state state;     //on, off, transient i errror
+	char state[2];     //on, off, transient i errror
 	char command[2]; //salji npr 01 na out adreses
 	status status;
 	time_t commandTime;
@@ -34,7 +34,7 @@ public:
 	~DigitalDevice() {}
 
 	std::string getName() const { return name; }
-	enum state getState() const { return state; }
+	char *getState() { return state; }
 	enum status getStatus() const { return status; }
 	bool getReadOnly() const { return readOnly; }
 	short *getInAddresses() { return inAddresses; }
@@ -43,7 +43,7 @@ public:
 	time_t getCommandTime() { return commandTime; }
 
 	void setName(std::string newName) { name = newName; }
-	void setState(enum state newState) { state = newState; }
+	void setState(char newState, int idx) { state[idx] = newState; }
 	void setStatus(enum status newStatus) { status = newStatus; }
 	void setReadOnly(bool newRead) { readOnly = newRead; }
 	void setInAddresses(short newInAddrresses[2]) { inAddresses[0] = newInAddrresses[0]; inAddresses[1] = newInAddrresses[1]; }

@@ -5,7 +5,8 @@
 #include "../Util/BlockingQueue.h"
 bool InitializeWindowsSockets();
 enum fcodes { AI = 0x04, DI = 0x02 };
-void makeRequests(DigitalDevice *dd, AnalogInput *ai, char *request);
+void makeADRequests( AnalogInput *ai, char *request);
+void makeDDRequests(DigitalDevice *dd,char *request1, char *request2);
 int main()
 {
 	if (InitializeWindowsSockets() == false)
@@ -37,18 +38,18 @@ int main()
 	char *req = nullptr;
 	for (int i = 0; i < rtu->getAnalogInputNum(); i++) {
 		req = new char[5];
-		makeRequests(nullptr, rtu->getAnalogInputs().at(i), req);
-		req[3] = 0x00;
-		req[4] = 0x01;
+		makeADRequests( rtu->getAnalogInputs().at(i), req);
+
 		vector->push_back(req);
 		//delete req;
 	}
+	char *req2 = nullptr;
 	for (int i = 0; i < rtu->getDigitalInputNum(); i++) {
 		req = new char[5];
-		makeRequests(rtu->getDigitalDevices().at(i),nullptr, req);
-		req[3] = 0x00;
-		req[4] = 0x01;
+		req2 = new char[5];
+		makeDDRequests(rtu->getDigitalDevices().at(i), req, req2);
 		vector->push_back(req);
+		vector->push_back(req2);
 		//delete req;
 	}
 	DataProcessingEngine *processEngine = new DataProcessingEngine(sharedBuffer,streamBuffer,alarmBuffer, rtu);
@@ -80,15 +81,21 @@ bool InitializeWindowsSockets()
 	return true;
 }
 
-void makeRequests(DigitalDevice *dd, AnalogInput *ai, char *request) {
-	if(dd == nullptr){
+void makeADRequests(AnalogInput *ai, char *request) {
 		request[0] = AI;
 		*((short*)(request + 1)) = htons(ai->getAddress());
-	}
-	else {
-		request[0] = DI;
-		*((short*)(request + 1)) = htons( dd->getInAddresses()[0]);
-	}
+		request[3] = 0x00;
+		request[4] = 0x01;
+}
 
+void makeDDRequests(DigitalDevice *dd,  char *request1, char *request2) {
+		request1[0] = DI;
+		*((short*)(request1 + 1)) = htons(dd->getInAddresses()[0]);
+		request1[3] = 0x00;
+		request1[4] = 0x01;
 
+		request2[0] = DI;
+		*((short*)(request2 + 1)) = htons(dd->getInAddresses()[1]);
+		request2[3] = 0x00;
+		request2[4] = 0x01;
 }
