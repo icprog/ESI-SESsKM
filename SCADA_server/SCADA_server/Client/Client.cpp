@@ -27,6 +27,7 @@ void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu);
 void parseMessage(char *dataBuf, RemoteTelemetryUnit *rtu1, SOCKET *connectSocket);
 void printValues(RemoteTelemetryUnit *rtu);
 void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket);
+void sendIntegrity();
 
 void setColor(int ForgC)
 {
@@ -44,6 +45,9 @@ void setColor(int ForgC)
 	}
 	return;
 }
+void sendIntegrity() {
+	
+}
 
 int main()
 {
@@ -58,6 +62,7 @@ int main()
 	}
 
 	RemoteTelemetryUnit *rtu1 = Util::parseXMLConfig();
+	sendIntegrity();
 
 	receiveMessage(&connectSocket, rtu1);
 	return 0;
@@ -87,7 +92,10 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 		}
 	}
 	else if(oznaka == 2) {
-		short* vrednost = (short*)(dataBuf + 10);
+		//short* vrednost = (short*)(dataBuf + 10);
+		short vrednost[2];
+		vrednost[0] = *(short*)(dataBuf + 10);
+		vrednost[1] = *(short*)(dataBuf + 14);
 
 		std::vector<DigitalDevice*> dd = rtu->getDigitalDevices();
 		for (int i = 0; i < dd.size(); i++) {
@@ -101,7 +109,7 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 				}
 			}
 			if (inAddresses[0] == address || inAddresses[1] == address) {
-				if (dd.at(i)->getState()[0] != vrednost[0] && dd.at(i)->getState()[1] != vrednost[1]) {
+				if (dd.at(i)->getState()[0] != vrednost[0] || dd.at(i)->getState()[1] != vrednost[1]) {
 						dd.at(i)->setState(vrednost[0], 0);
 						dd.at(i)->setState(vrednost[1], 1);
 						changeValue = true;
@@ -140,7 +148,7 @@ void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket)
 		bool confirmedBool = false;
 		while (!confirmedBool) {
 			setColor(12); //postavi boju na crvenu
-			std::cout << alarmMessage << std::endl;
+			std::cout <<"ALARM : "<< alarmMessage << std::endl;
 
 			//setColor(7); //postavi boju na belu
 			int confirmed = 0;
@@ -150,6 +158,7 @@ void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket)
 			} while (confirmed != 1);
 			confirmedBool = true;
 		}
+		setColor(7);
 		std::cout << "Potvdio si alarm" << std::endl;
 		//treba sada poslati 2 bajta tj. adresu
 		// Send an prepared message with null terminator included
@@ -207,7 +216,7 @@ int makeConnect(SOCKET *connectSocket) {
 	// create and initialize address structure
 	sockaddr_in serverAddress;
 	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
+	serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1"); //192.168.41.200
 	serverAddress.sin_port = htons(DEFAULT_PORT);
 	// connect to server specified in serverAddress and socket connectSocket
 	if (connect(*connectSocket, (SOCKADDR*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR)
@@ -259,15 +268,16 @@ void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu) {
 void printValues(RemoteTelemetryUnit *rtu) {
 	//prodji kroz sve inpute, outpute i dig.device i ipisi ih na konzoli
 	system("cls");
+	std::cout << "*Trenutne vrednosti temperatura i stanje grejaca*" << std::endl;
 	std::cout << "----------------------------------------------------" << std::endl;
 	std::vector<AnalogInput*> ai = rtu->getAnalogInputs();
 	for (int i = 0; i < ai.size(); i++) {
-		std::cout << ai.at(i)->getName() << " : " << ai.at(i)->getValue() << std::endl;
+		std::cout<<"\t"<<ai.at(i)->getName()<<" : "<<ai.at(i)->getValue() << " " << ai.at(i)->getEGU()->getSign() << " (" << ai.at(i)->getEGU()->getName() << ")" << std::endl;
 	}
 
 	std::vector<AnalogOutput*> ao = rtu->getAnalogOutputs();
 	for (int i = 0; i < ao.size(); i++) {
-		std::cout << ao.at(i)->getName() << " : " << ao.at(i)->getValue() << std::endl;
+		std::cout<<"\t"<<ao.at(i)->getName()<<" : "<< ao.at(i)->getValue()<<" "<<ao.at(i)->getEGU()->getSign()<<" ("<< ao.at(i)->getEGU()->getName()<<")"<< std::endl;
 	}
 
 	std::vector<DigitalDevice*> dout = rtu->getDigitalDevices();
@@ -278,18 +288,17 @@ void printValues(RemoteTelemetryUnit *rtu) {
 		state[1] = dout.at(i)->getState()[1];
 
 		if (state[0] == 0 && state[1] == 1) {
-			std::cout << dout.at(i)->getName() << " : " << "ON" << std::endl;
+			std::cout<< "\t" << dout.at(i)->getName() << " : " << "ON" << std::endl;
 		}
 		if (state[0] == 1 && state[1] == 0) {
-			std::cout << dout.at(i)->getName() << " : " << "OFF" << std::endl;
+			std::cout<< "\t" << dout.at(i)->getName() << " : " << "OFF" << std::endl;
 		}
 		if (state[0] == 0 && state[1] == 0) {
-			std::cout << dout.at(i)->getName() << " : " << "TRANSIENT" << std::endl;
+			std::cout<< "\t" << dout.at(i)->getName() << " : " << "TRANSIENT" << std::endl;
 		}
 		if (state[0] == 1 && state[1] == 1) {
-			std::cout << dout.at(i)->getName() << " : " << "ERROR" << std::endl;
+			std::cout<< "\t" << dout.at(i)->getName() << " : " << "ERROR" << std::endl;
 		}
-
 	}
 	std::cout << "----------------------------------------------------" << std::endl;
 }

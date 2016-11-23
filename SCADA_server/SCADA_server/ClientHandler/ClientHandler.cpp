@@ -124,7 +124,6 @@ void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp)
 						break;
 					}
 				}
-
 			}
 			else {
 				// if it is a command, put it into the command buffer! 
