@@ -27,7 +27,7 @@ void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu);
 void parseMessage(char *dataBuf, RemoteTelemetryUnit *rtu1, SOCKET *connectSocket);
 void printValues(RemoteTelemetryUnit *rtu);
 void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket);
-void sendIntegrity();
+void sendIntegrity(SOCKET *connectSocket);
 
 void setColor(int ForgC)
 {
@@ -45,8 +45,22 @@ void setColor(int ForgC)
 	}
 	return;
 }
-void sendIntegrity() {
-	
+void sendIntegrity(SOCKET *connectSocket) {
+	char *messageToSend = new char[8];
+	*((int *)messageToSend) = 8;
+	*((int *)messageToSend + 1) = 1;
+
+	int iResult;
+	iResult = send(*connectSocket, messageToSend, 8, 0);
+
+	if (iResult == SOCKET_ERROR)
+	{
+		printf("send failed with error: %d\n", WSAGetLastError());
+		closesocket(*connectSocket);
+		WSACleanup();
+		//return 1;
+	}
+	printf("Bytes Sent: %ld\n", iResult);
 }
 
 int main()

@@ -125,6 +125,9 @@ void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp)
 					}
 				}
 			}
+			else if (size == 8) {
+				tmp->pushinIntegrityBuffer(tmp, accSock);
+			}
 			else {
 				// if it is a command, put it into the command buffer! 
 				char *data = new char[size];
@@ -298,4 +301,58 @@ int ClientHandler::acceptt(SOCKET * acceptedSocket, SOCKET* listenSocket)
 		return 1;
 	}
 	return 0;
+}
+
+void ClientHandler::pushinIntegrityBuffer(ClientHandler*tmp, SOCKET *accSock)
+{
+	std::vector<AnalogInput*>ai = tmp->getRTU()->getAnalogInputs();
+	std::vector<DigitalDevice*>dd = tmp->getRTU()->getDigitalDevices();
+	std::vector<Alarm>*al = tmp->getRTU()->getAlarms();
+	BlockingQueue<char *> *integrityBuffer = new BlockingQueue<char *>;
+	BlockingQueue<char *> *alarmBuffer = new BlockingQueue<char *>;
+	char *stream = new char[18];
+	for (int i = 0; i < ai.size(); i++) {
+		*((int *)stream) = 18;
+		*((int *)stream + 1) = 1;
+		*((short *)(stream + 8)) = ai.at(i)->getAddress();
+		*((double *)(stream + 10)) = ai.at(i)->getValue();
+		integrityBuffer->push(stream);
+	}
+	for (int i = 0; i < dd.size(); i++) {
+		*((int *)stream) = 18;
+		*((int *)stream + 1) = 2;
+		*((short *)(stream + 8)) = dd.at(i)->getInAddresses()[0];
+		*((short *)(stream + 10)) = dd.at(i)->getState()[0];
+		*((short *)(stream + 12)) = dd.at(i)->getState()[0];
+		*((int *)(stream + 14)) = 0;
+		integrityBuffer->push(stream);
+	}
+	for (int i = 0; i < al->size(); i++) {
+		char *stream;
+		// 4 duzina cele poruke + 4 oznaka + 2 adresa + 4 duzina poruka + poruka+ 4 confirmed + 4 corrected
+		int messageSize = al->at(i).getMessage().size();
+		stream = new char[22 + messageSize];
+		*((int *)stream) = 22 + messageSize;
+		*((int *)stream + 1) = 5;
+		*((short *)(stream + 8)) = al->at(i).getAddress();
+		*((int *)(stream + 10)) = messageSize;
+		for (int j = 0; j < messageSize; j++) {
+			*(stream + 14 + j) = al->at(i).getMessage().at(j);
+		}
+		*((int *)(stream + 14 + messageSize)) = al->at(i).getConfirmed();
+		*((int *)(stream + 18 + messageSize)) = al->at(i).getCorrected();
+		alarmBuffer->push(stream);
+	}
+
+	while (integrityBuffer->size() > 0) {
+		char * messageToSend = integrityBuffer->pop();
+		NonBlockingSocket *nbs = new NonBlockingSocket();
+		nbs->SEND(accSock, messageToSend, 4);
+	}
+
+	while (alarmBuffer->size() > 0) {
+		char * messageToSend = integrityBuffer->pop();
+		NonBlockingSocket *nbs = new NonBlockingSocket();
+		nbs->SEND(accSock, messageToSend, 4);
+	}
 }
