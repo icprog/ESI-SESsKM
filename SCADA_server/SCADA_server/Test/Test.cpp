@@ -4,10 +4,57 @@
 #include "stdafx.h"
 #include "../Util/Util.h"
 #include "../DataProcessingEngine/DataProcessingEngine.h"
+#include <iostream>
+#include <conio.h> 
+#include <windows.h>
+using namespace std;
+
+void gotoxy(int x, int y);
+void setcolor(WORD color);
+void clrscr();
+
 
 int main()
 {
-	RemoteTelemetryUnit *rtu = Util::parseXMLConfig();
+	int x, y, i; char name[10];
+
+	setcolor(10);
+	cout << "Welcome\n";
+
+	setcolor(15);
+	cout << "\nEnter your name  ";
+	//gets(name);
+	cin >> name;
+
+	i = 0;
+	x = 22;
+	y = 12;
+
+	while (1) {
+
+		// counter for text color
+		i++; if (i>15) i = 1;
+
+		// print colored text
+		setcolor(i);
+		gotoxy(x, y);
+		cout << "Welcome  " << name;
+		Sleep(100);
+
+
+		// Print black text to simulate blink
+		setcolor(0);
+		gotoxy(x, y);
+		cout << "                        ";
+		Sleep(100);
+
+		cout << "\nASFSAFSA  " <<endl;
+
+	}
+
+	setcolor(7);
+	gotoxy(1, 24);
+	/*RemoteTelemetryUnit *rtu = Util::parseXMLConfig();
 	//punimo bafer sa responsom i requestom zbog testiranja dataProcesinga
 	//4 bajta duzina cele poruke, pa 4 bajta duzina responsea, pa response pa request
 	char reqres1[31];
@@ -58,6 +105,41 @@ int main()
 	double value = rtu->getAnalogInputs().at(0)->getValue();
 	std::cout<<std::endl;
 	std::cout << "Value is: " << value << std::endl;
-
+	*/
 	return 0;
+}
+void setcolor(WORD color)
+{
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+	return;
+}
+
+
+
+void gotoxy(int x, int y)
+{
+	COORD coord;
+	coord.X = x; coord.Y = y;
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+	return;
+}
+
+
+
+
+void clrscr()
+{
+	COORD coordScreen = { 0, 0 };
+	DWORD cCharsWritten;
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	DWORD dwConSize;
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	GetConsoleScreenBufferInfo(hConsole, &csbi);
+	dwConSize = csbi.dwSize.X * csbi.dwSize.Y;
+	FillConsoleOutputCharacter(hConsole, TEXT(' '), dwConSize, coordScreen, &cCharsWritten);
+	GetConsoleScreenBufferInfo(hConsole, &csbi);
+	FillConsoleOutputAttribute(hConsole, csbi.wAttributes, dwConSize, coordScreen, &cCharsWritten);
+	SetConsoleCursorPosition(hConsole, coordScreen);
+	return;
 }

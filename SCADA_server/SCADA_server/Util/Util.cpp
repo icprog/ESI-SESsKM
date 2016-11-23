@@ -44,6 +44,8 @@ RemoteTelemetryUnit *Util::parseXMLConfig()
 	short inAddress[2];
 	short outAddress[2];
 	enum status digitalDeviceStatus;
+	//make EGU
+	EngineeringUnit *engunit = new EngineeringUnit(1, "stepeni", "C");
 
 	pugi::xml_document doc;
 	if (!doc.load_file("../Util/ConfigurationXML.xml")) {
@@ -135,6 +137,7 @@ RemoteTelemetryUnit *Util::parseXMLConfig()
 				}
 
 				ai = new AnalogInput(analogInputName, analogInputAddress, analogInputEGUMin, analogInputEGUMax, analogInputRawMin, analogInputRawMax, analogInputRaw, analogInputValue, analogInputStatus);
+				ai->setEGU(engunit);
 				analogInputs.push_back(ai);
 				continue;
 			}

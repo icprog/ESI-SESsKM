@@ -160,7 +160,9 @@ void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp)
 						break;
 					}
 				}
-
+			}
+			else if (size == 8) {
+				tmp->pushinIntegrityBuffer(tmp, accSock);
 			}
 			else if (size == 8) {
 				tmp->pushinIntegrityBuffer(tmp, accSock);
@@ -347,11 +349,16 @@ int ClientHandler::acceptt(SOCKET * acceptedSocket, SOCKET* listenSocket)
 	}
 	return 0;
 }
+
 void ClientHandler::pushinIntegrityBuffer(ClientHandler*tmp, SOCKET *accSock)
 {
 	std::vector<AnalogInput*>ai = tmp->getRTU()->getAnalogInputs();
 	std::vector<DigitalDevice*>dd = tmp->getRTU()->getDigitalDevices();
+
+	std::vector<Alarm>*al = tmp->getRTU()->getAlarms();
 	BlockingQueue<char *> *integrityBuffer = new BlockingQueue<char *>;
+	BlockingQueue<char *> *alaBuffer = new BlockingQueue<char *>;   /////////////////////////
+
 	char *stream = new char[18];
 	for (int i = 0; i < ai.size(); i++) {
 		*((int *)stream) = 18;
@@ -369,7 +376,33 @@ void ClientHandler::pushinIntegrityBuffer(ClientHandler*tmp, SOCKET *accSock)
 		*((int *)(stream + 14)) = 0;
 		integrityBuffer->push(stream);
 	}
+
+	for (int i = 0; i < al->size(); i++) {
+		char *stream;
+		// 4 duzina cele poruke + 4 oznaka + 2 adresa + 4 duzina poruka + poruka+ 4 confirmed + 4 corrected
+		int messageSize = al->at(i).getMessage().size();
+		stream = new char[22 + messageSize];
+		*((int *)stream) = 22 + messageSize;
+		*((int *)stream + 1) = 5;
+		*((short *)(stream + 8)) = al->at(i).getAddress();
+		*((int *)(stream + 10)) = messageSize;
+		for (int j = 0; j < messageSize; j++) {
+			*(stream + 14 + j) = al->at(i).getMessage().at(j);
+		}
+		*((int *)(stream + 14 + messageSize)) = al->at(i).getConfirmed();
+		*((int *)(stream + 18 + messageSize)) = al->at(i).getCorrected();
+		alarmBuffer->push(stream);
+	}
+
+
 	while (integrityBuffer->size() > 0) {
+		char * messageToSend = integrityBuffer->pop();
+		NonBlockingSocket *nbs = new NonBlockingSocket();
+		nbs->SEND(accSock, messageToSend, 4);
+	}
+
+
+	while (alaBuffer->size() > 0) {//////////////////
 		char * messageToSend = integrityBuffer->pop();
 		NonBlockingSocket *nbs = new NonBlockingSocket();
 		nbs->SEND(accSock, messageToSend, 4);

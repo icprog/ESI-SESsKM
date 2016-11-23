@@ -8,6 +8,7 @@
 #include "../Model/RemoteTelemetryUnit.h"
 #include "../Model/AnalogInput.h"
 #include "../Model/DigitalDevice.h"
+#include "../Model/EngineeringUnit.h"
 
 class Util {
 

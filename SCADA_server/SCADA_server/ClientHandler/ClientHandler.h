@@ -25,8 +25,10 @@ public:
 
 		nonBlockingSocket = new NonBlockingSocket();
 	}
+
 	ClientHandler(BlockingQueue<char *> *commandingBuffer_, BlockingQueue<char *> *streamBuffer_, BlockingQueue<char *> *alarmBuffer_, unsigned long nonBlockingMode_, char *ipAddress_, char *port_, RemoteTelemetryUnit *rtu_) :
 		commandingBuffer(commandingBuffer_), streamBuffer(streamBuffer_),alarmBuffer(alarmBuffer_), nonBlockingMode(nonBlockingMode_), ipAddress(ipAddress_), port(port_), rtu(rtu_)
+
 	{
 		/* INITIALIZE SOCKET AND THREAD ARRAYS */
 		acceptSocketArray = new std::vector<SOCKET>();
@@ -82,6 +84,7 @@ public:
 	char *getIpAddress() { return ipAddress; }
 	unsigned long int getNonBlockingMode() { return nonBlockingMode; }
 	void pushinIntegrityBuffer(ClientHandler*tmp, SOCKET *accSock);
+
 private:
 	//SOCKET acceptSocket;
 	SOCKET listenSocket;
