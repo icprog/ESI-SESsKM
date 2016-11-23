@@ -1,16 +1,6 @@
 #include "stdafx.h"
 #include "Util.h"
 
-/*enum status convertToStatus(int m_status) {
-	switch (m_status) {
-	case 0:
-		return (status)DigitalDevice::FINISHED;
-	case 1:
-		return (status)DigitalDevice::IN_PROGRESS;
-	default:
-		return (status)DigitalDevice::FINISHED;
-	}
-}*/
 
 RemoteTelemetryUnit *Util::parseXMLConfig()
 {
@@ -202,6 +192,7 @@ RemoteTelemetryUnit *Util::parseXMLConfig()
 				dd1->setState(1, 0);
 				dd1->setState(0, 1);
 				dd1->setCommandTime(0);
+
 				digitalDevices.push_back(dd1);
 				continue;
 			}

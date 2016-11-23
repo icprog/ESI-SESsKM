@@ -15,6 +15,7 @@ public:
 	DataProcessingEngine(BlockingQueue<char *> *m_sharedBuffer, BlockingQueue<char *> *streamBuffer_, BlockingQueue<char *> *alarmBuffer_, RemoteTelemetryUnit *m_rtu) : sharedBuffer(m_sharedBuffer),streamBuffer(streamBuffer_),alarmBuffer(alarmBuffer_), rtu(m_rtu) {
 
 		std::thread dataProccesingEngineThread(DataProcessingEngine::process, this);
+		//dataProccesingEngineThread.
 		dataProccesingEngineThread.detach();
 	}
 	//DataProcessingEngine(Buffer *m_streamBuffer, RemoteTelemetryUnit *m_rtu) : streamBuffer(m_streamBuffer), rtu(m_rtu) {}
@@ -37,8 +38,8 @@ public:
 	static void process(DataProcessingEngine *that);
 	void pushInStreamBuffer(DigitalDevice *dd, AnalogInput *it);
 	void makeAlarm(DataProcessingEngine *that,Alarm *alarm);
-	void turnHeaterOn(DataProcessingEngine *that, DigitalDevice *dd);
-	void turnHeaterOff(DataProcessingEngine *that, DigitalDevice *dd);
+	void turnHeaterOn(DataProcessingEngine *that, DigitalDevice *dd, short *command);
+	void turnHeaterOff(DataProcessingEngine *that, DigitalDevice *dd, short *command);
 	
 	//char * makeClientMessage();
 

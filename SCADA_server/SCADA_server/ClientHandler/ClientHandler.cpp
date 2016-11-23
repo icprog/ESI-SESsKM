@@ -45,8 +45,10 @@ int ClientHandler::tcpConnect()
 				*/
 				std::thread sendThread(ClientHandler::sendMessage, &acceptSocketArray->at(i), this);
 				std::thread receiveThread(ClientHandler::receiveMessage, &acceptSocketArray->at(i), this);
+				std::thread sendAlarmThread(ClientHandler::sendAlarm, &acceptSocketArray->at(i), this);
 				sendThread.detach();
 				receiveThread.detach();
+				sendAlarmThread.detach();
 				full = false;
 				break;
 			}
@@ -100,7 +102,36 @@ int ClientHandler::tcpCloseConnection()
 	}
 	return 0;
 }
+ void ClientHandler::sendAlarm(SOCKET *accSock, ClientHandler*tmp) {
+	 while (1) {
 
+		 char *req = tmp->popFromAlarmBuffer();
+		 if (req == nullptr) { // buffer is empty
+			 Sleep(200);
+			 continue;
+		 }
+		 int iResult = -1;
+		 // Send an prepared message with null terminator included
+
+		 std::cout << "\nSENDING MESSAGE: %s" << req << std::endl;
+
+		 iResult = tmp->getNonBlockingSocket()->SEND(accSock, req, 4);
+
+		 if (iResult == SOCKET_ERROR)
+		 {
+			 std::cout << "send failed with error: %d\n" << WSAGetLastError() << std::endl;
+			 closesocket(*accSock);
+			 //WSACleanup();
+			 return;
+		 }
+
+		 std::cout << "\nMESSAGE SENT! Bytes Sent: %ld\n" << iResult << std::endl;
+		 delete req, req = 0;
+
+	 }
+
+
+ }
 void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp)
 {
 	int iResult = -1;
@@ -124,6 +155,9 @@ void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp)
 						break;
 					}
 				}
+			}
+			else if (size == 8) {
+				tmp->pushinIntegrityBuffer(tmp, accSock);
 			}
 			else if (size == 8) {
 				tmp->pushinIntegrityBuffer(tmp, accSock);
@@ -169,7 +203,15 @@ char * ClientHandler::popFromStreamBuffer()
 	}
 	return stream;
 }
-
+char * ClientHandler::popFromAlarmBuffer()
+{
+	char *stream = nullptr;
+	char size[4];
+	if (alarmBuffer->size() > 0) {
+		stream = alarmBuffer->pop();
+	}
+	return stream;
+}
 NonBlockingSocket * ClientHandler::getNonBlockingSocket()
 {
 	return nonBlockingSocket;
@@ -307,9 +349,11 @@ void ClientHandler::pushinIntegrityBuffer(ClientHandler*tmp, SOCKET *accSock)
 {
 	std::vector<AnalogInput*>ai = tmp->getRTU()->getAnalogInputs();
 	std::vector<DigitalDevice*>dd = tmp->getRTU()->getDigitalDevices();
+
 	std::vector<Alarm>*al = tmp->getRTU()->getAlarms();
 	BlockingQueue<char *> *integrityBuffer = new BlockingQueue<char *>;
-	BlockingQueue<char *> *alarmBuffer = new BlockingQueue<char *>;
+	BlockingQueue<char *> *alaBuffer = new BlockingQueue<char *>;   /////////////////////////
+
 	char *stream = new char[18];
 	for (int i = 0; i < ai.size(); i++) {
 		*((int *)stream) = 18;
@@ -327,6 +371,7 @@ void ClientHandler::pushinIntegrityBuffer(ClientHandler*tmp, SOCKET *accSock)
 		*((int *)(stream + 14)) = 0;
 		integrityBuffer->push(stream);
 	}
+
 	for (int i = 0; i < al->size(); i++) {
 		char *stream;
 		// 4 duzina cele poruke + 4 oznaka + 2 adresa + 4 duzina poruka + poruka+ 4 confirmed + 4 corrected
@@ -344,15 +389,18 @@ void ClientHandler::pushinIntegrityBuffer(ClientHandler*tmp, SOCKET *accSock)
 		alarmBuffer->push(stream);
 	}
 
+
 	while (integrityBuffer->size() > 0) {
 		char * messageToSend = integrityBuffer->pop();
 		NonBlockingSocket *nbs = new NonBlockingSocket();
 		nbs->SEND(accSock, messageToSend, 4);
 	}
 
-	while (alarmBuffer->size() > 0) {
+
+	while (alaBuffer->size() > 0) {//////////////////
 		char * messageToSend = integrityBuffer->pop();
 		NonBlockingSocket *nbs = new NonBlockingSocket();
 		nbs->SEND(accSock, messageToSend, 4);
 	}
 }
+
