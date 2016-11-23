@@ -26,6 +26,7 @@ int makeConnect(SOCKET *connectSocket);
 void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu);
 void parseMessage(char *dataBuf, RemoteTelemetryUnit *rtu1, SOCKET *connectSocket);
 void printValues(RemoteTelemetryUnit *rtu);
+void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket);
 
 void setColor(int ForgC)
 {
@@ -58,10 +59,8 @@ int main()
 
 	RemoteTelemetryUnit *rtu1 = Util::parseXMLConfig();
 
-	//std::thread ReceiveThread(receiveMessage, connectSocket, rtu1);
-	//ReceiveThread.detach();
 	receiveMessage(&connectSocket, rtu1);
-    return 0;
+	return 0;
 }
 
 void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket) {
@@ -71,10 +70,11 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 	int oznaka = *(int*)(dataBuf + 4);
 	short address = *(int*)(dataBuf + 8);
 	bool changeValue = false; //za ispis
-	
+
+	//ai 1 dd 2 alarm 5
 	if (oznaka == 1) { //analog input
 		double vrednost = *(double*)(dataBuf + 10);
-		
+
 		std::vector<AnalogInput*> ai = rtu->getAnalogInputs();
 		for (int i = 0; i < ai.size(); i++) {
 			if (ai.at(i)->getAddress() == address)
@@ -86,62 +86,47 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 			}
 		}
 	}
-	else if (oznaka == 2) { //analog output
-		double vrednost = *(double*)(dataBuf + 10);
+	else if(oznaka == 2) {
+		short* vrednost = (short*)(dataBuf + 10);
 
-		std::vector<AnalogOutput*> ao = rtu->getAnalogOutputs();
-		for (int i = 0; i < ao.size(); i++) {
-			if (ao.at(i)->getAddress() == address)
-			{
-				if (ao.at(i)->getValue() != vrednost) {
-					ao.at(i)->setValue(vrednost);
+		std::vector<DigitalDevice*> dd = rtu->getDigitalDevices();
+		for (int i = 0; i < dd.size(); i++) {
+			short *outAddresses = dd.at(i)->getOutAddresses();
+			short *inAddresses = dd.at(i)->getInAddresses();
+			if (outAddresses[0] == address || outAddresses[1] == address) {
+				if (dd.at(i)->getState()[0] != vrednost[0] && dd.at(i)->getState()[1] != vrednost[1]) {
+					dd.at(i)->setState(vrednost[0], 0);
+					dd.at(i)->setState(vrednost[1], 1);
 					changeValue = true;
 				}
 			}
-		}
-	}
-	else if (oznaka == 3) { //digital input
-		int vrednost = *(int*)(dataBuf + 10);
-	
-		std::vector<DigitalDevice*> di = rtu->getDigitalDevices();
-		for (int i = 0; i < di.size(); i++) {
-			short *inAddresses = di.at(i)->getInAddresses();
 			if (inAddresses[0] == address || inAddresses[1] == address) {
-				if (di.at(i)->getState() != vrednost) {
-					if (vrednost == 0) {
-						di.at(i)->setState(DigitalDevice::ON);
+				if (dd.at(i)->getState()[0] != vrednost[0] && dd.at(i)->getState()[1] != vrednost[1]) {
+						dd.at(i)->setState(vrednost[0], 0);
+						dd.at(i)->setState(vrednost[1], 1);
 						changeValue = true;
-					}
-					if (vrednost == 1) {
-						di.at(i)->setState(DigitalDevice::OFF);
-						changeValue = true;
-					}
-					
 				}
 			}
 		}
 	}
-	else if (oznaka == 4) { //digital output
-		int vrednost = *(int*)(dataBuf + 10);
 
-		std::vector<DigitalDevice*> dout = rtu->getDigitalDevices();
-		for (int i = 0; i < dout.size(); i++) {
-			short *outAddresses = dout.at(i)->getOutAddresses();
-			if (outAddresses[0] == address || outAddresses[1] == address) {
-				if (dout.at(i)->getState() != vrednost) {
-					if (vrednost == 0) {
-						dout.at(i)->setState(DigitalDevice::ON);
-						changeValue = true;
-					}
-					if (vrednost == 1) {
-						dout.at(i)->setState(DigitalDevice::OFF);
-						changeValue = true;
-					}
-				}
-			}
-		}
+	else {
+		std::cout << "Nepoznata oznaka" << std::endl;
 	}
-	else if (oznaka == 5) { //alarm
+
+	if (changeValue) {
+		printValues(rtu);
+	}
+}
+
+void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket) {
+	int messageSize = *(int*)dataBuf;
+
+	int oznaka = *(int*)(dataBuf + 4);
+	short address = *(int*)(dataBuf + 8);
+	bool changeValue = false; //za ispis
+
+	if (oznaka == 5) { //alarm
 		char *messageToSend = new char[6];
 		*(int*)messageToSend = 6;
 		messageToSend[4] = *(char*)(dataBuf + 8); //adresa
@@ -184,10 +169,6 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 	}
 	else {
 		std::cout << "Nepoznata oznaka" << std::endl;
-	}
-
-	if (changeValue) {
-		printValues(rtu);
 	}
 }
 
@@ -245,15 +226,18 @@ void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu) {
 	NonBlockingSocket *nbs = new NonBlockingSocket();
 	do {
 		response = new char[1024];
-		
+
 		iResult = nbs->RECEIVE(accSock, response, 4);
-		std::cout << iResult << std::endl;
+		//std::cout << iResult << std::endl;
 		if (iResult > 0)
 		{
 			int size = *(int *)response;
-			//stavi u streamBuffer
-			//streamBuffer->push(response, size);
-			parseMessage(response, rtu, accSock);
+			if (size == 18) {
+				parseMessage(response, rtu, accSock);
+			}
+			else {
+				parseAlarm(response, rtu, accSock);
+			}
 		}
 		else if (iResult == 0)
 		{
@@ -288,12 +272,24 @@ void printValues(RemoteTelemetryUnit *rtu) {
 
 	std::vector<DigitalDevice*> dout = rtu->getDigitalDevices();
 	for (int i = 0; i < dout.size(); i++) {
-		if (dout.at(i)->getState() == DigitalDevice::ON) {
+		//11 error, 00 trans, 01 on , 10 off
+		char state[2];
+		state[0] = dout.at(i)->getState()[0];
+		state[1] = dout.at(i)->getState()[1];
+
+		if (state[0] == 0 && state[1] == 1) {
 			std::cout << dout.at(i)->getName() << " : " << "ON" << std::endl;
 		}
-		if (dout.at(i)->getState() == DigitalDevice::OFF) {
+		if (state[0] == 1 && state[1] == 0) {
 			std::cout << dout.at(i)->getName() << " : " << "OFF" << std::endl;
 		}
+		if (state[0] == 0 && state[1] == 0) {
+			std::cout << dout.at(i)->getName() << " : " << "TRANSIENT" << std::endl;
+		}
+		if (state[0] == 1 && state[1] == 1) {
+			std::cout << dout.at(i)->getName() << " : " << "ERROR" << std::endl;
+		}
+
 	}
 	std::cout << "----------------------------------------------------" << std::endl;
 }
