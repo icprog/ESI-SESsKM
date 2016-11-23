@@ -84,7 +84,7 @@ public:
 	char *getIpAddress() { return ipAddress; }
 	unsigned long int getNonBlockingMode() { return nonBlockingMode; }
 	void pushinIntegrityBuffer(ClientHandler*tmp, SOCKET *accSock);
-
+	void makeAlarm(ClientHandler * that, Alarm *alarm);
 private:
 	//SOCKET acceptSocket;
 	SOCKET listenSocket;
