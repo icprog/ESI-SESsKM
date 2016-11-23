@@ -26,6 +26,7 @@ int makeConnect(SOCKET *connectSocket);
 void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu);
 void parseMessage(char *dataBuf, RemoteTelemetryUnit *rtu1, SOCKET *connectSocket);
 void printValues(RemoteTelemetryUnit *rtu);
+void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket);
 
 void setColor(int ForgC)
 {
@@ -58,8 +59,6 @@ int main()
 
 	RemoteTelemetryUnit *rtu1 = Util::parseXMLConfig();
 
-	//std::thread ReceiveThread(receiveMessage, connectSocket, rtu1);
-	//ReceiveThread.detach();
 	receiveMessage(&connectSocket, rtu1);
     return 0;
 }
@@ -141,7 +140,24 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 			}
 		}
 	}
-	else if (oznaka == 5) { //alarm
+	
+	else {
+		std::cout << "Nepoznata oznaka" << std::endl;
+	}
+
+	if (changeValue) {
+		printValues(rtu);
+	}
+}
+
+void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket) {
+	int messageSize = *(int*)dataBuf;
+
+	int oznaka = *(int*)(dataBuf + 4);
+	short address = *(int*)(dataBuf + 8);
+	bool changeValue = false; //za ispis
+
+	if (oznaka == 5) { //alarm
 		char *messageToSend = new char[6];
 		*(int*)messageToSend = 6;
 		messageToSend[4] = *(char*)(dataBuf + 8); //adresa
@@ -184,10 +200,6 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 	}
 	else {
 		std::cout << "Nepoznata oznaka" << std::endl;
-	}
-
-	if (changeValue) {
-		printValues(rtu);
 	}
 }
 
@@ -247,13 +259,16 @@ void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu) {
 		response = new char[1024];
 		
 		iResult = nbs->RECEIVE(accSock, response, 4);
-		std::cout << iResult << std::endl;
+		//std::cout << iResult << std::endl;
 		if (iResult > 0)
 		{
 			int size = *(int *)response;
-			//stavi u streamBuffer
-			//streamBuffer->push(response, size);
-			parseMessage(response, rtu, accSock);
+			if (size == 18) {
+				parseMessage(response, rtu, accSock);
+			}
+			else {
+				parseAlarm(response, rtu, accSock);
+			}
 		}
 		else if (iResult == 0)
 		{
@@ -272,6 +287,9 @@ void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu) {
 	} while (iResult > 0);
 }
 
+
+
+
 void printValues(RemoteTelemetryUnit *rtu) {
 	//prodji kroz sve inpute, outpute i dig.device i ipisi ih na konzoli
 	system("cls");
@@ -288,12 +306,22 @@ void printValues(RemoteTelemetryUnit *rtu) {
 
 	std::vector<DigitalDevice*> dout = rtu->getDigitalDevices();
 	for (int i = 0; i < dout.size(); i++) {
-		if (dout.at(i)->getState() == DigitalDevice::ON) {
-			std::cout << dout.at(i)->getName() << " : " << "ON" << std::endl;
+		//11 error, 00 trans, 01 on , 10 off
+		/*char state[2];
+		state = dout.at(i)->getState();
+		if (state[0] == 0 && state[1] == 1) {
+		std::cout << dout.at(i)->getName() << " : " << "ON" << std::endl;
 		}
-		if (dout.at(i)->getState() == DigitalDevice::OFF) {
-			std::cout << dout.at(i)->getName() << " : " << "OFF" << std::endl;
+		if (state[0] == 1 && state[1] == 0) {
+		std::cout << dout.at(i)->getName() << " : " << "OFF" << std::endl;
 		}
+		if (state[0] == 0 && state[1] == 0) {
+		std::cout << dout.at(i)->getName() << " : " << "TRANSIENT" << std::endl;
+		}
+		if (state[0] == 1 && state[1] == 1) {
+		std::cout << dout.at(i)->getName() << " : " << "ERROR" << std::endl;
+		}
+		*/
 	}
 	std::cout << "----------------------------------------------------" << std::endl;
 }
