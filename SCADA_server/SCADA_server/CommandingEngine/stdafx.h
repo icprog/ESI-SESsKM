@@ -8,15 +8,18 @@
 #include "targetver.h"
 
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
-
+#pragma comment(lib, "Ws2_32.lib")
 
 
 // TODO: reference additional headers your program requires here
-#include "../Util/Buffer.h"
-#include "../Util/Stopwatch.h"
-#include "../Util/Util.h"
+#include "../Util/BlockingQueue.h"
+#include "../Util/NonBlockingSocket.h"
+#include <iostream>
+#include <thread>
+#include <WinSock2.h>
+#include <WS2tcpip.h>
+#include <vector>
+#include <thread>
+#include <atomic> 
 #include "../Model/RemoteTelemetryUnit.h"
 #include "../ModbusTCPDriver/TCPDriver.h"
-#include "../Model/DigitalDevice.h"
-#include <thread>
-#include <iostream>

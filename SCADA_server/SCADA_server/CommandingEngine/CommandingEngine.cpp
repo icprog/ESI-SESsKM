@@ -1,77 +1,46 @@
 #include "stdafx.h"
 #include "CommandingEngine.h"
 
-void CommandingEngine::popCommand(CommandingEngine * that)
+void CommandingEngine::popFromBuffer(CommandingEngine * that)
 {
-	// client confirms alarm inputing something on console, and client programs
-	// sends to scada address of confirmed alarm( only 2 bytes)
-	while (1) {
-		while (that->getCommandingBuffer()->getCount() > 0) {
-			char response[2];
-			that->getCommandingBuffer()->pop(response, 2);
-			int alarmAddress = *(short *)response;
 
-			for (int i = 0; i < that->getRTU()->getAlarms()->size(); i++) {
-				if (that->getRTU()->getAlarms()->at(i).getAddress() == alarmAddress) {
-					that->getRTU()->getAlarms()->at(i).setConfirmed(true);
+	while (that->getCommandingBuffer()->size() > 0) {
+
+		// skini komandu sa bafera
+
+		// format komande:
+		//				 4 byte duzina + 5 byte drugi deo requesta
+		char *command = new char[9];
+		command = that->getCommandingBuffer()->pop();
+		char *req = new char[9];
+		int size = *((int *)command);
+		if (size == 9) {  // u pitanju je prava komanda
+			TCPDriver::getInstance().createRequest(command + 4, req);
+			TCPDriver::getInstance().sendRequest(req);
+		}
+		else if(size == 6) { // u pitanjue je rad sa alarmom
+			for (int i = 0; i < that->getRtu()->getAlarms()->size(); i++) {
+				if (that->getRtu()->getAlarms()->at(i).getAddress() == ntohs(*((short *)(command + 4)))) {
+					that->getRtu()->getAlarms()->at(i).setConfirmed(true);
 					break;
 				}
 			}
 		}
-	}
-}
-
-void CommandingEngine::closedLoop(CommandingEngine * that)
-{
-	while (1) {
-		
-
-
-	}
-}
-
-int CommandingEngine::turnHeaterOn(CommandingEngine * that)
-{
-
-	while (sw.timePassed() < 15) {
-		Util::createRequest(request, that->getRTU()->getDigitalDevices().at(0), nullptr, nullptr, 1);
-		wholeRequest = new char[12];
-		TCPDriver::getInstance().createRequest(request, wholeRequest);
-		TCPDriver::getInstance().sendRequest(wholeRequest, response);
-	/*	if (that->turnedOn(that)) {
-			// IZMENI STANJE DIGITALNOG IZLAZA!
+		else if (size == 8) { // u pitanjue je integrity update
+			// prodji kroz ceo model i napuni stream buffer
 		}
-		else
-			Sleep(200);
-	}*/
-	sw.stop();
-
+		delete req, req = 0;
+		delete command, command = 0;
+	}
 }
 
-int CommandingEngine::turnHeaterOff()
+void CommandingEngine::turnOnHeater(CommandingEngine * that)
 {
-	return 0;
-}
+	while (!that->getHeaterOn()) {
+		char *command = new char[9];
+		*((int *)command) = 9;
+		command[4] = 0x06;
 
-void CommandingEngine::sendRequest()
-{
-}
-
-void CommandingEngine::receiveResponse()
-{
-}
-
-/*bool CommandingEngine::turnedOn(CommandingEngine * that)
-{
-	char outputValue = *((char*)(response + 17)); //status dig.izlaza
-	if (outputValue == 0x01) {
-		return true;
-	}else
-		return false;
-
-}*/
-
-void CommandingEngine::makeAlarm(CommandingEngine *that) {
+	}
 
 }
-

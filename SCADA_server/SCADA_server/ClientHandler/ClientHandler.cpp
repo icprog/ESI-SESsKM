@@ -132,7 +132,7 @@ void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp)
 				for (int i = 0; i < size; i++) {
 					data[i] = response[i];
 				}
-				tmp->getCommandingBuffer()->push(data, size);
+				tmp->getCommandingBuffer()->push(data);
 				delete data, data = 0;
 
 			}
@@ -160,17 +160,10 @@ void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp)
 
 char * ClientHandler::popFromStreamBuffer()
 {
-	char *stream = nullptr;
+	char *stream = new char;
 	char size[4];
-	while (streamBuffer->getCount()) {
-		streamBuffer->pop(size, 4);
-		
-		int length = *(int *)size;
-		stream = new char[length];
-		memcpy(stream, size, 4);
-
-		streamBuffer->pop(stream + 4, length - 4);
-
+	while (streamBuffer->size()) {
+		stream = streamBuffer->pop();
 	}
 	return stream;
 }

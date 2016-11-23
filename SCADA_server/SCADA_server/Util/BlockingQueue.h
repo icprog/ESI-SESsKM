@@ -3,7 +3,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <deque>
-
+#include <iostream>
 template <typename T>
 class BlockingQueue
 {
@@ -17,6 +17,8 @@ public:
 			std::unique_lock<std::mutex> lock(this->d_mutex);
 			d_queue.push_front(value);
 		}
+
+
 		this->d_condition.notify_one();
 	}
 	T pop() {

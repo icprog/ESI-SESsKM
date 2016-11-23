@@ -7,37 +7,23 @@ class CommandingEngine {
 
 public:
 	CommandingEngine() {}
-	CommandingEngine(Buffer *streamBuffer_, Buffer *commandingBuffer_, Buffer *sharedBuffer_, RemoteTelemetryUnit *rtu_) :
-		streamBuffer(streamBuffer_), commandingBuffer(commandingBuffer_), sharedBuffer(sharedBuffer_), rtu(rtu_) {
-		std::thread commandingEnginePopThread(CommandingEngine::popCommand, this);
-		commandingEnginePopThread.detach();
-
-		std::thread commandingEngineClosedLoopThread(CommandingEngine::closedLoop, this);
-		commandingEngineClosedLoopThread.detach();
+	CommandingEngine(BlockingQueue<char *>  *commandingBuffer_, RemoteTelemetryUnit *rtu_) :
+		commandingBuffer(commandingBuffer_), rtu(rtu_) {
+		std::thread commandingEngineThread(CommandingEngine::popFromBuffer, this);
+		commandingEngineThread.detach();
 	}
 	~CommandingEngine() {}
-	static void popCommand(CommandingEngine *that);
-	static void closedLoop(CommandingEngine *that);
-	Buffer *getStreamBuffer() { return streamBuffer; }
-	Buffer *getCommandingBuffer() { return commandingBuffer; }
-	Buffer *getSharedBuffer() { return sharedBuffer; }
-	RemoteTelemetryUnit *getRTU() { return rtu; }
-	char *getResponse() { return response; }
-	int getResponseSize() { return *(int *)response; }
-	bool turnedOn(CommandingEngine *that);
+	BlockingQueue<char *>  *getCommandingBuffer() { return commandingBuffer; }
+	static void popFromBuffer(CommandingEngine *that);
+	RemoteTelemetryUnit * getRtu() { return rtu; }
 
+	static void turnOnHeater(CommandingEngine *that);
+	static void turnOffHeater(CommandingEngine *that);
+	std::atomic<bool> *getHeaterOn() { return &heaterOn; }
 private:
-	Buffer *streamBuffer;
-	Buffer *commandingBuffer;
-	Buffer *sharedBuffer;
+	BlockingQueue<char *> *commandingBuffer;
 	RemoteTelemetryUnit *rtu;
-	int turnHeaterOn(CommandingEngine * that);
-	int turnHeaterOff();
-	void sendRequest();
-	void receiveResponse();
-	void makeAlarm(CommandingEngine *that);
-	char *response = nullptr;
-	// TCPDriver::getInstance()
+	std::atomic<bool> heaterOn = false;
 
 };
 

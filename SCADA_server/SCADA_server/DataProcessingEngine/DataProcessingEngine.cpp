@@ -143,5 +143,5 @@ void DataProcessingEngine::pushInStreamBuffer(DigitalDevice *dd, AnalogInput *it
 		*((int *)(stream + 14)) = 0;
 	}
 	streamBuffer->push(stream);
-	delete stream;
+	//delete stream;
 }

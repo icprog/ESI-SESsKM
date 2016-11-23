@@ -25,7 +25,7 @@ public:
 
 		nonBlockingSocket = new NonBlockingSocket();
 	}
-	ClientHandler(Buffer *commandingBuffer_, Buffer *streamBuffer_, unsigned long nonBlockingMode_, char *ipAddress_, char *port_, RemoteTelemetryUnit *rtu_) :
+	ClientHandler(BlockingQueue<char *> *commandingBuffer_, BlockingQueue<char *> *streamBuffer_, unsigned long nonBlockingMode_, char *ipAddress_, char *port_, RemoteTelemetryUnit *rtu_) :
 		commandingBuffer(commandingBuffer_), streamBuffer(streamBuffer_), nonBlockingMode(nonBlockingMode_), ipAddress(ipAddress_), port(port_), rtu(rtu_)
 	{
 		/* INITIALIZE SOCKET AND THREAD ARRAYS */
@@ -72,7 +72,7 @@ public:
 	char *popFromStreamBuffer();
 	NonBlockingSocket *getNonBlockingSocket();
 	RemoteTelemetryUnit *getRTU() { return rtu; }
-	Buffer *getCommandingBuffer() { return commandingBuffer; }
+	BlockingQueue<char *> *getCommandingBuffer() { return commandingBuffer; }
 	int listenSocketFunc(SOCKET * listenSocket, char * port);
 	int selectt(SOCKET * socket, int type, int * exit);
 	int acceptt(SOCKET * acceptedSocket, SOCKET * listenSocket);
@@ -90,8 +90,8 @@ private:
 	std::vector<SOCKET> *acceptSocketArray;
 	std::vector<std::thread*> *threadArray;
 	std::vector<bool> *threadFinished;
-	Buffer *commandingBuffer;
-	Buffer *streamBuffer;
+	BlockingQueue<char *> *commandingBuffer;
+	BlockingQueue<char *> *streamBuffer;
 	NonBlockingSocket *nonBlockingSocket;
 
 	RemoteTelemetryUnit *rtu;
