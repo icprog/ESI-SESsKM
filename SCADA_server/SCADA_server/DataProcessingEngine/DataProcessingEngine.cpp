@@ -8,6 +8,7 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 	std::cout << "Obradjuju se podaci!!!" << std::endl;
 	BlockingQueue<char *> *sharedBuffer = that->getSharedBuffer();
 	RemoteTelemetryUnit *rtu = that->getRTU();
+	int pollCount = 0;
 	while (1) {
 		while (sharedBuffer->size() > 0) {
 			//dobijemo velicinu poruke i responsa iz shared buffera
@@ -22,7 +23,7 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 			//uzimamo adresu i function code iz poruke
 			short address = ntohs(*((short*)(dataBuf + 8 + responseLength + 8))); //8 bajta duzine,  response size ,i onda jos 8 bajta u req    27
 			char fCode = *((char*)(dataBuf + 8 + 7)); //dataBuf +4(za duzinu cele poruke) +4(duzina responsa) +7(response header)
-			std::atomic<int> *pc = that->getPollCounter();
+
 			if (fCode == 1) {  //citanje digitalnih izlaza
 				/*
 				char outputValue = *((char*)(dataBuf + 17)); //status dig.izlaza
@@ -115,11 +116,10 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 				}
 			}
 			else if (fCode == 4) { //un.,sp. temp,citanje an. ulaza
-				 //
-				*pc++; // povecaj poll counter
+
 				short inpVal = ntohs(*((short*)(dataBuf + 17)));
 				std::vector<AnalogInput*> analogInputs = rtu->getAnalogInputs();
-
+				pollCount++;
 				for (int i = 0; i < analogInputs.size(); i++) {
 					AnalogInput *it = analogInputs.at(i);
 					if (it->getAddress() == address) {
@@ -154,23 +154,23 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 				//ako je nepoznat fun code mozda bi mogao da se napravi alarm
 			}
 
-			if (*pc == 3) { // zavrsen je poll ciklus
+			if (pollCount == 3) { // zavrsen je poll ciklus
 				AnalogInput *zadTemp = that->getRTU()->getAnalogInputs().at(0);
 				AnalogInput *unutTemp = that->getRTU()->getAnalogInputs().at(1);
 				AnalogInput *spoljTemp = that->getRTU()->getAnalogInputs().at(2);
 				DigitalDevice *heater = that->getRTU()->getDigitalDevices().at(0);
 				if (unutTemp->getValue() > spoljTemp->getValue() && unutTemp->getValue()<=zadTemp->getValue()) {
 					if (heater->getStatus() != DigitalDevice::IN_PROGRESS) { //ako nije zadata komanda onda je zadaj
-						that->turnHeaterOn(that, heater);
+						//that->turnHeaterOn(that, heater);
 					}
 
 				}
 				else if (unutTemp->getValue() > zadTemp->getValue()) {
 					if (heater->getStatus() != DigitalDevice::IN_PROGRESS) { //ako nije zadata komanda onda je zadaj
-						that->turnHeaterOff(that, heater);
+						//that->turnHeaterOff(that, heater);
 					}
 				}
-				*pc = 0;
+				pollCount = 0;
 			}
 
 		}
@@ -192,7 +192,8 @@ void DataProcessingEngine::pushInStreamBuffer(DigitalDevice *dd, AnalogInput *it
 	else {
 		*((int *)stream + 1) = 2;
 		*((short *)(stream + 8)) = dd->getInAddresses()[0];
-		*((int *)(stream + 10)) = dd->getState();
+		*((short *)(stream + 10)) = dd->getState()[0];
+		*((short *)(stream + 12)) = dd->getState()[1];
 		*((int *)(stream + 14)) = 0;
 	}
 	streamBuffer->push(stream);
@@ -229,7 +230,7 @@ void DataProcessingEngine::turnHeaterOn(DataProcessingEngine * that, DigitalDevi
 	request2[3] = 0x00;
 	request2[4] = 0x01;
 
-	char wholeRequest[12];
+	char *wholeRequest = new char[12];
 	TCPDriver::getInstance().createRequest(request1, wholeRequest);
 	TCPDriver::getInstance().sendRequest(wholeRequest);
 	TCPDriver::getInstance().createRequest(request2, wholeRequest);
@@ -254,7 +255,7 @@ void DataProcessingEngine::turnHeaterOff(DataProcessingEngine * that, DigitalDev
 	request2[3] = 0x00;
 	request2[4] = 0x00;
 
-	char wholeRequest[12];
+	char *wholeRequest = new char[12];
 	TCPDriver::getInstance().createRequest(request1, wholeRequest);
 	TCPDriver::getInstance().sendRequest(wholeRequest);
 	TCPDriver::getInstance().createRequest(request2, wholeRequest);

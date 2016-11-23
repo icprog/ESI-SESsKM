@@ -82,7 +82,13 @@ int TCPDriver::receiveResponse(char *request)
 
 			sharedBuffer->push(wholeMessage);  // SMESTITI U BAFER!
 			//delete wholeMessage, wholeMessage = 0;
-			delete request, request = 0;
+			try
+			{
+				delete request, request = 0;
+			}
+			catch (...)
+			{}
+			
 			iResult = 0;
 		}
 		if (iResult == 0)

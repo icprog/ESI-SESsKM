@@ -4,14 +4,15 @@
 	<transport_protocol>TCP/IP</transport_protocol>
 	<ip_address>127.0.0.1</ip_address>
 	<port>502</port>
+	
 	<analog_input>
-		<ai_name>SpoljasnjaTemperatura</ai_name>
+		<ai_name>ZadataTemperatura</ai_name>
 		<address>1</address>
 		<EGUMin>0</EGUMin>
 		<EGUMax>100</EGUMax>
 		<RawMin>0</RawMin>
 		<RawMax>4000</RawMax>
-		<Raw>1000</Raw>
+		<Raw>2000</Raw>
 		<Value>0</Value>
 		<ai_Status>0</ai_Status>
 	</analog_input>
@@ -28,17 +29,19 @@
 		<ai_Status>0</ai_Status>
 	</analog_input>
 	
+
 	<analog_input>
-		<ai_name>ZadataTemperatura</ai_name>
+		<ai_name>SpoljasnjaTemperatura</ai_name>
 		<address>3</address>
 		<EGUMin>0</EGUMin>
 		<EGUMax>100</EGUMax>
 		<RawMin>0</RawMin>
 		<RawMax>4000</RawMax>
-		<Raw>2000</Raw>
+		<Raw>1000</Raw>
 		<Value>0</Value>
 		<ai_Status>0</ai_Status>
 	</analog_input>
+
 	
 	<digital_device>
 		<dd_name>StanjeGrejaca</dd_name>

@@ -195,7 +195,10 @@ RemoteTelemetryUnit *Util::parseXMLConfig()
 				}
 
 				dd1 = new DigitalDevice(digitalDeviceName, readOnly, inAddress, outAddress);
-				//dd1->setStatus(digitalDeviceStatus);
+				dd1->setStatus(DigitalDevice::FINISHED);
+				dd1->setState(1, 0);
+				dd1->setState(0, 1);
+				dd1->setCommandTime(0);
 				digitalDevices.push_back(dd1);
 				continue;
 			}

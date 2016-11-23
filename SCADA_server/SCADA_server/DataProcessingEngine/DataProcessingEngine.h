@@ -11,8 +11,9 @@
 class DataProcessingEngine {
 
 public:
-	DataProcessingEngine() {}
+	DataProcessingEngine() { }
 	DataProcessingEngine(BlockingQueue<char *> *m_sharedBuffer, BlockingQueue<char *> *streamBuffer_, BlockingQueue<char *> *alarmBuffer_, RemoteTelemetryUnit *m_rtu) : sharedBuffer(m_sharedBuffer),streamBuffer(streamBuffer_),alarmBuffer(alarmBuffer_), rtu(m_rtu) {
+
 		std::thread dataProccesingEngineThread(DataProcessingEngine::process, this);
 		dataProccesingEngineThread.detach();
 	}
@@ -38,15 +39,14 @@ public:
 	void makeAlarm(DataProcessingEngine *that,Alarm *alarm);
 	void turnHeaterOn(DataProcessingEngine *that, DigitalDevice *dd);
 	void turnHeaterOff(DataProcessingEngine *that, DigitalDevice *dd);
-	std::atomic<int> *getPollCounter() { return &pollCounter; }
-
+	
 	//char * makeClientMessage();
 
 private:
 	BlockingQueue<char *> *streamBuffer;
 	BlockingQueue<char *> *sharedBuffer;
 	BlockingQueue<char *> *alarmBuffer;
-	std::atomic<int> pollCounter = 0;
+
 	RemoteTelemetryUnit *rtu;
 };
 
