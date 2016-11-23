@@ -76,7 +76,7 @@ int main()
 	}
 
 	RemoteTelemetryUnit *rtu1 = Util::parseXMLConfig();
-	sendIntegrity(&connectSocket);
+	//sendIntegrity(&connectSocket);
 
 	receiveMessage(&connectSocket, rtu1);
 	return 0;
@@ -147,22 +147,28 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 
 void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket) {
 	int messageSize = *(int*)dataBuf;
-
 	int oznaka = *(int*)(dataBuf + 4);
-	short address = *(int*)(dataBuf + 8);
+	short address = *(short*)(dataBuf + 8);
+	int duzinaPoruke = *(int*)(dataBuf + 10);
+	int confirmed = *(int*)(dataBuf + 14 + duzinaPoruke);
+	int corrected = *(int*)(dataBuf + 18 + duzinaPoruke);
 	bool changeValue = false; //za ispis
 
 	std::vector<Alarm> *al = rtu->getAlarms();
-	for (int i = 0; i < al->size(); i++) {
-		if (al->at(i).getConfirmed()){
-			if (al->at(i).getCorrected()) {
-				al->at(i).setCorrected(true);
+		if (confirmed == 1) {
+			if (corrected == 1) {
+				for (int i = 0; i < al->size(); i++) {
+					if (al->at(i).getAddress() == address) {
+						al->at(i).setCorrected(true);
+					}
+				}
 			}
 		}
 		else {
 			if (oznaka == 5) { //alarm
 				char *messageToSend = new char[6];
 				*(int*)messageToSend = 6;
+
 				messageToSend[4] = *(char*)(dataBuf + 8); //adresa
 				messageToSend[5] = *(char*)(dataBuf + 9); //adresa
 				int alarmMessageSize = *(int*)(dataBuf + 10);
@@ -183,6 +189,11 @@ void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket)
 					do {
 						std::cout << "You must confirm alarm! Enter 1 to confirm" << std::endl;
 						scanf("%d", &confirmed);
+						//system("cls");
+						Alarm *alarm = new Alarm("Alarm", time(0), address, alarmMessage);
+						std::vector<Alarm>*alarmVec = rtu->getAlarms();
+						alarmVec->push_back(*alarm);
+						printValues(rtu);
 					} while (confirmed != 1);
 					confirmedBool = true;
 				}
@@ -208,7 +219,6 @@ void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket)
 				std::cout << "Nepoznata oznaka" << std::endl;
 			}
 		}
-	}
 }
 
 bool InitializeWindowsSockets()
@@ -297,7 +307,7 @@ void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu) {
 
 void printValues(RemoteTelemetryUnit *rtu) {
 	//prodji kroz sve inpute, outpute i dig.device i ipisi ih na konzoli
-	system("cls");
+	//system("cls");
 	std::cout << "*Trenutne vrednosti temperatura i stanje grejaca*" << std::endl;
 	std::cout << "----------------------------------------------------" << std::endl;
 	std::vector<AnalogInput*> ai = rtu->getAnalogInputs();
@@ -338,19 +348,19 @@ void printValues(RemoteTelemetryUnit *rtu) {
 		if (!al->at(i).getCorrected()) {
 			setColor(12);
 			std::cout << "****************************************************" << std::endl;
-			std::cout << "Alarm name: " << al->at(i).getName() << std::endl;
-			std::cout << "Alarm message: " << al->at(i).getMessage() << std::endl;
-			std::cout << "Alarm address: " << al->at(i).getAddress() << std::endl;
-			std::cout << "Alarm time: " << al->at(i).getTime() << std::endl;
+			std::cout << "\t" << "Alarm name: " << al->at(i).getName() << std::endl;
+			std::cout << "\t" << "Alarm message: " << al->at(i).getMessage() << std::endl;
+			std::cout << "\t" << "Alarm address: " << al->at(i).getAddress() << std::endl;
+			std::cout << "\t" << "Alarm time: " << al->at(i).getTime() << std::endl;
 			std::cout << "****************************************************" << std::endl;
 		}
 		else {
 			setColor(2); //treba da se oboji u zeleno
 			std::cout << "****************************************************" << std::endl;
-			std::cout << "Alarm name: " << al->at(i).getName() << std::endl;
-			std::cout << "Alarm message: " << al->at(i).getMessage() << std::endl;
-			std::cout << "Alarm address: " << al->at(i).getAddress() << std::endl;
-			std::cout << "Alarm time: " << al->at(i).getTime() << std::endl;
+			std::cout << "\t" << "Alarm name: " << al->at(i).getName() << std::endl;
+			std::cout << "\t" << "Alarm message: " << al->at(i).getMessage() << std::endl;
+			std::cout << "\t" << "Alarm address: " << al->at(i).getAddress() << std::endl;
+			std::cout << "\t" << "Alarm time: " << al->at(i).getTime() << std::endl;
 			std::cout << "****************************************************" << std::endl;
 		}
 		setColor(7); //vrati na belo

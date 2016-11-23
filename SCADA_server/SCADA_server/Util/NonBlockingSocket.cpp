@@ -177,7 +177,7 @@ int NonBlockingSocket::RECEIVE(SOCKET* socket, char* buffer, int length) {
 		len = ntohs(len);
 	}
 	memcpy(buffer, duzina, length);
-	delete duzina, duzina = 0;
+//	delete duzina, duzina = 0;
 	if (length != 4) {
 		i = length;
 		len += i - 1;
