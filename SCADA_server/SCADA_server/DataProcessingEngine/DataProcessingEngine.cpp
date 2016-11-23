@@ -27,12 +27,8 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 			char fCode = *((char*)(dataBuf + 8 + 7)); //dataBuf +4(za duzinu cele poruke) +4(duzina responsa) +7(response header)
 
 			if (fCode == 1) {  //citanje digitalnih izlaza
-<<<<<<< HEAD
-				/*char outputValue = *((char*)(dataBuf + 17)); //status dig.izlaza
-=======
 				/*
 				char outputValue = *((char*)(dataBuf + 17)); //status dig.izlaza
->>>>>>> a7b92c38eb1e9665270cd45a115db0c00b099d12
 				//upisi u digitalni izlaz
 				std::vector<DigitalDevice*> digitalDevices = rtu->getDigitalDevices();
 
@@ -48,12 +44,8 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 							it->setState(DigitalDevice::OFF);
 						}
 					}
-<<<<<<< HEAD
 				}*/
-=======
-				}
-				*/
->>>>>>> a7b92c38eb1e9665270cd45a115db0c00b099d12
+
 			}
 			else if (fCode == 2) { //citanje digitalnih ulaza
 				short outputValue =ntohs( *((short*)(dataBuf + 17))); //status dig.izlaza
@@ -210,12 +202,10 @@ void DataProcessingEngine::pushInStreamBuffer(DigitalDevice *dd, AnalogInput *it
 	else {
 		*((int *)stream + 1) = 2;
 		*((short *)(stream + 8)) = dd->getInAddresses()[0];
-<<<<<<< HEAD
-		*((char *)(stream + 10)) = dd->getState()[0];
-=======
+
 		*((short *)(stream + 10)) = dd->getState()[0];
 		*((short *)(stream + 12)) = dd->getState()[1];
->>>>>>> a7b92c38eb1e9665270cd45a115db0c00b099d12
+
 		*((int *)(stream + 14)) = 0;
 	}
 	streamBuffer->push(stream);

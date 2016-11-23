@@ -81,7 +81,7 @@ public:
 	char *getPort() { return port; }
 	char *getIpAddress() { return ipAddress; }
 	unsigned long int getNonBlockingMode() { return nonBlockingMode; }
-
+	void pushinIntegrityBuffer(ClientHandler*tmp, SOCKET *accSock);
 private:
 	//SOCKET acceptSocket;
 	SOCKET listenSocket;
