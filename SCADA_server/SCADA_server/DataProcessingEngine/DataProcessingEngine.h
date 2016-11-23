@@ -12,7 +12,7 @@ class DataProcessingEngine {
 
 public:
 	DataProcessingEngine() {}
-	DataProcessingEngine(BlockingQueue<char *> *m_sharedBuffer, BlockingQueue<char *> *streamBuffer_, RemoteTelemetryUnit *m_rtu) : sharedBuffer(m_sharedBuffer),streamBuffer(streamBuffer_), rtu(m_rtu) {
+	DataProcessingEngine(BlockingQueue<char *> *m_sharedBuffer, BlockingQueue<char *> *streamBuffer_, BlockingQueue<char *> *alarmBuffer_, RemoteTelemetryUnit *m_rtu) : sharedBuffer(m_sharedBuffer),streamBuffer(streamBuffer_),alarmBuffer(alarmBuffer_), rtu(m_rtu) {
 		std::thread dataProccesingEngineThread(DataProcessingEngine::process, this);
 		dataProccesingEngineThread.detach();
 	}
@@ -21,11 +21,13 @@ public:
 	~DataProcessingEngine() {
 		delete streamBuffer, streamBuffer = 0;
 		delete sharedBuffer, sharedBuffer = 0;
+		delete alarmBuffer, alarmBuffer = 0;
 		delete rtu, rtu = 0;
 	}
 
 	BlockingQueue<char *> *getStreamBuffer() { return streamBuffer; }
 	BlockingQueue<char *> *getSharedBuffer() { return sharedBuffer; }
+	BlockingQueue<char *> *getAlarmBuffer() { return alarmBuffer; }
 	RemoteTelemetryUnit *getRTU() { return rtu; }
 	void setStreamBuffer(BlockingQueue<char *> *newStreamBuffer) { streamBuffer = newStreamBuffer; }
 	void setSharedBuffer(BlockingQueue<char *> *newSharedBuffer) { sharedBuffer = newSharedBuffer; }
@@ -38,6 +40,7 @@ public:
 private:
 	BlockingQueue<char *> *streamBuffer;
 	BlockingQueue<char *> *sharedBuffer;
+	BlockingQueue<char *> *alarmBuffer;
 	RemoteTelemetryUnit *rtu;
 };
 

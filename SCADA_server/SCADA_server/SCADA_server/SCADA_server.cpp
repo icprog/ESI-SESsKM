@@ -17,6 +17,7 @@ int main()
 	BlockingQueue<char *> *commandingBuffer = new BlockingQueue<char *>();
 	BlockingQueue<char *> *sharedBuffer = new BlockingQueue<char *>();
 	BlockingQueue<char *> *streamBuffer = new BlockingQueue<char *>();
+	BlockingQueue<char *> *alarmBuffer = new BlockingQueue<char *>();
 	RemoteTelemetryUnit *rtu = Util::parseXMLConfig();
 
 	TCPDriver::getInstance().setIpAddress("127.0.0.1");
@@ -42,7 +43,7 @@ int main()
 		vector->push_back(req);
 		//delete req;
 	}
-	DataProcessingEngine *processEngine = new DataProcessingEngine(sharedBuffer,streamBuffer, rtu);
+	DataProcessingEngine *processEngine = new DataProcessingEngine(sharedBuffer,streamBuffer,alarmBuffer, rtu);
 
 	PollEngine *pollEngine = new PollEngine(vector);
 
