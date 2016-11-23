@@ -60,7 +60,7 @@ int main()
 	RemoteTelemetryUnit *rtu1 = Util::parseXMLConfig();
 
 	receiveMessage(&connectSocket, rtu1);
-    return 0;
+	return 0;
 }
 
 void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket) {
@@ -70,10 +70,11 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 	int oznaka = *(int*)(dataBuf + 4);
 	short address = *(int*)(dataBuf + 8);
 	bool changeValue = false; //za ispis
-	
+
+	//ai 1 dd 2 alarm 5
 	if (oznaka == 1) { //analog input
 		double vrednost = *(double*)(dataBuf + 10);
-		
+
 		std::vector<AnalogInput*> ai = rtu->getAnalogInputs();
 		for (int i = 0; i < ai.size(); i++) {
 			if (ai.at(i)->getAddress() == address)
@@ -85,18 +86,21 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 			}
 		}
 	}
-	else if (oznaka == 2) { //analog output
-		double vrednost = *(double*)(dataBuf + 10);
+	else if(oznaka == 2) {
+		short* vrednost = (short*)(dataBuf + 10);
 
-		std::vector<AnalogOutput*> ao = rtu->getAnalogOutputs();
-		for (int i = 0; i < ao.size(); i++) {
-			if (ao.at(i)->getAddress() == address)
-			{
-				if (ao.at(i)->getValue() != vrednost) {
-					ao.at(i)->setValue(vrednost);
+		std::vector<DigitalDevice*> dd = rtu->getDigitalDevices();
+		for (int i = 0; i < dd.size(); i++) {
+			short *outAddresses = dd.at(i)->getOutAddresses();
+			short *inAddresses = dd.at(i)->getInAddresses();
+			if (outAddresses[0] == address || outAddresses[1] == address) {
+				if (dd.at(i)->getState()[0] != vrednost[0] && dd.at(i)->getState()[1] != vrednost[1]) {
+					dd.at(i)->setState(vrednost[0], 0);
+					dd.at(i)->setState(vrednost[1], 1);
 					changeValue = true;
 				}
 			}
+<<<<<<< HEAD
 		}
 	}
 	else if (oznaka == 3) { //digital input
@@ -110,10 +114,18 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 					di.at(i)->setState(vrednost[0], 0);
 					di.at(i)->setState(vrednost[1], 1);
 					changeValue = true;
+=======
+			if (inAddresses[0] == address || inAddresses[1] == address) {
+				if (dd.at(i)->getState()[0] != vrednost[0] && dd.at(i)->getState()[1] != vrednost[1]) {
+						dd.at(i)->setState(vrednost[0], 0);
+						dd.at(i)->setState(vrednost[1], 1);
+						changeValue = true;
+>>>>>>> a7b92c38eb1e9665270cd45a115db0c00b099d12
 				}
 			}
 		}
 	}
+<<<<<<< HEAD
 	else if (oznaka == 4) { //digital output
 		short* vrednost = (short*)(dataBuf + 10);
 
@@ -137,6 +149,16 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 	if (changeValue) {
 		printValues(rtu);
 	}
+=======
+
+	else {
+		std::cout << "Nepoznata oznaka" << std::endl;
+	}
+
+	if (changeValue) {
+		printValues(rtu);
+	}
+>>>>>>> a7b92c38eb1e9665270cd45a115db0c00b099d12
 }
 
 void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket) {
@@ -246,7 +268,7 @@ void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu) {
 	NonBlockingSocket *nbs = new NonBlockingSocket();
 	do {
 		response = new char[1024];
-		
+
 		iResult = nbs->RECEIVE(accSock, response, 4);
 		//std::cout << iResult << std::endl;
 		if (iResult > 0)
@@ -298,6 +320,7 @@ void printValues(RemoteTelemetryUnit *rtu) {
 		state[1] = dout.at(i)->getState()[1];
 
 		if (state[0] == 0 && state[1] == 1) {
+<<<<<<< HEAD
 		std::cout << dout.at(i)->getName() << " : " << "ON" << std::endl;
 		}
 		if (state[0] == 1 && state[1] == 0) {
@@ -310,6 +333,20 @@ void printValues(RemoteTelemetryUnit *rtu) {
 		std::cout << dout.at(i)->getName() << " : " << "ERROR" << std::endl;
 		}
 		
+=======
+			std::cout << dout.at(i)->getName() << " : " << "ON" << std::endl;
+		}
+		if (state[0] == 1 && state[1] == 0) {
+			std::cout << dout.at(i)->getName() << " : " << "OFF" << std::endl;
+		}
+		if (state[0] == 0 && state[1] == 0) {
+			std::cout << dout.at(i)->getName() << " : " << "TRANSIENT" << std::endl;
+		}
+		if (state[0] == 1 && state[1] == 1) {
+			std::cout << dout.at(i)->getName() << " : " << "ERROR" << std::endl;
+		}
+
+>>>>>>> a7b92c38eb1e9665270cd45a115db0c00b099d12
 	}
 	std::cout << "----------------------------------------------------" << std::endl;
 }

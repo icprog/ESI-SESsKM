@@ -25,8 +25,8 @@ public:
 
 		nonBlockingSocket = new NonBlockingSocket();
 	}
-	ClientHandler(BlockingQueue<char *> *commandingBuffer_, BlockingQueue<char *> *streamBuffer_, unsigned long nonBlockingMode_, char *ipAddress_, char *port_, RemoteTelemetryUnit *rtu_) :
-		commandingBuffer(commandingBuffer_), streamBuffer(streamBuffer_), nonBlockingMode(nonBlockingMode_), ipAddress(ipAddress_), port(port_), rtu(rtu_)
+	ClientHandler(BlockingQueue<char *> *commandingBuffer_, BlockingQueue<char *> *streamBuffer_, BlockingQueue<char *> *alarmBuffer_, unsigned long nonBlockingMode_, char *ipAddress_, char *port_, RemoteTelemetryUnit *rtu_) :
+		commandingBuffer(commandingBuffer_), streamBuffer(streamBuffer_),alarmBuffer(alarmBuffer_), nonBlockingMode(nonBlockingMode_), ipAddress(ipAddress_), port(port_), rtu(rtu_)
 	{
 		/* INITIALIZE SOCKET AND THREAD ARRAYS */
 		acceptSocketArray = new std::vector<SOCKET>();
@@ -66,10 +66,11 @@ public:
 	int tcpCloseConnection();
 
 	static int sendMessage(SOCKET *accSock, ClientHandler*tmp);  // if stream buffer is not empty it pops from it and sends to client
-	void sendData(char * message, SOCKET * accSock);
+	static void sendAlarm(SOCKET *accSock, ClientHandler*tmp);
 	static void receiveMessage(SOCKET *accSock, ClientHandler*tmp);
 	void pushCommand();
 	char *popFromStreamBuffer();
+	char * popFromAlarmBuffer();
 	NonBlockingSocket *getNonBlockingSocket();
 	RemoteTelemetryUnit *getRTU() { return rtu; }
 	BlockingQueue<char *> *getCommandingBuffer() { return commandingBuffer; }
@@ -92,6 +93,8 @@ private:
 	std::vector<bool> *threadFinished;
 	BlockingQueue<char *> *commandingBuffer;
 	BlockingQueue<char *> *streamBuffer;
+	BlockingQueue<char *> *alarmBuffer;
+	
 	NonBlockingSocket *nonBlockingSocket;
 
 	RemoteTelemetryUnit *rtu;
