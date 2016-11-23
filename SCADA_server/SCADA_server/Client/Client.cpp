@@ -100,42 +100,31 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 		}
 	}
 	else if (oznaka == 3) { //digital input
-		int vrednost = *(int*)(dataBuf + 10);
-	
+		short* vrednost = (short*)(dataBuf + 10);
+		
 		std::vector<DigitalDevice*> di = rtu->getDigitalDevices();
 		for (int i = 0; i < di.size(); i++) {
 			short *inAddresses = di.at(i)->getInAddresses();
 			if (inAddresses[0] == address || inAddresses[1] == address) {
-				if (di.at(i)->getState() != vrednost) {
-					if (vrednost == 0) {
-						di.at(i)->setState(DigitalDevice::ON);
-						changeValue = true;
-					}
-					if (vrednost == 1) {
-						di.at(i)->setState(DigitalDevice::OFF);
-						changeValue = true;
-					}
-					
+				if (di.at(i)->getState()[0] != vrednost[0] && di.at(i)->getState()[1] != vrednost[1]) {
+					di.at(i)->setState(vrednost[0], 0);
+					di.at(i)->setState(vrednost[1], 1);
+					changeValue = true;
 				}
 			}
 		}
 	}
 	else if (oznaka == 4) { //digital output
-		int vrednost = *(int*)(dataBuf + 10);
+		short* vrednost = (short*)(dataBuf + 10);
 
 		std::vector<DigitalDevice*> dout = rtu->getDigitalDevices();
 		for (int i = 0; i < dout.size(); i++) {
 			short *outAddresses = dout.at(i)->getOutAddresses();
 			if (outAddresses[0] == address || outAddresses[1] == address) {
-				if (dout.at(i)->getState() != vrednost) {
-					if (vrednost == 0) {
-						dout.at(i)->setState(DigitalDevice::ON);
-						changeValue = true;
-					}
-					if (vrednost == 1) {
-						dout.at(i)->setState(DigitalDevice::OFF);
-						changeValue = true;
-					}
+				if (dout.at(i)->getState()[0] != vrednost[0] && dout.at(i)->getState()[1] != vrednost[1]) {
+					dout.at(i)->setState(vrednost[0], 0);
+					dout.at(i)->setState(vrednost[1], 1);
+					changeValue = true;
 				}
 			}
 		}
@@ -287,9 +276,6 @@ void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu) {
 	} while (iResult > 0);
 }
 
-
-
-
 void printValues(RemoteTelemetryUnit *rtu) {
 	//prodji kroz sve inpute, outpute i dig.device i ipisi ih na konzoli
 	system("cls");
@@ -307,8 +293,10 @@ void printValues(RemoteTelemetryUnit *rtu) {
 	std::vector<DigitalDevice*> dout = rtu->getDigitalDevices();
 	for (int i = 0; i < dout.size(); i++) {
 		//11 error, 00 trans, 01 on , 10 off
-		/*char state[2];
-		state = dout.at(i)->getState();
+		char state[2];
+		state[0] = dout.at(i)->getState()[0];
+		state[1] = dout.at(i)->getState()[1];
+
 		if (state[0] == 0 && state[1] == 1) {
 		std::cout << dout.at(i)->getName() << " : " << "ON" << std::endl;
 		}
@@ -321,7 +309,7 @@ void printValues(RemoteTelemetryUnit *rtu) {
 		if (state[0] == 1 && state[1] == 1) {
 		std::cout << dout.at(i)->getName() << " : " << "ERROR" << std::endl;
 		}
-		*/
+		
 	}
 	std::cout << "----------------------------------------------------" << std::endl;
 }
