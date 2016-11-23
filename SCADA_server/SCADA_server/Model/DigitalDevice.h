@@ -17,7 +17,7 @@ private:
 	state state;     //on, off, transient i errror
 	char command[2]; //salji npr 01 na out adreses
 	status status;
-
+	time_t commandTime;
 public:
 	
 	DigitalDevice() {}
@@ -40,6 +40,7 @@ public:
 	short *getInAddresses() { return inAddresses; }
 	short *getOutAddresses() { return outAddresses; }
 	char *getCommand() { return command; }
+	time_t getCommandTime() { return commandTime; }
 
 	void setName(std::string newName) { name = newName; }
 	void setState(enum state newState) { state = newState; }
@@ -48,7 +49,7 @@ public:
 	void setInAddresses(short newInAddrresses[2]) { inAddresses[0] = newInAddrresses[0]; inAddresses[1] = newInAddrresses[1]; }
 	void setOutAddresses(short newOutAddrresses[2]) { outAddresses[0] = newOutAddrresses[0]; outAddresses[1] = newOutAddrresses[1]; }
 	void setCommand(short newCommand[2]) { command[0] = newCommand[0]; command[1] = newCommand[1]; }
-
+	void setCommandTime(time_t commandTime_) { commandTime = commandTime_; }
 };
 
 
