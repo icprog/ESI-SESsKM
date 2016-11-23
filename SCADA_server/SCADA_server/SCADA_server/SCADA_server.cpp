@@ -43,6 +43,14 @@ int main()
 		vector->push_back(req);
 		//delete req;
 	}
+	for (int i = 0; i < rtu->getDigitalInputNum(); i++) {
+		req = new char[5];
+		makeRequests(rtu->getDigitalDevices().at(i),nullptr, req);
+		req[3] = 0x00;
+		req[4] = 0x01;
+		vector->push_back(req);
+		//delete req;
+	}
 	DataProcessingEngine *processEngine = new DataProcessingEngine(sharedBuffer,streamBuffer,alarmBuffer, rtu);
 
 	PollEngine *pollEngine = new PollEngine(vector);
