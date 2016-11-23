@@ -152,6 +152,12 @@ void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp)
 				for (int i = 0; i < tmp->getRTU()->getAlarms()->size(); i++) {
 					if (tmp->getRTU()->getAlarms()->at(i).getAddress() == *(short*)(response + 4)) {
 						tmp->getRTU()->getAlarms()->at(i).setConfirmed(true);
+						DigitalDevice *dd = tmp->getRTU()->getDigitalDevices().at(0);
+
+						if (dd->getCommand()[0] == dd->getState()[0] && dd->getCommand()[1] == dd->getState()[1]){
+							tmp->getRTU()->getAlarms()->at(i).setCorrected(true);
+							tmp->makeAlarm(tmp, &tmp->getRTU()->getAlarms()->at(i));
+						}
 						break;
 					}
 				}
@@ -386,7 +392,7 @@ void ClientHandler::pushinIntegrityBuffer(ClientHandler*tmp, SOCKET *accSock)
 		}
 		*((int *)(stream + 14 + messageSize)) = al->at(i).getConfirmed();
 		*((int *)(stream + 18 + messageSize)) = al->at(i).getCorrected();
-		alarmBuffer->push(stream);
+		alaBuffer->push(stream);
 	}
 
 
@@ -404,3 +410,20 @@ void ClientHandler::pushinIntegrityBuffer(ClientHandler*tmp, SOCKET *accSock)
 	}
 }
 
+void ClientHandler::makeAlarm(ClientHandler * that, Alarm *alarm)
+{
+	char *stream;
+	// 4 duzina cele poruke + 4 oznaka + 2 adresa + 4 duzina poruka + poruka+ 4 confirmed + 4 corrected
+	int messageSize = alarm->getMessage().size();
+	stream = new char[22 + messageSize];
+	*((int *)stream) = 22 + messageSize;
+	*((int *)stream + 1) = 5;
+	*((short *)(stream + 8)) = alarm->getAddress();
+	*((int *)(stream + 10)) = messageSize;
+	for (int i = 0; i < messageSize; i++) {
+		*(stream + 14 + i) = alarm->getMessage().at(i);
+	}
+	*((int *)(stream + 14 + messageSize)) = alarm->getConfirmed();
+	*((int *)(stream + 18 + messageSize)) = alarm->getCorrected();
+	alarmBuffer->push(stream);
+}

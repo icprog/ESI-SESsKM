@@ -79,12 +79,13 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 								it->setCommandTime(0);
 								it->setStatus(DigitalDevice::FINISHED);
 								std::cout << "KOMANDA IZVRSENA!\n" << std::endl;
+
 							}
 							else if(seconds > 0) { // prosle je 15 sekundi i komanda se nije izvrsila, ALARM!
 								std::cout << "KOMANDA NIJE IZVRSENA! FORMIRAM ALARM!\s\n" << std::endl;
 								short lastAddr = 0;
 								if(rtu->getAlarms()->size() > 0)
-									lastAddr = rtu->getAlarms()->at(rtu->getAlarms()->size()).getAddress();
+									lastAddr = rtu->getAlarms()->at(rtu->getAlarms()->size()-1).getAddress();
 								std::string message;
 								if (it->getCommand()[0] == 0 && it->getCommand()[1] == 1) {
 									message = "Grejac se nije ukljucio!";
