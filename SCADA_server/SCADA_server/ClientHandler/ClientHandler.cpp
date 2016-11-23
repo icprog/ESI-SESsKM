@@ -152,6 +152,11 @@ void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp)
 				for (int i = 0; i < tmp->getRTU()->getAlarms()->size(); i++) {
 					if (tmp->getRTU()->getAlarms()->at(i).getAddress() == *(short*)(response + 4)) {
 						tmp->getRTU()->getAlarms()->at(i).setConfirmed(true);
+						DigitalDevice *dd = tmp->getRTU()->getDigitalDevices().at(0);
+
+						if (dd->getCommand()[0] == dd->getState()[0] && dd->getCommand()[1] == dd->getState()[1])
+							tmp->getRTU()->getAlarms()->at(i).setCorrected(true);
+
 						break;
 					}
 				}
