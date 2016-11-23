@@ -38,8 +38,8 @@ public:
 	static void process(DataProcessingEngine *that);
 	void pushInStreamBuffer(DigitalDevice *dd, AnalogInput *it);
 	void makeAlarm(DataProcessingEngine *that,Alarm *alarm);
-	void turnHeaterOn(DataProcessingEngine *that, DigitalDevice *dd);
-	void turnHeaterOff(DataProcessingEngine *that, DigitalDevice *dd);
+	void turnHeaterOn(DataProcessingEngine *that, DigitalDevice *dd, short *command);
+	void turnHeaterOff(DataProcessingEngine *that, DigitalDevice *dd, short *command);
 	
 	//char * makeClientMessage();
 

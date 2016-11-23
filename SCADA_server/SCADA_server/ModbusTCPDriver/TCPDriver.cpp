@@ -58,6 +58,9 @@ int TCPDriver::receiveResponse(char *request)
 			if (response[7] == 0x80 || response[7] == (0x80 + request[7])) {
 				std::cout << "Modbus simulator returned an error. Please try again." << std::endl;
 			}
+			else if (response[7] != request[7]) {
+				std::cout << "Value probably already written." << std::endl;
+			}
 
 			char *wholeMessage;
 			int len = *((short*)response + 2);
