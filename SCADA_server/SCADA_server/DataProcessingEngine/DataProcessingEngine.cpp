@@ -51,12 +51,41 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 					DigitalDevice *it = digitalDevices.at(i);
 					short *inAddresses = it->getInAddresses();
 					if (inAddresses[0] == address || inAddresses[1] == address) {
-						if (outputValue == 0) {
-							it->setState(DigitalDevice::ON);
+
+						// izmeni vrednosti stanja
+						if (inAddresses[0] == address && outputValue) {
+							it->setState(outputValue, 0);
 						}
-						if (outputValue == 1) {
-							it->setState(DigitalDevice::OFF);
+						else {
+							it->setState(outputValue, 1);
 						}
+
+						if (it->getCommandTime() != 0) {                   // da li je komanda zadata? Ako jeste vreme ce biti promenjeno
+							time_t now = time(0);
+							double seconds = difftime(now, it->getCommandTime());       // da li je proslo petnaest sekundi od izdavanje komande?
+							bool commandSuccess = false;
+							if (it->getState()[0] == it->getCommand()[0] && it->getState()[1] == it->getCommand()[1])
+								commandSuccess = true;
+
+							if (seconds <= 15 && commandSuccess) { // komanda je uspesno izvrsena i nije isteklo 15 sekundi
+								it->setCommand(0);
+								it->setStatus(DigitalDevice::FINISHED);
+							}
+							else if(seconds > 15 && !commandSuccess){ // prosle je 15 sekundi i komanda se nije izvrsila, ALARM!
+								short lastAddr = rtu->getAlarms()->at(rtu->getAlarms()->size()).getAddress();
+								std::string message;
+								if (it->getCommand()[0] == 0 && it->getCommand()[1] == 1) {
+									message = "Grejac se nije ukljucio!";
+								}else
+									message = "Grejac se nije iskljucio!";
+								Alarm *alarm = new Alarm("ALARM", now, lastAddr + 1, message);
+								rtu->getAlarms()->push_back(*alarm);
+
+
+								delete alarm;
+							}
+						}
+
 						that->pushInStreamBuffer(it, nullptr);
 						break;
 					}
@@ -144,4 +173,21 @@ void DataProcessingEngine::pushInStreamBuffer(DigitalDevice *dd, AnalogInput *it
 	}
 	streamBuffer->push(stream);
 	//delete stream;
+}
+
+void DataProcessingEngine::makeAlarm(DataProcessingEngine * that, Alarm *alarm)
+{
+	char *stream;
+	// 4 duzina cele poruke + 4 oznaka + 2 adresa + 8 vrednost
+	int messageSize = alarm->getMessage().size();
+	stream = new char[14+messageSize];
+	*((int *)stream) = 14 + messageSize;
+	*((int *)stream + 1) = 5;
+	*((short *)(stream + 8)) = alarm->getAddress();
+	*((int *)(stream + 10)) = messageSize;
+	for (int i = 0; i < messageSize; i++) {
+		*(stream + 14 + i) = alarm->getMessage().at(i);
+	}
+
+	alarmBuffer->push(stream);
 }

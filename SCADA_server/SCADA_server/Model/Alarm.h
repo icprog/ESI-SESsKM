@@ -7,7 +7,9 @@
 class Alarm {
 public:
 	Alarm() {}
-	Alarm(std::string m_name, time_t m_time) : name(m_name), timeStamp(m_time) {
+	Alarm(std::string m_name, time_t m_time, short address_, std::string message_) : name(m_name), timeStamp(m_time),
+	address(address_), message(message_)
+	{
 		confirmed = false;
 		corrected = false;
 	}

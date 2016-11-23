@@ -35,6 +35,7 @@ public:
 
 	static void process(DataProcessingEngine *that);
 	void pushInStreamBuffer(DigitalDevice *dd, AnalogInput *it);
+	void makeAlarm(DataProcessingEngine *that,Alarm *alarm);
 	//char * makeClientMessage();
 
 private:
