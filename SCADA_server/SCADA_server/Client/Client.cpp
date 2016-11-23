@@ -28,6 +28,7 @@ void parseMessage(char *dataBuf, RemoteTelemetryUnit *rtu1, SOCKET *connectSocke
 void printValues(RemoteTelemetryUnit *rtu);
 void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket);
 void sendIntegrity(SOCKET *connectSocket);
+void clear();
 
 void setColor(int ForgC)
 {
@@ -173,7 +174,7 @@ void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket)
 				messageToSend[5] = *(char*)(dataBuf + 9); //adresa
 				int alarmMessageSize = *(int*)(dataBuf + 10);
 
-				char *alarmMessage = new char;
+				char *alarmMessage = new char[duzinaPoruke];
 				for (int i = 0; i < alarmMessageSize; i++) {
 					alarmMessage[i] = *(char*)(dataBuf + 14 + i);
 				}
@@ -307,7 +308,8 @@ void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu) {
 
 void printValues(RemoteTelemetryUnit *rtu) {
 	//prodji kroz sve inpute, outpute i dig.device i ipisi ih na konzoli
-	//system("cls");
+	system("cls");
+	//clear();
 	std::cout << "*Trenutne vrednosti temperatura i stanje grejaca*" << std::endl;
 	std::cout << "----------------------------------------------------" << std::endl;
 	std::vector<AnalogInput*> ai = rtu->getAnalogInputs();
@@ -367,4 +369,8 @@ void printValues(RemoteTelemetryUnit *rtu) {
 	}
 
 	std::cout << "----------------------------------------------------" << std::endl;
+}
+void clear() {
+	// CSI[2J clears screen, CSI[H moves the cursor to top-left corner
+	std::cout << "\x1B[2J\x1B[H";
 }
