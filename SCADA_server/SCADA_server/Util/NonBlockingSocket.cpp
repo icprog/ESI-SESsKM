@@ -87,7 +87,7 @@ int NonBlockingSocket::receiveNB(SOCKET* socket, char* buffer, int bufferLength,
 	iResult = recv(*socket, buffer + continueFrom, bufferLength, 0);
 	if (iResult > 0)
 	{
-		std::cout << "message received from client: " << buffer << std::endl;
+		//std::cout << "message received from client: " << buffer << std::endl;
 	}
 	else if (iResult == 0)
 	{

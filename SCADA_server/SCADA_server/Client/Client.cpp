@@ -79,6 +79,7 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 			{
 				if (ai.at(i)->getValue() != vrednost) {
 					ai.at(i)->setValue(vrednost);
+					system("cls");
 					std::cout << ai.at(i)->getName() << " : " << ai.at(i)->getValue() << std::endl;
 				}
 			}
@@ -93,6 +94,7 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 			{
 				if (ao.at(i)->getValue() != vrednost) {
 					ao.at(i)->setValue(vrednost);
+					system("cls");
 					std::cout << ao.at(i)->getName() << " : " << ao.at(i)->getValue() << std::endl;
 				}
 			}
@@ -108,10 +110,12 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 				if (di.at(i)->getState() != vrednost) {
 					if (vrednost == 0) {
 						di.at(i)->setState(DigitalDevice::ON);
+						system("cls");
 						std::cout << di.at(i)->getName() << " : " << "ON" << std::endl;
 					}
 					if (vrednost == 1) {
 						di.at(i)->setState(DigitalDevice::OFF);
+						system("cls");
 						std::cout << di.at(i)->getName() << " : " << "OFF" << std::endl;
 					}
 					
@@ -129,10 +133,12 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 				if (dout.at(i)->getState() != vrednost) {
 					if (vrednost == 0) {
 						dout.at(i)->setState(DigitalDevice::ON);
+						system("cls");
 						std::cout << dout.at(i)->getName() << " : " << "ON" << std::endl;
 					}
 					if (vrednost == 1) {
 						dout.at(i)->setState(DigitalDevice::OFF);
+						system("cls");
 						std::cout << dout.at(i)->getName() << " : " << "OFF" << std::endl;
 					}
 				}
