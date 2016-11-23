@@ -152,52 +152,62 @@ void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket)
 	short address = *(int*)(dataBuf + 8);
 	bool changeValue = false; //za ispis
 
-	if (oznaka == 5) { //alarm
-		char *messageToSend = new char[6];
-		*(int*)messageToSend = 6;
-		messageToSend[4] = *(char*)(dataBuf + 8); //adresa
-		messageToSend[5] = *(char*)(dataBuf + 9); //adresa
-		int alarmMessageSize = *(int*)(dataBuf + 10);
-
-		char *alarmMessage = new char;
-		for (int i = 0; i < alarmMessageSize; i++) {
-			alarmMessage[i] = *(char*)(dataBuf + 14 + i);
+	std::vector<Alarm> *al = rtu->getAlarms();
+	for (int i = 0; i < al->size(); i++) {
+		if (al->at(i).getConfirmed()){
+			if (al->at(i).getCorrected()) {
+				al->at(i).setCorrected(true);
+			}
 		}
-		bool confirmedBool = false;
-		while (!confirmedBool) {
-			setColor(12); //postavi boju na crvenu
+		else {
+			if (oznaka == 5) { //alarm
+				char *messageToSend = new char[6];
+				*(int*)messageToSend = 6;
+				messageToSend[4] = *(char*)(dataBuf + 8); //adresa
+				messageToSend[5] = *(char*)(dataBuf + 9); //adresa
+				int alarmMessageSize = *(int*)(dataBuf + 10);
 
-			std::cout <<"ALARM : "<< alarmMessage << std::endl;
+				char *alarmMessage = new char;
+				for (int i = 0; i < alarmMessageSize; i++) {
+					alarmMessage[i] = *(char*)(dataBuf + 14 + i);
+				}
+				bool confirmedBool = false;
+				while (!confirmedBool) {
+					setColor(12); //postavi boju na crvenu
+
+					std::cout << "ALARM : " << alarmMessage << std::endl;
 
 
-			//setColor(7); //postavi boju na belu
-			int confirmed = 0;
-			do {
-				std::cout << "You must confirm alarm! Enter 1 to confirm" << std::endl;
-				scanf("%d", &confirmed);
-			} while (confirmed != 1);
-			confirmedBool = true;
+					//setColor(7); //postavi boju na belu
+					int confirmed = 0;
+					do {
+						std::cout << "You must confirm alarm! Enter 1 to confirm" << std::endl;
+						scanf("%d", &confirmed);
+					} while (confirmed != 1);
+					confirmedBool = true;
+				}
+				setColor(7);
+				std::cout << "Potvdio si alarm" << std::endl;
+				//treba sada poslati 2 bajta tj. adresu
+				// Send an prepared message with null terminator included
+				//NonBlockingSocket *nbs = new NonBlockingSocket();
+				//nbs->SEND(connectSocket, addressAlarm, 2);
+				int iResult;
+				iResult = send(*connectSocket, messageToSend, 6, 0);
+
+				if (iResult == SOCKET_ERROR)
+				{
+					printf("send failed with error: %d\n", WSAGetLastError());
+					closesocket(*connectSocket);
+					WSACleanup();
+					//return 1;
+				}
+				printf("Bytes Sent: %ld\n", iResult);
+			}
+			else {
+				std::cout << "Nepoznata oznaka" << std::endl;
+			}
 		}
-		setColor(7);
-		std::cout << "Potvdio si alarm" << std::endl;
-		//treba sada poslati 2 bajta tj. adresu
-		// Send an prepared message with null terminator included
-		//NonBlockingSocket *nbs = new NonBlockingSocket();
-		//nbs->SEND(connectSocket, addressAlarm, 2);
-		int iResult;
-		iResult = send(*connectSocket, messageToSend, 6, 0);
-
-		if (iResult == SOCKET_ERROR)
-		{
-			printf("send failed with error: %d\n", WSAGetLastError());
-			closesocket(*connectSocket);
-			WSACleanup();
-			//return 1;
-		}
-		printf("Bytes Sent: %ld\n", iResult);
-	}
-	else {
-		std::cout << "Nepoznata oznaka" << std::endl;
 	}
 }
 
@@ -236,7 +246,7 @@ int makeConnect(SOCKET *connectSocket) {
 	// create and initialize address structure
 	sockaddr_in serverAddress;
 	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1"); //192.168.41.200
+	serverAddress.sin_addr.s_addr = inet_addr("192.168.41.200"); //192.168.41.200
 	serverAddress.sin_port = htons(DEFAULT_PORT);
 	// connect to server specified in serverAddress and socket connectSocket
 	if (connect(*connectSocket, (SOCKADDR*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR)
@@ -292,9 +302,7 @@ void printValues(RemoteTelemetryUnit *rtu) {
 	std::cout << "----------------------------------------------------" << std::endl;
 	std::vector<AnalogInput*> ai = rtu->getAnalogInputs();
 	for (int i = 0; i < ai.size(); i++) {
-
 		std::cout << "\t" << ai.at(i)->getName() << " : " << ai.at(i)->getValue() << " " << ai.at(i)->getEGU()->getSign() << " (" << ai.at(i)->getEGU()->getName() << ")" << std::endl;
-
 	}
 
 	std::vector<AnalogOutput*> ao = rtu->getAnalogOutputs();
@@ -307,12 +315,11 @@ void printValues(RemoteTelemetryUnit *rtu) {
 	std::vector<DigitalDevice*> dout = rtu->getDigitalDevices();
 	for (int i = 0; i < dout.size(); i++) {
 		//11 error, 00 trans, 01 on , 10 off
-		char state[2];
+		short state[2];
 		state[0] = dout.at(i)->getState()[0];
 		state[1] = dout.at(i)->getState()[1];
 
 		if (state[0] == 0 && state[1] == 1) {
-
 			std::cout<< "\t" << dout.at(i)->getName() << " : " << "ON" << std::endl;
 		}
 		if (state[0] == 1 && state[1] == 0) {
@@ -323,8 +330,31 @@ void printValues(RemoteTelemetryUnit *rtu) {
 		}
 		if (state[0] == 1 && state[1] == 1) {
 			std::cout<< "\t" << dout.at(i)->getName() << " : " << "ERROR" << std::endl;
-
 		}
 	}
+	std::vector<Alarm> *al = rtu->getAlarms();
+	std::cout << "----------------------ALARMS-------------------------" << std::endl;
+	for (int i = 0; i < al->size(); i++) {
+		if (!al->at(i).getCorrected()) {
+			setColor(12);
+			std::cout << "****************************************************" << std::endl;
+			std::cout << "Alarm name: " << al->at(i).getName() << std::endl;
+			std::cout << "Alarm message: " << al->at(i).getMessage() << std::endl;
+			std::cout << "Alarm address: " << al->at(i).getAddress() << std::endl;
+			std::cout << "Alarm time: " << al->at(i).getTime() << std::endl;
+			std::cout << "****************************************************" << std::endl;
+		}
+		else {
+			setColor(2); //treba da se oboji u zeleno
+			std::cout << "****************************************************" << std::endl;
+			std::cout << "Alarm name: " << al->at(i).getName() << std::endl;
+			std::cout << "Alarm message: " << al->at(i).getMessage() << std::endl;
+			std::cout << "Alarm address: " << al->at(i).getAddress() << std::endl;
+			std::cout << "Alarm time: " << al->at(i).getTime() << std::endl;
+			std::cout << "****************************************************" << std::endl;
+		}
+		setColor(7); //vrati na belo
+	}
+
 	std::cout << "----------------------------------------------------" << std::endl;
 }
