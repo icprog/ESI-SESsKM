@@ -160,9 +160,9 @@ void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp)
 
 char * ClientHandler::popFromStreamBuffer()
 {
-	char *stream = new char;
+	char *stream = nullptr;
 	char size[4];
-	while (streamBuffer->size()) {
+	if (streamBuffer->size() > 0) {
 		stream = streamBuffer->pop();
 	}
 	return stream;

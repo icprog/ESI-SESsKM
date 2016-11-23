@@ -13,7 +13,7 @@ std::vector<char*>* PollEngine::getVector()
 
 void PollEngine::sendRequests(PollEngine *that)
 {
-	while (1) {
+	//while (1) {
 		for (int i = 0; i < that->vector->size(); i++) {
 			char *request = new char[12];
 			TCPDriver::getInstance().createRequest(that->vector->at(i), request);
@@ -22,6 +22,6 @@ void PollEngine::sendRequests(PollEngine *that)
 
 
 		}
-		Sleep(2000);
-	}
+		//Sleep(2000);
+	//}
 }

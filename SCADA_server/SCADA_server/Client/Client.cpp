@@ -71,7 +71,7 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 	short address = *(int*)(dataBuf + 8);
 
 	if (oznaka == 1) { //analog input
-		double vrednost = *(int*)(dataBuf + 10);
+		double vrednost = *(double*)(dataBuf + 10);
 		
 		std::vector<AnalogInput*> ai = rtu->getAnalogInputs();
 		for (int i = 0; i < ai.size(); i++) {
@@ -85,7 +85,7 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 		}
 	}
 	else if (oznaka == 2) { //analog output
-		double vrednost = *(int*)(dataBuf + 10);
+		double vrednost = *(double*)(dataBuf + 10);
 
 		std::vector<AnalogOutput*> ao = rtu->getAnalogOutputs();
 		for (int i = 0; i < ao.size(); i++) {
@@ -99,7 +99,7 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 		}
 	}
 	else if (oznaka == 3) { //digital input
-		double vrednost = *(int*)(dataBuf + 10);
+		int vrednost = *(int*)(dataBuf + 10);
 	
 		std::vector<DigitalDevice*> di = rtu->getDigitalDevices();
 		for (int i = 0; i < di.size(); i++) {
@@ -120,7 +120,7 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 		}
 	}
 	else if (oznaka == 4) { //digital output
-		double vrednost = *(int*)(dataBuf + 10);
+		int vrednost = *(int*)(dataBuf + 10);
 
 		std::vector<DigitalDevice*> dout = rtu->getDigitalDevices();
 		for (int i = 0; i < dout.size(); i++) {
