@@ -25,6 +25,7 @@ bool InitializeWindowsSockets();
 int makeConnect(SOCKET *connectSocket);
 void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu);
 void parseMessage(char *dataBuf, RemoteTelemetryUnit *rtu1, SOCKET *connectSocket);
+void printValues(RemoteTelemetryUnit *rtu);
 
 void setColor(int ForgC)
 {
@@ -69,7 +70,8 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 
 	int oznaka = *(int*)(dataBuf + 4);
 	short address = *(int*)(dataBuf + 8);
-
+	bool changeValue = false; //za ispis
+	
 	if (oznaka == 1) { //analog input
 		double vrednost = *(double*)(dataBuf + 10);
 		
@@ -79,8 +81,7 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 			{
 				if (ai.at(i)->getValue() != vrednost) {
 					ai.at(i)->setValue(vrednost);
-					system("cls");
-					std::cout << ai.at(i)->getName() << " : " << ai.at(i)->getValue() << std::endl;
+					changeValue = true;
 				}
 			}
 		}
@@ -94,8 +95,7 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 			{
 				if (ao.at(i)->getValue() != vrednost) {
 					ao.at(i)->setValue(vrednost);
-					system("cls");
-					std::cout << ao.at(i)->getName() << " : " << ao.at(i)->getValue() << std::endl;
+					changeValue = true;
 				}
 			}
 		}
@@ -110,13 +110,11 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 				if (di.at(i)->getState() != vrednost) {
 					if (vrednost == 0) {
 						di.at(i)->setState(DigitalDevice::ON);
-						system("cls");
-						std::cout << di.at(i)->getName() << " : " << "ON" << std::endl;
+						changeValue = true;
 					}
 					if (vrednost == 1) {
 						di.at(i)->setState(DigitalDevice::OFF);
-						system("cls");
-						std::cout << di.at(i)->getName() << " : " << "OFF" << std::endl;
+						changeValue = true;
 					}
 					
 				}
@@ -133,13 +131,11 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 				if (dout.at(i)->getState() != vrednost) {
 					if (vrednost == 0) {
 						dout.at(i)->setState(DigitalDevice::ON);
-						system("cls");
-						std::cout << dout.at(i)->getName() << " : " << "ON" << std::endl;
+						changeValue = true;
 					}
 					if (vrednost == 1) {
 						dout.at(i)->setState(DigitalDevice::OFF);
-						system("cls");
-						std::cout << dout.at(i)->getName() << " : " << "OFF" << std::endl;
+						changeValue = true;
 					}
 				}
 			}
@@ -188,6 +184,10 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 	}
 	else {
 		std::cout << "Nepoznata oznaka" << std::endl;
+	}
+
+	if (changeValue) {
+		printValues(rtu);
 	}
 }
 
@@ -270,6 +270,30 @@ void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu) {
 			break;
 		}
 	} while (iResult > 0);
+}
 
-	
+void printValues(RemoteTelemetryUnit *rtu) {
+	//prodji kroz sve inpute, outpute i dig.device i ipisi ih na konzoli
+	system("cls");
+	std::cout << "----------------------------------------------------" << std::endl;
+	std::vector<AnalogInput*> ai = rtu->getAnalogInputs();
+	for (int i = 0; i < ai.size(); i++) {
+		std::cout << ai.at(i)->getName() << " : " << ai.at(i)->getValue() << std::endl;
+	}
+
+	std::vector<AnalogOutput*> ao = rtu->getAnalogOutputs();
+	for (int i = 0; i < ao.size(); i++) {
+		std::cout << ao.at(i)->getName() << " : " << ao.at(i)->getValue() << std::endl;
+	}
+
+	std::vector<DigitalDevice*> dout = rtu->getDigitalDevices();
+	for (int i = 0; i < dout.size(); i++) {
+		if (dout.at(i)->getState() == DigitalDevice::ON) {
+			std::cout << dout.at(i)->getName() << " : " << "ON" << std::endl;
+		}
+		if (dout.at(i)->getState() == DigitalDevice::OFF) {
+			std::cout << dout.at(i)->getName() << " : " << "OFF" << std::endl;
+		}
+	}
+	std::cout << "----------------------------------------------------" << std::endl;
 }
