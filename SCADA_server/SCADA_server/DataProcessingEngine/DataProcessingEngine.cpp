@@ -10,7 +10,7 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 	RemoteTelemetryUnit *rtu = that->getRTU();
 	int pollCount = 0;
 	while (1) {
-		Sleep(400);
+		Sleep(1000);
 		while (sharedBuffer->size() > 0) {
 			//dobijemo velicinu poruke i responsa iz shared buffera
 			int messageLength = Util::getSharedMesageSize(sharedBuffer);
@@ -63,7 +63,7 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 						else {
 							it->setState(outputValue, 1);
 						}
-
+						
 						if (it->getCommandTime() != 0) {                   // da li je komanda zadata? Ako jeste vreme ce biti promenjeno
 							time_t now = time(0);
 							double seconds = difftime(now, it->getCommandTime());       // da li je proslo petnaest sekundi od izdavanje komande?
@@ -91,7 +91,7 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 								//delete alarm;
 							}
 						}
-
+						
 						that->pushInStreamBuffer(it, nullptr);
 						break;
 					}

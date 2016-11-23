@@ -52,11 +52,12 @@ int main()
 		vector->push_back(req2);
 		//delete req;
 	}
-	DataProcessingEngine *processEngine = new DataProcessingEngine(sharedBuffer,streamBuffer,alarmBuffer, rtu);
+	DataProcessingEngine *processEngine = new DataProcessingEngine(sharedBuffer, streamBuffer, alarmBuffer, rtu);
 
 	PollEngine *pollEngine = new PollEngine(vector);
 
-	ClientHandler *ch = new ClientHandler(commandingBuffer, streamBuffer, 1, "127.0.0.1", "27016", rtu);
+
+	ClientHandler *ch = new ClientHandler(commandingBuffer, streamBuffer, alarmBuffer,1, "192.168.137.238", "27016", rtu);
 	ch->tcpConnect();
 //	PollEngine::sendRequests(pollEngine);
 	//delete commandingBuffer, commandingBuffer = 0;

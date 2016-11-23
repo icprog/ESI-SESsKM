@@ -45,8 +45,10 @@ int ClientHandler::tcpConnect()
 				*/
 				std::thread sendThread(ClientHandler::sendMessage, &acceptSocketArray->at(i), this);
 				std::thread receiveThread(ClientHandler::receiveMessage, &acceptSocketArray->at(i), this);
+				std::thread sendAlarmThread(ClientHandler::sendAlarm, &acceptSocketArray->at(i), this);
 				sendThread.detach();
 				receiveThread.detach();
+				sendAlarmThread.detach();
 				full = false;
 				break;
 			}
@@ -100,7 +102,36 @@ int ClientHandler::tcpCloseConnection()
 	}
 	return 0;
 }
+ void ClientHandler::sendAlarm(SOCKET *accSock, ClientHandler*tmp) {
+	 while (1) {
 
+		 char *req = tmp->popFromAlarmBuffer();
+		 if (req == nullptr) { // buffer is empty
+			 Sleep(200);
+			 continue;
+		 }
+		 int iResult = -1;
+		 // Send an prepared message with null terminator included
+
+		 std::cout << "\nSENDING MESSAGE: %s" << req << std::endl;
+
+		 iResult = tmp->getNonBlockingSocket()->SEND(accSock, req, 4);
+
+		 if (iResult == SOCKET_ERROR)
+		 {
+			 std::cout << "send failed with error: %d\n" << WSAGetLastError() << std::endl;
+			 closesocket(*accSock);
+			 //WSACleanup();
+			 return;
+		 }
+
+		 std::cout << "\nMESSAGE SENT! Bytes Sent: %ld\n" << iResult << std::endl;
+		 delete req, req = 0;
+
+	 }
+
+
+ }
 void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp)
 {
 	int iResult = -1;
@@ -167,7 +198,15 @@ char * ClientHandler::popFromStreamBuffer()
 	}
 	return stream;
 }
-
+char * ClientHandler::popFromAlarmBuffer()
+{
+	char *stream = nullptr;
+	char size[4];
+	if (alarmBuffer->size() > 0) {
+		stream = alarmBuffer->pop();
+	}
+	return stream;
+}
 NonBlockingSocket * ClientHandler::getNonBlockingSocket()
 {
 	return nonBlockingSocket;
