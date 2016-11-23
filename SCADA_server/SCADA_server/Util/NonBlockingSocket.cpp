@@ -169,14 +169,19 @@ int NonBlockingSocket::RECEIVE(SOCKET* socket, char* buffer, int length) {
 		}
 		i += iResult;
 	}
-
-	len = getMessageLength(duzina);
-	len = ntohs(len);
+	if (length == 4) {
+		len = *(int*)duzina;
+	}
+	else {
+		len = getMessageLength(duzina);
+		len = ntohs(len);
+	}
 	memcpy(buffer, duzina, length);
 	delete duzina, duzina = 0;
-
-	i = length;
-	len += i - 1;
+	if (length != 4) {
+		i = length;
+		len += i - 1;
+	}
 	iResult = 0;
 	while (i < len) {
 		do {

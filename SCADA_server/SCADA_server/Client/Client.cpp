@@ -57,9 +57,9 @@ int main()
 
 	RemoteTelemetryUnit *rtu1 = Util::parseXMLConfig();
 
-	std::thread ReceiveThread(receiveMessage, connectSocket, rtu1);
-	ReceiveThread.detach();
-
+	//std::thread ReceiveThread(receiveMessage, connectSocket, rtu1);
+	//ReceiveThread.detach();
+	receiveMessage(&connectSocket, rtu1);
     return 0;
 }
 
