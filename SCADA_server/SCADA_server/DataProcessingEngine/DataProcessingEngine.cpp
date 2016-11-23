@@ -10,6 +10,7 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 	RemoteTelemetryUnit *rtu = that->getRTU();
 	int pollCount = 0;
 	while (1) {
+		Sleep(400);
 		while (sharedBuffer->size() > 0) {
 			//dobijemo velicinu poruke i responsa iz shared buffera
 			int messageLength = Util::getSharedMesageSize(sharedBuffer);
@@ -46,7 +47,7 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 				*/
 			}
 			else if (fCode == 2) { //citanje digitalnih ulaza
-				char outputValue = *((char*)(dataBuf + 17)); //status dig.izlaza
+				short outputValue =ntohs( *((short*)(dataBuf + 17))); //status dig.izlaza
 				//upisi u digitalni ulaz
 				std::vector<DigitalDevice*> digitalDevices = rtu->getDigitalDevices();
 
@@ -56,7 +57,7 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 					if (inAddresses[0] == address || inAddresses[1] == address) {
 
 						// izmeni vrednosti stanja
-						if (inAddresses[0] == address && outputValue) {
+						if (inAddresses[0] == address ) {
 							it->setState(outputValue, 0);
 						}
 						else {
@@ -75,7 +76,9 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 								it->setStatus(DigitalDevice::FINISHED);
 							}
 							else if(seconds > 15 && !commandSuccess){ // prosle je 15 sekundi i komanda se nije izvrsila, ALARM!
-								short lastAddr = rtu->getAlarms()->at(rtu->getAlarms()->size()).getAddress();
+								short lastAddr = 0;
+								if(rtu->getAlarms()->size() > 0)
+									lastAddr = rtu->getAlarms()->at(rtu->getAlarms()->size()).getAddress();
 								std::string message;
 								if (it->getCommand()[0] == 0 && it->getCommand()[1] == 1) {
 									message = "Grejac se nije ukljucio!";
@@ -83,9 +86,9 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 									message = "Grejac se nije iskljucio!";
 								Alarm *alarm = new Alarm("ALARM", now, lastAddr + 1, message);
 								rtu->getAlarms()->push_back(*alarm);
+								that->makeAlarm(that, alarm);
 
-
-								delete alarm;
+								//delete alarm;
 							}
 						}
 
@@ -161,13 +164,13 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 				DigitalDevice *heater = that->getRTU()->getDigitalDevices().at(0);
 				if (unutTemp->getValue() > spoljTemp->getValue() && unutTemp->getValue()<=zadTemp->getValue()) {
 					if (heater->getStatus() != DigitalDevice::IN_PROGRESS) { //ako nije zadata komanda onda je zadaj
-						//that->turnHeaterOn(that, heater);
+						that->turnHeaterOn(that, heater);
 					}
 
 				}
 				else if (unutTemp->getValue() > zadTemp->getValue()) {
 					if (heater->getStatus() != DigitalDevice::IN_PROGRESS) { //ako nije zadata komanda onda je zadaj
-						//that->turnHeaterOff(that, heater);
+						that->turnHeaterOff(that, heater);
 					}
 				}
 				pollCount = 0;
@@ -175,6 +178,7 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 
 		}
 		//std::cout << "Value from DP is: " << rtu->getAnalogInputs().at(0)->getValue() << std::endl;
+		
 	}
 }
 
@@ -233,6 +237,7 @@ void DataProcessingEngine::turnHeaterOn(DataProcessingEngine * that, DigitalDevi
 	char *wholeRequest = new char[12];
 	TCPDriver::getInstance().createRequest(request1, wholeRequest);
 	TCPDriver::getInstance().sendRequest(wholeRequest);
+	wholeRequest = new char[12];
 	TCPDriver::getInstance().createRequest(request2, wholeRequest);
 	TCPDriver::getInstance().sendRequest(wholeRequest);
 	short newCommand[2];
@@ -258,6 +263,7 @@ void DataProcessingEngine::turnHeaterOff(DataProcessingEngine * that, DigitalDev
 	char *wholeRequest = new char[12];
 	TCPDriver::getInstance().createRequest(request1, wholeRequest);
 	TCPDriver::getInstance().sendRequest(wholeRequest);
+	wholeRequest = new char[12];
 	TCPDriver::getInstance().createRequest(request2, wholeRequest);
 	TCPDriver::getInstance().sendRequest(wholeRequest);
 	short newCommand[2];
