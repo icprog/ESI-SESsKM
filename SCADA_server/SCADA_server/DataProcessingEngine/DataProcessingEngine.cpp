@@ -22,8 +22,9 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 			//uzimamo adresu i function code iz poruke
 			short address = ntohs(*((short*)(dataBuf + 8 + responseLength + 8))); //8 bajta duzine,  response size ,i onda jos 8 bajta u req    27
 			char fCode = *((char*)(dataBuf + 8 + 7)); //dataBuf +4(za duzinu cele poruke) +4(duzina responsa) +7(response header)
-
+			std::atomic<int> *pc = that->getPollCounter();
 			if (fCode == 1) {  //citanje digitalnih izlaza
+				/*
 				char outputValue = *((char*)(dataBuf + 17)); //status dig.izlaza
 				//upisi u digitalni izlaz
 				std::vector<DigitalDevice*> digitalDevices = rtu->getDigitalDevices();
@@ -41,6 +42,7 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 						}
 					}
 				}
+				*/
 			}
 			else if (fCode == 2) { //citanje digitalnih ulaza
 				char outputValue = *((char*)(dataBuf + 17)); //status dig.izlaza
@@ -113,6 +115,8 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 				}
 			}
 			else if (fCode == 4) { //un.,sp. temp,citanje an. ulaza
+				 //
+				*pc++; // povecaj poll counter
 				short inpVal = ntohs(*((short*)(dataBuf + 17)));
 				std::vector<AnalogInput*> analogInputs = rtu->getAnalogInputs();
 
@@ -149,6 +153,26 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 				std::cout << "\nNepoznat function code" << std::endl;
 				//ako je nepoznat fun code mozda bi mogao da se napravi alarm
 			}
+
+			if (*pc == 3) { // zavrsen je poll ciklus
+				AnalogInput *zadTemp = that->getRTU()->getAnalogInputs().at(0);
+				AnalogInput *unutTemp = that->getRTU()->getAnalogInputs().at(1);
+				AnalogInput *spoljTemp = that->getRTU()->getAnalogInputs().at(2);
+				DigitalDevice *heater = that->getRTU()->getDigitalDevices().at(0);
+				if (unutTemp->getValue() > spoljTemp->getValue() && unutTemp->getValue()<=zadTemp->getValue()) {
+					if (heater->getStatus() != DigitalDevice::IN_PROGRESS) { //ako nije zadata komanda onda je zadaj
+						that->turnHeaterOn(that, heater);
+					}
+
+				}
+				else if (unutTemp->getValue() > zadTemp->getValue()) {
+					if (heater->getStatus() != DigitalDevice::IN_PROGRESS) { //ako nije zadata komanda onda je zadaj
+						that->turnHeaterOff(that, heater);
+					}
+				}
+				*pc = 0;
+			}
+
 		}
 		//std::cout << "Value from DP is: " << rtu->getAnalogInputs().at(0)->getValue() << std::endl;
 	}
@@ -190,4 +214,54 @@ void DataProcessingEngine::makeAlarm(DataProcessingEngine * that, Alarm *alarm)
 	}
 
 	alarmBuffer->push(stream);
+}
+
+void DataProcessingEngine::turnHeaterOn(DataProcessingEngine * that, DigitalDevice * dd)
+{
+	char request1[5], request2[5];
+	request1[0] = 0x05;
+	*((short*)(request1 + 1)) = htons(dd->getOutAddresses()[0]);
+	request1[3] = 0x00;
+	request1[4] = 0x00;
+
+	request2[0] = 0x05;
+	*((short*)(request2 + 1)) = htons(dd->getOutAddresses()[1]);
+	request2[3] = 0x00;
+	request2[4] = 0x01;
+
+	char wholeRequest[12];
+	TCPDriver::getInstance().createRequest(request1, wholeRequest);
+	TCPDriver::getInstance().sendRequest(wholeRequest);
+	TCPDriver::getInstance().createRequest(request2, wholeRequest);
+	TCPDriver::getInstance().sendRequest(wholeRequest);
+	short newCommand[2];
+	newCommand[0] = 0;
+	newCommand[1] = 1;
+	dd->setCommand(newCommand);
+	dd->setCommandTime(time(0));
+}
+
+void DataProcessingEngine::turnHeaterOff(DataProcessingEngine * that, DigitalDevice * dd)
+{
+	char request1[5], request2[5];
+	request1[0] = 0x05;
+	*((short*)(request1 + 1)) = htons(dd->getOutAddresses()[0]);
+	request1[3] = 0x00;
+	request1[4] = 0x01;
+
+	request2[0] = 0x05;
+	*((short*)(request2 + 1)) = htons(dd->getOutAddresses()[1]);
+	request2[3] = 0x00;
+	request2[4] = 0x00;
+
+	char wholeRequest[12];
+	TCPDriver::getInstance().createRequest(request1, wholeRequest);
+	TCPDriver::getInstance().sendRequest(wholeRequest);
+	TCPDriver::getInstance().createRequest(request2, wholeRequest);
+	TCPDriver::getInstance().sendRequest(wholeRequest);
+	short newCommand[2];
+	newCommand[0] = 1;
+	newCommand[1] = 0;
+	dd->setCommand(newCommand);
+	dd->setCommandTime(time(0));
 }

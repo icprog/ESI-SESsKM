@@ -7,7 +7,7 @@
 #include "../Util/Util.h"
 #include "../Model/AnalogInput.h"
 #include "../Model/RemoteTelemetryUnit.h"
-
+#include "../ModbusTCPDriver/TCPDriver.h"
 class DataProcessingEngine {
 
 public:
@@ -36,12 +36,17 @@ public:
 	static void process(DataProcessingEngine *that);
 	void pushInStreamBuffer(DigitalDevice *dd, AnalogInput *it);
 	void makeAlarm(DataProcessingEngine *that,Alarm *alarm);
+	void turnHeaterOn(DataProcessingEngine *that, DigitalDevice *dd);
+	void turnHeaterOff(DataProcessingEngine *that, DigitalDevice *dd);
+	std::atomic<int> *getPollCounter() { return &pollCounter; }
+
 	//char * makeClientMessage();
 
 private:
 	BlockingQueue<char *> *streamBuffer;
 	BlockingQueue<char *> *sharedBuffer;
 	BlockingQueue<char *> *alarmBuffer;
+	std::atomic<int> pollCounter = 0;
 	RemoteTelemetryUnit *rtu;
 };
 
