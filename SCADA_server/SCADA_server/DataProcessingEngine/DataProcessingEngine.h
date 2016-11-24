@@ -42,6 +42,8 @@ public:
 	void turnHeaterOff(DataProcessingEngine *that, DigitalDevice *dd, short *command);
 
 	bool turnedOn(DigitalDevice * dd);
+
+	bool isError(DigitalDevice * dd);
 	
 	//char * makeClientMessage();
 

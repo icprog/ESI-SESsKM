@@ -10,6 +10,7 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 	RemoteTelemetryUnit *rtu = that->getRTU();
 	int pollCount = 0;
 	int ddCount = 0;
+	bool alarmSent = false;
 	short command[2];
 	while (1) {
 		Sleep(1000);
@@ -140,12 +141,12 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 				AnalogInput *spoljTemp = that->getRTU()->getAnalogInputs().at(2);
 				DigitalDevice *heater = that->getRTU()->getDigitalDevices().at(0);
 				if (unutTemp->getValue() > spoljTemp->getValue() && unutTemp->getValue()<=zadTemp->getValue()) {
-					if (heater->getStatus() != DigitalDevice::IN_PROGRESS && !that->turnedOn(heater)) { //ako nije zadata komanda onda je zadaj
+					if (heater->getStatus() != DigitalDevice::IN_PROGRESS && !that->turnedOn(heater) && !that->isError(heater)) { //ako nije zadata komanda onda je zadaj
 						that->turnHeaterOn(that, heater, command);
 					}
 				}
 				else if (unutTemp->getValue() > zadTemp->getValue()) {
-					if (heater->getStatus() != DigitalDevice::IN_PROGRESS && that->turnedOn(heater)) { //ako nije zadata komanda onda je zadaj
+					if (heater->getStatus() != DigitalDevice::IN_PROGRESS && that->turnedOn(heater) && !that->isError(heater)) { //ako nije zadata komanda onda je zadaj
 						that->turnHeaterOff(that, heater, command);
 					}
 				}
@@ -154,6 +155,23 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 
 			if (ddCount == 2) {
 				DigitalDevice *it = that->getRTU()->getDigitalDevices().at(0);
+
+				if (that->isError(it) && !alarmSent) {
+					std::cout << "GREJAC JE ERROR!\s\n" << std::endl;
+					short lastAddr = 0;
+					if (rtu->getAlarms()->size() > 0)
+						lastAddr = rtu->getAlarms()->at(rtu->getAlarms()->size() - 1).getAddress();
+					std::string message;
+					if (it->getState()[0] == 1 && it->getState()[1] == 1) {
+						message = "Grejac je u error stanju!";
+					}
+					Alarm *alarm = new Alarm("ALARM", time(0), lastAddr + 1, message);
+					rtu->getAlarms()->push_back(*alarm);
+					that->makeAlarm(that, alarm);
+					alarmSent = true;
+				}
+
+
 				if (it->getCommandTime() != 0) {                   // da li je komanda zadata? Ako jeste vreme ce biti promenjeno
 					time_t now = time(0);
 					double seconds = difftime(now, it->getCommandTime());       // da li je proslo petnaest sekundi od izdavanje komande?
@@ -168,9 +186,9 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 						it->setCommandTime(0);
 						it->setStatus(DigitalDevice::FINISHED);
 						std::cout << "KOMANDA IZVRSENA!\n" << std::endl;
-
+						alarmSent = false;
 					}
-					else if (seconds > 15 && !commandSuccess) { // prosle je 15 sekundi i komanda se nije izvrsila, ALARM!
+					else if (seconds > 15 && !commandSuccess && !alarmSent) { // prosle je 15 sekundi i komanda se nije izvrsila, ALARM!
 						
 						std::cout << "KOMANDA NIJE IZVRSENA! FORMIRAM ALARM!\s\n" << std::endl;
 						short lastAddr = 0;
@@ -185,7 +203,7 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 						Alarm *alarm = new Alarm("ALARM", now, lastAddr + 1, message);
 						rtu->getAlarms()->push_back(*alarm);
 						that->makeAlarm(that, alarm);
-
+						alarmSent = true;
 						//delete alarm;
 					}
 					else if (seconds > 15 && commandSuccess) {
@@ -194,7 +212,9 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 							rtu->getAlarms()->at(rtu->getAlarms()->size() - 1).setCorrected(true);
 							it->setCommandTime(0);
 							it->setStatus(DigitalDevice::FINISHED);
+							that->makeAlarm(that, &rtu->getAlarms()->at(rtu->getAlarms()->size() - 1));
 						}
+						alarmSent = false;
 					}
 				}
 				ddCount = 0;
@@ -312,6 +332,13 @@ void DataProcessingEngine::turnHeaterOff(DataProcessingEngine * that, DigitalDev
 
 bool DataProcessingEngine::turnedOn(DigitalDevice *dd) {
 	if (dd->getState()[0] == 0 && dd->getState()[1] == 1) //////// da li state ili command? State generise nove alarme... Command kaze nemoj komandovati ponovo, komandovano je vec
+		return true;
+	else
+		return false;
+}
+
+bool DataProcessingEngine::isError(DigitalDevice *dd) {
+	if (dd->getState()[0] == 1 && dd->getState()[1] == 1) //////// da li state ili command? State generise nove alarme... Command kaze nemoj komandovati ponovo, komandovano je vec
 		return true;
 	else
 		return false;
