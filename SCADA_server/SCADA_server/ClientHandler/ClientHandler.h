@@ -47,7 +47,7 @@ public:
 			threadFinished->push_back(true);
 		}
 		nonBlockingSocket = new NonBlockingSocket();
-
+		exit = 1;
 	}
 	~ClientHandler() {
 		delete ipAddress, ipAddress = 0;
@@ -67,9 +67,9 @@ public:
 	*/
 	int tcpCloseConnection();
 
-	static int sendMessage(SOCKET *accSock, ClientHandler*tmp);  // if stream buffer is not empty it pops from it and sends to client
-	static void sendAlarm(SOCKET *accSock, ClientHandler*tmp);
-	static void receiveMessage(SOCKET *accSock, ClientHandler*tmp);
+	static int sendMessage(SOCKET *accSock, ClientHandler*tmp, int *exit);  // if stream buffer is not empty it pops from it and sends to client
+	static void sendAlarm(SOCKET *accSock, ClientHandler*tmp, int *exit);
+	static void receiveMessage(SOCKET *accSock, ClientHandler*tmp, int *exit);
 	void pushCommand();
 	char *popFromStreamBuffer();
 	char * popFromAlarmBuffer();
@@ -85,11 +85,14 @@ public:
 	unsigned long int getNonBlockingMode() { return nonBlockingMode; }
 	void pushinIntegrityBuffer(ClientHandler*tmp, SOCKET *accSock);
 	void makeAlarm(ClientHandler * that, Alarm *alarm);
+	void setExit(int exit_) { exit = exit_; }
+	int *getExit() { return &exit; }
 private:
 	//SOCKET acceptSocket;
 	SOCKET listenSocket;
 	char *ipAddress;
 	char *port;
+	int exit;
 	unsigned long int nonBlockingMode;
 	std::vector<SOCKET> *acceptSocketArray;
 	std::vector<std::thread*> *threadArray;

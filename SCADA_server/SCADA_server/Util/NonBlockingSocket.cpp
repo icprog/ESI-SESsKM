@@ -101,7 +101,7 @@ int NonBlockingSocket::receiveNB(SOCKET* socket, char* buffer, int bufferLength,
 	{
 		// there was an error during recv
 		std::cout << "recv failed with error: %ld\n" << WSAGetLastError() << std::endl;
-		//closesocket(*socket);
+		closesocket(*socket);
 		//*socket = INVALID_SOCKET;
 		//WSACleanup();
 		return REC_ERR;

@@ -43,9 +43,10 @@ int ClientHandler::tcpConnect()
 					// ADD NEW THREAD
 				}
 				*/
-				std::thread sendThread(ClientHandler::sendMessage, &acceptSocketArray->at(i), this);
-				std::thread receiveThread(ClientHandler::receiveMessage, &acceptSocketArray->at(i), this);
-				std::thread sendAlarmThread(ClientHandler::sendAlarm, &acceptSocketArray->at(i), this);
+				exit = 1;
+				std::thread sendThread(ClientHandler::sendMessage, &acceptSocketArray->at(i), this, &exit);
+				std::thread receiveThread(ClientHandler::receiveMessage, &acceptSocketArray->at(i), this, &exit);
+				std::thread sendAlarmThread(ClientHandler::sendAlarm, &acceptSocketArray->at(i), this, &exit);
 				sendThread.detach();
 				receiveThread.detach();
 				sendAlarmThread.detach();
@@ -72,9 +73,9 @@ int ClientHandler::tcpCloseConnection()
 	return 0;
 }
 
- int ClientHandler::sendMessage( SOCKET *accSock, ClientHandler*tmp) // thread function
+ int ClientHandler::sendMessage( SOCKET *accSock, ClientHandler*tmp, int *exit) // thread function
 {
-	 while (1) {
+	 while (*exit) {
 
 		 char *req = tmp->popFromStreamBuffer();
 		 if (req == nullptr){ // buffer is empty
@@ -102,8 +103,8 @@ int ClientHandler::tcpCloseConnection()
 	}
 	return 0;
 }
- void ClientHandler::sendAlarm(SOCKET *accSock, ClientHandler*tmp) {
-	 while (1) {
+ void ClientHandler::sendAlarm(SOCKET *accSock, ClientHandler*tmp, int *exit) {
+	 while (*exit) {
 
 		 char *req = tmp->popFromAlarmBuffer();
 		 if (req == nullptr) { // buffer is empty
@@ -132,7 +133,7 @@ int ClientHandler::tcpCloseConnection()
 
 
  }
-void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp)
+void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp, int *exit)
 {
 	int iResult = -1;
 	char *response = nullptr;
@@ -191,12 +192,15 @@ void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp)
 		else
 		{
 			// there was an error during recv
+			std::cout << "ZATVARANJE KLIJENTA!!!\n" << std::endl;
 			printf("recv failed with error: %d\n", WSAGetLastError());
 			closesocket(*accSock);
+			tmp->setExit(0);
+
 			break;
 		}
 
-	} while (iResult > 0);
+	} while (iResult > 0 && *exit);
 	delete response, response = 0;
 }
 
