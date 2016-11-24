@@ -113,7 +113,7 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 		//short* vrednost = (short*)(dataBuf + 10);
 		short vrednost[2];
 		vrednost[0] = *(short*)(dataBuf + 10);
-		vrednost[1] = *(short*)(dataBuf + 14);
+		vrednost[1] = *(short*)(dataBuf + 12);
 
 		std::vector<DigitalDevice*> dd = rtu->getDigitalDevices();
 		for (int i = 0; i < dd.size(); i++) {
@@ -131,7 +131,6 @@ void parseMessage(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocke
 						dd.at(i)->setState(vrednost[0], 0);
 						dd.at(i)->setState(vrednost[1], 1);
 						changeValue = true;
-
 				}
 			}
 		}
@@ -161,6 +160,7 @@ void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket)
 				for (int i = 0; i < al->size(); i++) {
 					if (al->at(i).getAddress() == address) {
 						al->at(i).setCorrected(true);
+						printValues(rtu);
 					}
 				}
 			}
@@ -174,10 +174,11 @@ void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket)
 				messageToSend[5] = *(char*)(dataBuf + 9); //adresa
 				int alarmMessageSize = *(int*)(dataBuf + 10);
 
-				char *alarmMessage = new char[duzinaPoruke];
+				char *alarmMessage = new char[duzinaPoruke+1];
 				for (int i = 0; i < alarmMessageSize; i++) {
 					alarmMessage[i] = *(char*)(dataBuf + 14 + i);
 				}
+				alarmMessage[duzinaPoruke] = '\0';
 				bool confirmedBool = false;
 				while (!confirmedBool) {
 					setColor(12); //postavi boju na crvenu
@@ -189,8 +190,7 @@ void parseAlarm(char * dataBuf, RemoteTelemetryUnit *rtu, SOCKET *connectSocket)
 					int confirmed = 0;
 					do {
 						std::cout << "You must confirm alarm! Enter 1 to confirm" << std::endl;
-						scanf("%d", &confirmed);
-						//system("cls");
+						std::cin >> confirmed;
 						Alarm *alarm = new Alarm("Alarm", time(0), address, alarmMessage);
 						std::vector<Alarm>*alarmVec = rtu->getAlarms();
 						alarmVec->push_back(*alarm);
@@ -257,7 +257,7 @@ int makeConnect(SOCKET *connectSocket) {
 	// create and initialize address structure
 	sockaddr_in serverAddress;
 	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1"); //192.168.41.200
+	serverAddress.sin_addr.s_addr = inet_addr("192.168.0.13"); //192.168.41.200
 	serverAddress.sin_port = htons(DEFAULT_PORT);
 	// connect to server specified in serverAddress and socket connectSocket
 	if (connect(*connectSocket, (SOCKADDR*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR)
@@ -309,6 +309,7 @@ void receiveMessage(SOCKET *accSock, RemoteTelemetryUnit *rtu) {
 void printValues(RemoteTelemetryUnit *rtu) {
 	//prodji kroz sve inpute, outpute i dig.device i ipisi ih na konzoli
 	system("cls");
+	setColor(7);
 	//clear();
 	std::cout << "*Trenutne vrednosti temperatura i stanje grejaca*" << std::endl;
 	std::cout << "----------------------------------------------------" << std::endl;
