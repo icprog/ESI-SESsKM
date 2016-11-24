@@ -61,7 +61,8 @@ int TCPDriver::receiveResponse(char *request)
 			else if (response[7] != request[7]) {
 				std::cout << "Value probably already written." << std::endl;
 			}
-
+			if (request[7] == 0x05)
+				break;
 			char *wholeMessage;
 			int len = *((short*)response + 2);
 			len = ntohs(len);

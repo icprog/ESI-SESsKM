@@ -40,6 +40,8 @@ public:
 	void makeAlarm(DataProcessingEngine *that,Alarm *alarm);
 	void turnHeaterOn(DataProcessingEngine *that, DigitalDevice *dd, short *command);
 	void turnHeaterOff(DataProcessingEngine *that, DigitalDevice *dd, short *command);
+
+	bool turnedOn(DigitalDevice * dd);
 	
 	//char * makeClientMessage();
 

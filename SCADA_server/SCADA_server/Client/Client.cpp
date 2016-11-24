@@ -257,7 +257,7 @@ int makeConnect(SOCKET *connectSocket) {
 	// create and initialize address structure
 	sockaddr_in serverAddress;
 	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_addr.s_addr = inet_addr("192.168.41.200"); //192.168.41.200
+	serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1"); //192.168.41.200
 	serverAddress.sin_port = htons(DEFAULT_PORT);
 	// connect to server specified in serverAddress and socket connectSocket
 	if (connect(*connectSocket, (SOCKADDR*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR)

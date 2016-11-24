@@ -15,7 +15,7 @@ private:
 	short inAddresses[2]; // da li se desio
 	short outAddresses[2]; //odkomandovao, ocilovi kojima se komanduje
 	short state[2];     //on, off, transient i errror
-	char command[2]; //salji npr 01 na out adreses
+	short command[2]; //salji npr 01 na out adreses
 	status status;
 	time_t commandTime;
 public:
@@ -39,7 +39,7 @@ public:
 	bool getReadOnly() const { return readOnly; }
 	short *getInAddresses() { return inAddresses; }
 	short *getOutAddresses() { return outAddresses; }
-	char *getCommand() { return command; }
+	short *getCommand() { return command; }
 	time_t getCommandTime() { return commandTime; }
 
 	void setName(std::string newName) { name = newName; }

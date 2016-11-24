@@ -192,7 +192,7 @@ void ClientHandler::receiveMessage(SOCKET *accSock, ClientHandler*tmp)
 		{
 			// there was an error during recv
 			printf("recv failed with error: %d\n", WSAGetLastError());
-			//closesocket(*acceptedSocket);
+			closesocket(*accSock);
 			break;
 		}
 
@@ -257,6 +257,7 @@ int ClientHandler::listenSocketFunc(SOCKET * ls, char * port)
 	{
 		std::cout << "socket failed with error: %ld\n" << WSAGetLastError() << std::endl;
 		freeaddrinfo(resultingAddress);
+		closesocket(*ls);
 		WSACleanup();
 		return 1;
 	}
@@ -321,6 +322,7 @@ int ClientHandler::selectt(SOCKET * socket, int type, int *exit)
 		if (iResult == SOCKET_ERROR)
 		{
 			std::cout << stderr << "select failed with error: %ld\n" << WSAGetLastError() << std::endl;
+			closesocket(*socket);
 			return -1; //error code: -1
 		}
 

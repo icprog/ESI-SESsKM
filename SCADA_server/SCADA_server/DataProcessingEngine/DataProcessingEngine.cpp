@@ -9,6 +9,7 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 	BlockingQueue<char *> *sharedBuffer = that->getSharedBuffer();
 	RemoteTelemetryUnit *rtu = that->getRTU();
 	int pollCount = 0;
+	int ddCount = 0;
 	short command[2];
 	while (1) {
 		Sleep(1000);
@@ -47,11 +48,13 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 				}*/
 
 			}
-			else if (fCode == 2) { //citanje digitalnih ulaza
-				short outputValue =ntohs( *((short*)(dataBuf + 17))); //status dig.izlaza
+			else if (fCode == 2) { //citanje digritalnih ulaza
+				char outputValue = *(dataBuf + 17); //status dig.izlaza
 				//upisi u digitalni ulaz
 				std::vector<DigitalDevice*> digitalDevices = rtu->getDigitalDevices();
-
+				short val = 0;
+				if (outputValue == 0x01)
+					val = 1;
 				for (int i = 0; i < digitalDevices.size(); i++) {
 					DigitalDevice *it = digitalDevices.at(i);
 					short *inAddresses = it->getInAddresses();
@@ -59,46 +62,13 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 
 						// izmeni vrednosti stanja
 						if (inAddresses[0] == address ) {
-							it->setState(command[0], 0);
+							it->setState(val, 0);
 						}
 						else {
-							it->setState(command[1], 1);
+							it->setState(val, 1);
 						}
-						
-						if (it->getCommandTime() != 0) {                   // da li je komanda zadata? Ako jeste vreme ce biti promenjeno
-							time_t now = time(0);
-							double seconds = difftime(now, it->getCommandTime());       // da li je proslo petnaest sekundi od izdavanje komande?
-							std::cout << "SEKUNDE PROSLE: " << seconds << std::endl;
-							bool commandSuccess = false;
-							if (it->getState()[0] == it->getCommand()[0] && it->getState()[1] == it->getCommand()[1])
-								commandSuccess = true;
-
-
-							if (seconds <= 15 && commandSuccess) { // komanda je uspesno izvrsena i nije isteklo 15 sekundi
-								//it->setCommand(0);
-								it->setCommandTime(0);
-								it->setStatus(DigitalDevice::FINISHED);
-								std::cout << "KOMANDA IZVRSENA!\n" << std::endl;
-
-							}
-							else if(seconds > 0) { // prosle je 15 sekundi i komanda se nije izvrsila, ALARM!
-								std::cout << "KOMANDA NIJE IZVRSENA! FORMIRAM ALARM!\s\n" << std::endl;
-								short lastAddr = 0;
-								if(rtu->getAlarms()->size() > 0)
-									lastAddr = rtu->getAlarms()->at(rtu->getAlarms()->size()-1).getAddress();
-								std::string message;
-								if (it->getCommand()[0] == 0 && it->getCommand()[1] == 1) {
-									message = "Grejac se nije ukljucio!";
-								}else
-									message = "Grejac se nije iskljucio!";
-								Alarm *alarm = new Alarm("ALARM", now, lastAddr + 1, message);
-								rtu->getAlarms()->push_back(*alarm);
-								that->makeAlarm(that, alarm);
-
-								//delete alarm;
-							}
-						}
-						
+						ddCount++;
+						// proveriti pre pusovanja
 						that->pushInStreamBuffer(it, nullptr);
 						break;
 					}
@@ -170,17 +140,64 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 				AnalogInput *spoljTemp = that->getRTU()->getAnalogInputs().at(2);
 				DigitalDevice *heater = that->getRTU()->getDigitalDevices().at(0);
 				if (unutTemp->getValue() > spoljTemp->getValue() && unutTemp->getValue()<=zadTemp->getValue()) {
-					if (heater->getStatus() != DigitalDevice::IN_PROGRESS && heater->getState()[0] != 0 && heater->getState()[1]!=1) { //ako nije zadata komanda onda je zadaj
+					if (heater->getStatus() != DigitalDevice::IN_PROGRESS && !that->turnedOn(heater)) { //ako nije zadata komanda onda je zadaj
 						that->turnHeaterOn(that, heater, command);
 					}
-
 				}
 				else if (unutTemp->getValue() > zadTemp->getValue()) {
-					if (heater->getStatus() != DigitalDevice::IN_PROGRESS&& heater->getState()[0] != 1 && heater->getState()[1] != 0) { //ako nije zadata komanda onda je zadaj
+					if (heater->getStatus() != DigitalDevice::IN_PROGRESS && that->turnedOn(heater)) { //ako nije zadata komanda onda je zadaj
 						that->turnHeaterOff(that, heater, command);
 					}
 				}
 				pollCount = 0;
+			}
+
+			if (ddCount == 2) {
+				DigitalDevice *it = that->getRTU()->getDigitalDevices().at(0);
+				if (it->getCommandTime() != 0) {                   // da li je komanda zadata? Ako jeste vreme ce biti promenjeno
+					time_t now = time(0);
+					double seconds = difftime(now, it->getCommandTime());       // da li je proslo petnaest sekundi od izdavanje komande?
+					std::cout << "SEKUNDE PROSLE: " << seconds << std::endl;
+					bool commandSuccess = false;
+					if (it->getState()[0] == it->getCommand()[0] && it->getState()[1] == it->getCommand()[1])
+						commandSuccess = true;
+
+
+					if (seconds <= 15 && commandSuccess) { // komanda je uspesno izvrsena i nije isteklo 15 sekundi
+														   //it->setCommand(0);
+						it->setCommandTime(0);
+						it->setStatus(DigitalDevice::FINISHED);
+						std::cout << "KOMANDA IZVRSENA!\n" << std::endl;
+
+					}
+					else if (seconds > 15 && !commandSuccess) { // prosle je 15 sekundi i komanda se nije izvrsila, ALARM!
+						
+						std::cout << "KOMANDA NIJE IZVRSENA! FORMIRAM ALARM!\s\n" << std::endl;
+						short lastAddr = 0;
+						if (rtu->getAlarms()->size() > 0)
+							lastAddr = rtu->getAlarms()->at(rtu->getAlarms()->size() - 1).getAddress();
+						std::string message;
+						if (it->getCommand()[0] == 0 && it->getCommand()[1] == 1) {
+							message = "Grejac se nije ukljucio!";
+						}
+						else
+							message = "Grejac se nije iskljucio!";
+						Alarm *alarm = new Alarm("ALARM", now, lastAddr + 1, message);
+						rtu->getAlarms()->push_back(*alarm);
+						that->makeAlarm(that, alarm);
+
+						//delete alarm;
+					}
+					else if (seconds > 15 && commandSuccess) {
+						if (rtu->getAlarms()->size() > 0) {
+							Alarm la = rtu->getAlarms()->at(rtu->getAlarms()->size() - 1);
+							rtu->getAlarms()->at(rtu->getAlarms()->size() - 1).setCorrected(true);
+							it->setCommandTime(0);
+							it->setStatus(DigitalDevice::FINISHED);
+						}
+					}
+				}
+				ddCount = 0;
 			}
 
 		}
@@ -258,7 +275,8 @@ void DataProcessingEngine::turnHeaterOn(DataProcessingEngine * that, DigitalDevi
 	dd->setCommandTime(time(0));
 	command[0] = 0;
 	command[1] = 1;
-	Sleep(1000);
+	dd->setStatus(DigitalDevice::IN_PROGRESS);
+	//Sleep(5000);
 }
 
 void DataProcessingEngine::turnHeaterOff(DataProcessingEngine * that, DigitalDevice * dd, short* command)
@@ -288,4 +306,13 @@ void DataProcessingEngine::turnHeaterOff(DataProcessingEngine * that, DigitalDev
 	dd->setCommandTime(time(0));
 	command[0] = 1;
 	command[1] = 0;
+
+	dd->setStatus(DigitalDevice::IN_PROGRESS);
+}
+
+bool DataProcessingEngine::turnedOn(DigitalDevice *dd) {
+	if (dd->getState()[0] == 0 && dd->getState()[1] == 1) //////// da li state ili command? State generise nove alarme... Command kaze nemoj komandovati ponovo, komandovano je vec
+		return true;
+	else
+		return false;
 }
