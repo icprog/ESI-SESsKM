@@ -12,6 +12,7 @@ public:
 	{
 		confirmed = false;
 		corrected = false;
+		errorAlarm = false;
 	}
 	~Alarm() {}
 
@@ -23,6 +24,8 @@ public:
 	void setConfirmed(bool conf) { confirmed = conf;  }
 	bool getCorrected() const { return corrected; }
 	void setCorrected(bool corr) { corrected = corr; }
+	bool isErrorAlarm() const { return errorAlarm; }
+	void setErrorAlarm(bool corr) { errorAlarm = corr; }
 	short getAddress() const { return address; }
 	void setAddress(short add) { address = add; }
 	std::string getMessage() const { return message; }
@@ -32,6 +35,7 @@ private:
 	std::string name;
 	bool confirmed;
 	bool corrected;
+	bool errorAlarm;
 	short address;
 	std::string message;
 };

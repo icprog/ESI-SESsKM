@@ -11,6 +11,7 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 	int pollCount = 0;
 	int ddCount = 0;
 	bool alarmSent = false;
+	bool errorAlarm = false;
 	short command[2];
 	while (1) {
 		Sleep(1000);
@@ -156,7 +157,7 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 			if (ddCount == 2) {
 				DigitalDevice *it = that->getRTU()->getDigitalDevices().at(0);
 
-				if (that->isError(it) && !alarmSent) {
+				if (that->isError(it) && !errorAlarm) {
 					std::cout << "GREJAC JE ERROR!\s\n" << std::endl;
 					short lastAddr = 0;
 					if (rtu->getAlarms()->size() > 0)
@@ -166,9 +167,24 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 						message = "Grejac je u error stanju!";
 					}
 					Alarm *alarm = new Alarm("ALARM", time(0), lastAddr + 1, message);
+					alarm->setErrorAlarm(true);
 					rtu->getAlarms()->push_back(*alarm);
 					that->makeAlarm(that, alarm);
-					alarmSent = true;
+					errorAlarm = true;
+				}
+				if (!that->isError(it) && errorAlarm) {
+					
+					if (rtu->getAlarms()->size() > 0) {
+						for (int i = rtu->getAlarms()->size() - 1; i >= 0; i--) {
+							if (rtu->getAlarms()->at(i).isErrorAlarm()) {
+								rtu->getAlarms()->at(i).setCorrected(true);
+								that->makeAlarm(that, &rtu->getAlarms()->at(i));
+								break;
+							}
+						}
+
+					}
+					errorAlarm = false;
 				}
 
 
@@ -206,13 +222,21 @@ void DataProcessingEngine::process(DataProcessingEngine *that)
 						alarmSent = true;
 						//delete alarm;
 					}
-					else if (seconds > 15 && commandSuccess) {
+					else if (seconds > 15 && commandSuccess && it->getStatus()==DigitalDevice::IN_PROGRESS) {
+						std::cout << "UKLJUCIO SE GREJAC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
 						if (rtu->getAlarms()->size() > 0) {
-							Alarm la = rtu->getAlarms()->at(rtu->getAlarms()->size() - 1);
-							rtu->getAlarms()->at(rtu->getAlarms()->size() - 1).setCorrected(true);
-							it->setCommandTime(0);
-							it->setStatus(DigitalDevice::FINISHED);
-							that->makeAlarm(that, &rtu->getAlarms()->at(rtu->getAlarms()->size() - 1));
+							for (int i = rtu->getAlarms()->size() - 1; i >= 0; i--) {
+								std::cout << "TRAZIM ALARM!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+								if (!rtu->getAlarms()->at(i).isErrorAlarm()) {
+									std::cout << "NASAO SAM ALARM!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+									rtu->getAlarms()->at(i).setCorrected(true);
+									it->setCommandTime(0);
+									it->setStatus(DigitalDevice::FINISHED);
+									that->makeAlarm(that, &rtu->getAlarms()->at(i));
+									break;
+								}
+							}
+
 						}
 						alarmSent = false;
 					}
